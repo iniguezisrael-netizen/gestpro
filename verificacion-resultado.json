@@ -1,0 +1,27 @@
+{
+  "safeToDelete": [
+    "ventas",
+    "cotizaciones",
+    "cajas",
+    "cobranza",
+    "consignacion",
+    "vehiculos",
+    "reparaciones",
+    "clientes",
+    "productos",
+    "bodegas",
+    "entregas",
+    "facturas",
+    "herramientas",
+    "herramientasAsignadas",
+    "herramientasHistorial",
+    "ordenesCompra",
+    "proveedores",
+    "checadorConfig",
+    "entregaInsumos",
+    "reportesProduccion",
+    "produccion",
+    "agenda"
+  ],
+  "hasOrphans": []
+}

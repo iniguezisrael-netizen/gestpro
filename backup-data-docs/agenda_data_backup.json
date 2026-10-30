@@ -1,0 +1,562 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/agenda/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788195136059"
+    },
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "creadoEn": {
+                  "stringValue": "2026-07-11T15:25:46.328Z"
+                },
+                "creadoPor": {
+                  "stringValue": "Administrador"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "cliente": {
+                  "stringValue": "Armando  Vargas"
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-005"
+                },
+                "hora": {
+                  "stringValue": "10:30"
+                },
+                "id": {
+                  "integerValue": "14413"
+                },
+                "asignado": {
+                  "stringValue": "Administrador"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-13"
+                },
+                "telefono": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Cancelada"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "asignado": {
+                  "stringValue": "Administrador"
+                },
+                "telefono": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-13"
+                },
+                "estado": {
+                  "stringValue": "Completada"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-005"
+                },
+                "creadoPor": {
+                  "stringValue": "Administrador"
+                },
+                "notas": {
+                  "stringValue": "Camper de fibra"
+                },
+                "creadoEn": {
+                  "stringValue": "2026-07-11T15:29:46.900Z"
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "cliente": {
+                  "stringValue": "Armando  Vargas"
+                },
+                "hora": {
+                  "stringValue": "10:30"
+                },
+                "id": {
+                  "integerValue": "14613"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "24813"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-16"
+                },
+                "cliente": {
+                  "stringValue": "Jorge Luis  Jiménez"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "hora": {
+                  "stringValue": "09:00"
+                },
+                "creadoPor": {
+                  "stringValue": "Administrador"
+                },
+                "asignado": {
+                  "stringValue": "Administrador"
+                },
+                "telefono": {
+                  "stringValue": ""
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "creadoEn": {
+                  "stringValue": "2026-07-13T18:20:15.927Z"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-015"
+                },
+                "estado": {
+                  "stringValue": "Completada"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "telefono": {
+                  "stringValue": "001 530 933 9467"
+                },
+                "asignado": {
+                  "stringValue": "Secretaria"
+                },
+                "creadoPor": {
+                  "stringValue": "Secretaria"
+                },
+                "estado": {
+                  "stringValue": "Completada"
+                },
+                "notas": {
+                  "stringValue": "Redilas para RAM 3500"
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "pedido": {
+                  "stringValue": "2780"
+                },
+                "cliente": {
+                  "stringValue": "Enrique Velazco"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-05"
+                },
+                "id": {
+                  "integerValue": "250766"
+                },
+                "hora": {
+                  "stringValue": ""
+                },
+                "creadoEn": {
+                  "stringValue": "2026-07-30T18:55:07.898Z"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "hora": {
+                  "stringValue": ""
+                },
+                "cliente": {
+                  "stringValue": "Heriberto  Rubalcaba"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-05"
+                },
+                "estado": {
+                  "stringValue": "Completada"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-048"
+                },
+                "id": {
+                  "integerValue": "343539"
+                },
+                "creadoPor": {
+                  "stringValue": "Secretaria"
+                },
+                "creadoEn": {
+                  "stringValue": "2026-08-04T20:10:24.880Z"
+                },
+                "telefono": {
+                  "stringValue": ""
+                },
+                "asignado": {
+                  "stringValue": "Secretaria"
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "notas": {
+                  "stringValue": "Cuestcab para Chevrolet caja extra larga"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "cliente": {
+                  "stringValue": "Enrique Velazco"
+                },
+                "creadoEn": {
+                  "stringValue": "2026-08-04T20:10:51.789Z"
+                },
+                "telefono": {
+                  "stringValue": ""
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-05"
+                },
+                "pedido": {
+                  "stringValue": "2780"
+                },
+                "estado": {
+                  "stringValue": "Completada"
+                },
+                "notas": {
+                  "stringValue": "Redilas RAM 3500"
+                },
+                "id": {
+                  "integerValue": "343540"
+                },
+                "creadoPor": {
+                  "stringValue": "Secretaria"
+                },
+                "asignado": {
+                  "stringValue": "Secretaria"
+                },
+                "hora": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fecha": {
+                  "stringValue": "2026-08-13"
+                },
+                "asignado": {
+                  "stringValue": "Secretaria"
+                },
+                "creadoPor": {
+                  "stringValue": "Secretaria"
+                },
+                "creadoEn": {
+                  "stringValue": "2026-08-04T20:11:22.827Z"
+                },
+                "estado": {
+                  "stringValue": "Completada"
+                },
+                "pedido": {
+                  "stringValue": "2782"
+                },
+                "id": {
+                  "integerValue": "343541"
+                },
+                "notas": {
+                  "stringValue": "Volado pick up Nissan cabina sencilla"
+                },
+                "hora": {
+                  "stringValue": ""
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "cliente": {
+                  "stringValue": "Ana Sedano"
+                },
+                "telefono": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "estado": {
+                  "stringValue": "Completada"
+                },
+                "asignado": {
+                  "stringValue": "Secretaria"
+                },
+                "telefono": {
+                  "stringValue": "33 1771 2698"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-16"
+                },
+                "hora": {
+                  "stringValue": "09:00"
+                },
+                "id": {
+                  "integerValue": "41816"
+                },
+                "creadoEn": {
+                  "stringValue": "2026-07-15T17:21:39.110Z"
+                },
+                "creadoPor": {
+                  "stringValue": "Secretaria"
+                },
+                "notas": {
+                  "stringValue": "Camper de fibra a ras Ford Ranger 2025"
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "cliente": {
+                  "stringValue": "José Luis Eduardo González Corona"
+                },
+                "pedido": {
+                  "stringValue": "2726"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "estado": {
+                  "stringValue": "Completada"
+                },
+                "asignado": {
+                  "stringValue": "Administrador"
+                },
+                "telefono": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-20"
+                },
+                "hora": {
+                  "stringValue": "11:30"
+                },
+                "id": {
+                  "integerValue": "58416"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-029"
+                },
+                "creadoPor": {
+                  "stringValue": "Administrador"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "creadoEn": {
+                  "stringValue": "2026-07-20T15:25:27.874Z"
+                },
+                "cliente": {
+                  "stringValue": "Pedro  Jiménez Ruvalcaba"
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-086"
+                },
+                "hora": {
+                  "stringValue": "08:00"
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "estado": {
+                  "stringValue": "Completada"
+                },
+                "telefono": {
+                  "stringValue": "378-117-0820"
+                },
+                "creadoEn": {
+                  "stringValue": "2026-08-20T18:22:34.029Z"
+                },
+                "creadoPor": {
+                  "stringValue": "Administrador"
+                },
+                "id": {
+                  "integerValue": "691697"
+                },
+                "asignado": {
+                  "stringValue": "Administrador"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-20"
+                },
+                "notas": {
+                  "stringValue": "quizas quiere prensas, no se le cobraron."
+                },
+                "cliente": {
+                  "stringValue": "Samuel Piña"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "pedido": {
+                  "stringValue": "2774"
+                },
+                "asignado": {
+                  "stringValue": "Secretaria"
+                },
+                "telefono": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Completada"
+                },
+                "cliente": {
+                  "stringValue": "Francisco Martin Castellanos Vega"
+                },
+                "hora": {
+                  "stringValue": "09:00"
+                },
+                "notas": {
+                  "stringValue": "Camper panorámico para Nissan doble cabina 2000"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-25"
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "creadoEn": {
+                  "stringValue": "2026-07-23T15:08:15.111Z"
+                },
+                "creadoPor": {
+                  "stringValue": "Secretaria"
+                },
+                "id": {
+                  "integerValue": "71620"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "hora": {
+                  "stringValue": "10:30"
+                },
+                "creadoEn": {
+                  "stringValue": "2026-08-26T22:08:39.421Z"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "821967"
+                },
+                "creadoPor": {
+                  "stringValue": "Administrador"
+                },
+                "asignado": {
+                  "stringValue": "Administrador"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-078"
+                },
+                "cliente": {
+                  "stringValue": "Martín  García Baez"
+                },
+                "fecha": {
+                  "stringValue": "2026-09-03"
+                },
+                "telefono": {
+                  "stringValue": "378104-55-13"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "creadoEn": {
+                  "stringValue": "2026-08-26T23:34:14.137Z"
+                },
+                "asignado": {
+                  "stringValue": "Secretaria"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "notas": {
+                  "stringValue": "Camper a ras para Tacoma 2016"
+                },
+                "fecha": {
+                  "stringValue": "2026-09-01"
+                },
+                "cliente": {
+                  "stringValue": "Francisco Franco"
+                },
+                "pedido": {
+                  "stringValue": "2797"
+                },
+                "telefono": {
+                  "stringValue": "510 719 1177"
+                },
+                "hora": {
+                  "stringValue": ""
+                },
+                "tipo": {
+                  "stringValue": "Instalación"
+                },
+                "creadoPor": {
+                  "stringValue": "Secretaria"
+                },
+                "id": {
+                  "integerValue": "823374"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-07-11T15:25:46.763610Z",
+  "updateTime": "2026-08-31T16:52:16.444765Z"
+}

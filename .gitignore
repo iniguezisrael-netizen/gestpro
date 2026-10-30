@@ -1,0 +1,9 @@
+# Dependencias (se reinstalan con npm install)
+functions/node_modules/
+
+# Caché local de Firebase CLI
+.firebase/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db

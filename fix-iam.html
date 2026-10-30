@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Fix IAM – r2PresignedUpload</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 60px auto; padding: 20px; }
+    button { background: #1976d2; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #1565c0; }
+    pre { background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto; }
+    .ok { color: green; font-weight: bold; }
+    .err { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Fix IAM – Cloud Run r2presignedupload</h2>
+  <p>Este archivo aplica el binding <code>allUsers: roles/run.invoker</code> al servicio Cloud Run
+     <code>r2presignedupload</code> en el proyecto <code>campers-la-cuesta-84ade</code>.</p>
+  <p><strong>Pasos:</strong></p>
+  <ol>
+    <li>Abre <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> e inicia sesión con tu cuenta de Google.</li>
+    <li>Regresa a esta pestaña y haz clic en el botón de abajo.</li>
+  </ol>
+  <button onclick="applyIam()">Aplicar IAM fix</button>
+  <pre id="out">Esperando...</pre>
+
+  <script>
+    async function applyIam() {
+      const out = document.getElementById('out');
+      out.textContent = 'Cargando gapi desde la consola de GCP...';
+
+      // Abrir GCP console en una ventana popup para obtener el token
+      const gcpWin = window.open('https://console.cloud.google.com', 'gcpwin', 'width=900,height=700');
+      out.textContent = 'Se abrió la consola de GCP. Espera 5 segundos...';
+
+      await new Promise(r => setTimeout(r, 5000));
+
+      try {
+        // Intentar llamar directamente al API con fetch usando credenciales de la sesión GCP
+        // Nota: esto solo funciona si el navegador tiene una sesión activa en console.cloud.google.com
+        out.textContent = 'Intentando aplicar IAM vía Cloud Run API...';
+
+        const tokenResp = await fetch('https://oauth2.googleapis.com/tokeninfo', { credentials: 'include' });
+        out.textContent = 'Token status: ' + tokenResp.status + '\n\nEste método requiere copiar el script a la consola de GCP.\n\nCopia y pega el siguiente código en la consola del navegador (F12) mientras estés en console.cloud.google.com:\n\ngapi.client.request({\n  path: "https://run.googleapis.com/v2/projects/campers-la-cuesta-84ade/locations/us-central1/services/r2presignedupload:setIamPolicy",\n  method: "POST",\n  body: { policy: { bindings: [{ role: "roles/run.invoker", members: ["allUsers"] }] } }\n}).then(r => console.log("OK:", r.result)).catch(e => console.error("Error:", e));';
+      } catch(e) {
+        out.innerHTML = '<span class="err">Error: ' + e.message + '</span>\n\nCopia este código en la consola de GCP (F12 → Console):\n\ngapi.client.request({\n  path: "https://run.googleapis.com/v2/projects/campers-la-cuesta-84ade/locations/us-central1/services/r2presignedupload:setIamPolicy",\n  method: "POST",\n  body: { policy: { bindings: [{ role: "roles/run.invoker", members: ["allUsers"] }] } }\n}).then(r => console.log("OK:", JSON.stringify(r.result))).catch(e => console.error("Error:", e));';
+      }
+    }
+  </script>
+</body>
+</html>

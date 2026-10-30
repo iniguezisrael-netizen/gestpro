@@ -1,0 +1,208 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/produccion/data",
+  "fields": {
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "horaFin": {
+                  "stringValue": ""
+                },
+                "trabajadores": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "actividad": {
+                              "stringValue": ""
+                            },
+                            "horasTotales": {
+                              "stringValue": ""
+                            },
+                            "horaFin": {
+                              "stringValue": ""
+                            },
+                            "costoPorHora": {
+                              "integerValue": "140"
+                            },
+                            "nombre": {
+                              "stringValue": "gollo"
+                            },
+                            "horaInicio": {
+                              "stringValue": "08:00"
+                            },
+                            "fechaInicio": {
+                              "stringValue": "2026-06-20"
+                            },
+                            "tiempoFuera": {
+                              "stringValue": ""
+                            },
+                            "fechaFin": {
+                              "stringValue": ""
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "gastos": {
+                  "arrayValue": {}
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "fechaFin": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "stringValue": "176"
+                },
+                "horaInicio": {
+                  "stringValue": ""
+                },
+                "fechaInicio": {
+                  "stringValue": "2026-06-19"
+                },
+                "materiales": {
+                  "arrayValue": {}
+                },
+                "ventaId": {
+                  "stringValue": "175"
+                },
+                "estadoProd": {
+                  "stringValue": "En proceso"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "gastos": {
+                  "arrayValue": {}
+                },
+                "trabajadores": {
+                  "arrayValue": {}
+                },
+                "horaFin": {
+                  "stringValue": ""
+                },
+                "fechaInicio": {
+                  "stringValue": "2026-06-21"
+                },
+                "materiales": {
+                  "arrayValue": {}
+                },
+                "estadoProd": {
+                  "stringValue": "Pendiente"
+                },
+                "ventaId": {
+                  "stringValue": "193"
+                },
+                "id": {
+                  "stringValue": "196"
+                },
+                "horaInicio": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "fechaFin": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "ventaId": {
+                  "stringValue": "206"
+                },
+                "estadoProd": {
+                  "stringValue": "Pendiente"
+                },
+                "materiales": {
+                  "arrayValue": {}
+                },
+                "fechaInicio": {
+                  "stringValue": "2026-06-24"
+                },
+                "horaInicio": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "stringValue": "207"
+                },
+                "fechaFin": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "trabajadores": {
+                  "arrayValue": {}
+                },
+                "gastos": {
+                  "arrayValue": {}
+                },
+                "horaFin": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "horaFin": {
+                  "stringValue": ""
+                },
+                "gastos": {
+                  "arrayValue": {}
+                },
+                "trabajadores": {
+                  "arrayValue": {}
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "fechaFin": {
+                  "stringValue": ""
+                },
+                "horaInicio": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "stringValue": "32014"
+                },
+                "ventaId": {
+                  "stringValue": "227"
+                },
+                "materiales": {
+                  "arrayValue": {}
+                },
+                "estadoProd": {
+                  "stringValue": "Terminado"
+                },
+                "fechaInicio": {
+                  "stringValue": "2026-07-14"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "updatedAt": {
+      "integerValue": "1788195135224"
+    }
+  },
+  "createTime": "2026-06-13T22:57:11.373203Z",
+  "updateTime": "2026-08-31T16:52:15.580681Z"
+}

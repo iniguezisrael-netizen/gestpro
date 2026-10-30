@@ -1,0 +1,28 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/bodegas/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788190009839"
+    },
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "1"
+                },
+                "nombre": {
+                  "stringValue": "Bodega Principal"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-06-07T03:49:45.158174Z",
+  "updateTime": "2026-08-31T15:26:50.142128Z"
+}

@@ -1,0 +1,3421 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/consignacion/data",
+  "fields": {
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "categoria": {
+                  "stringValue": "Volado sobre cabina chasis"
+                },
+                "barcode": {
+                  "stringValue": "2002640004521"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/consignacion/foto_1787769906427_6j1mu0.jpg"
+                      }
+                    ]
+                  }
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina chasis"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "producto": {
+                  "stringValue": "NissannLarga 16/xx"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan 16/xx"
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "fecha": {
+                  "stringValue": "2026-07-28"
+                },
+                "id": {
+                  "integerValue": "158011"
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa blanca "
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Apartado"
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter1140355280"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "notas": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Nissan 98/15"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa blanca "
+                },
+                "fecha": {
+                  "stringValue": "2026-07-28"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina chasis"
+                },
+                "estado": {
+                  "stringValue": "Apartado"
+                },
+                "baja": {
+                  "booleanValue": true
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan 98/15"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter1146335280"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "167080"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "estado": {
+                  "stringValue": "Apartado"
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-28"
+                },
+                "folio": {
+                  "stringValue": "Ter1124455380"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina chasis"
+                },
+                "id": {
+                  "integerValue": "167691"
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina chasis"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Nissan 16/xx"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa blanca "
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan 16/xx"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "folio": {
+                  "stringValue": "Ter1143245195"
+                },
+                "categoria": {
+                  "stringValue": "Caja"
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan 16/XX"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "baja": {
+                  "booleanValue": true
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "producto": {
+                  "stringValue": "Nissan 16/XX"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "209287"
+                },
+                "especForro": {
+                  "stringValue": "Madera"
+                },
+                "especTipo": {
+                  "stringValue": "Caja"
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Apartado"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "barcode": {
+                  "stringValue": "2002790226569"
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-28"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "celular": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Apartado"
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan larga 94/15"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Nissan 94/15"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Caja"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa blanca "
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "Ter1051305350"
+                },
+                "especTipo": {
+                  "stringValue": "Caja "
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-28"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "214484"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especObservaciones": {
+                  "stringValue": "se lo puedo adaptar tanto a la nueva como a la vieja"
+                },
+                "clienteApellido": {
+                  "stringValue": "Gutierrez"
+                },
+                "clienteNombre": {
+                  "stringValue": "lupita"
+                },
+                "cestado": {
+                  "stringValue": "jalsico"
+                },
+                "folio": {
+                  "stringValue": "TER1142955138"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/consignacion/foto_1782927345615_as02rc.jpg"
+                      }
+                    ]
+                  }
+                },
+                "valor": {
+                  "integerValue": "11000"
+                },
+                "cantidad": {
+                  "integerValue": "0"
+                },
+                "id": {
+                  "integerValue": "231"
+                },
+                "especForro": {
+                  "stringValue": "fibra"
+                },
+                "especColor": {
+                  "stringValue": "negro"
+                },
+                "baja": {
+                  "booleanValue": true
+                },
+                "ciudad": {
+                  "stringValue": "Guadalajara"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "ventanas en costados, media puerta y medallón "
+                },
+                "especTipo": {
+                  "stringValue": "camper ras"
+                },
+                "precioPublico": {
+                  "integerValue": "13800"
+                },
+                "producto": {
+                  "stringValue": "camper de fibra ras hilux doble cabina 16/XX color negro "
+                },
+                "estado": {
+                  "stringValue": "Vendido"
+                },
+                "especUnidad": {
+                  "stringValue": "Hilux 2016"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-01"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": "2009271967546"
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "celular": {
+                  "stringValue": "33369896"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especUnidad": {
+                  "stringValue": "Ford Ranger larga "
+                },
+                "id": {
+                  "integerValue": "30814"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo ventanas a los costados y color blanco "
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina, panorámico "
+                },
+                "fecha": {
+                  "stringValue": "2026-07-13"
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Tere 890220079"
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "producto": {
+                  "stringValue": "Ford Ranger larga "
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "lugar": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Camper fibra ras"
+                },
+                "folio": {
+                  "stringValue": "Ter880285130"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Ventanas en costados, medallón corredizo,media puerta trasera"
+                },
+                "producto": {
+                  "stringValue": "Chevrolet 4 puertas 13/19"
+                },
+                "especColor": {
+                  "stringValue": "Negro"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-06"
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": "2003784040185"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Chevrolet 4 puertas 13/19"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "id": {
+                  "integerValue": "309"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "colonia": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan Dob cab 94/15"
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-06"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter 1072235128"
+                },
+                "especTipo": {
+                  "stringValue": "Jorobado tipo americano "
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Plata"
+                },
+                "id": {
+                  "integerValue": "310"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Nissan dob cab 94/15"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "desc": {
+                  "stringValue": "Ventanas en costados,puerta completa, medallón fijo, color plata "
+                },
+                "especForro": {
+                  "stringValue": "Duela de aluminio 5 ondas color plata"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "categoria": {
+                  "stringValue": "camper aluminio pick-up"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": "2003795706889"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "colonia": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Ford 96/03"
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-06"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter1110305250"
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina pick-up"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Plata con negro"
+                },
+                "id": {
+                  "integerValue": "311"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Volado sobre cabina pick-up"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo,ventanas a los costados,2 puertas traseras, color plata con negro "
+                },
+                "especForro": {
+                  "stringValue": "Duela lisa plata con negro "
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": "2003808554667"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fecha": {
+                  "stringValue": "2026-07-06"
+                },
+                "producto": {
+                  "stringValue": "Ram 94/XX"
+                },
+                "id": {
+                  "integerValue": "312"
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Ventanas en"
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "especColor": {
+                  "stringValue": "Plata con negro "
+                },
+                "folio": {
+                  "stringValue": "Ter 1065165280"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "especUnidad": {
+                  "stringValue": "Ram 94/XX"
+                },
+                "especForro": {
+                  "stringValue": "Duela 5 ondas Plata con negro "
+                },
+                "barcode": {
+                  "stringValue": "2003821029357"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Nissan dob cab 94/15"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "folio": {
+                  "stringValue": "Ter1100255138"
+                },
+                "especTipo": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "313"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "cestado": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "folio": {
+                  "stringValue": "Ter 1095395310 "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan larga 94/15"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "especColor": {
+                  "stringValue": "Plata "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "producto": {
+                  "stringValue": "Nissan larga 94/15"
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo ventanas a los costados y color plata"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "id": {
+                  "integerValue": "314"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Duela de aluminio de 5 ondas color plata "
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "Ter 746085068"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": ""
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Nissan larga 95/15"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "id": {
+                  "integerValue": "315"
+                },
+                "especForro": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "barcode": {
+                  "stringValue": "2004392326029"
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa blanca "
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Camper aerodinámico"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter 981225095"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "lamina lisa blanca, con medallón corredizo, ventanas a los costados, media puerta trasera"
+                },
+                "producto": {
+                  "stringValue": "Toyota larga"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "especUnidad": {
+                  "stringValue": "Toyota larga "
+                },
+                "categoria": {
+                  "stringValue": "Camper  aerodinámica "
+                },
+                "id": {
+                  "integerValue": "316"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "lugar": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter1134225120"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "especUnidad": {
+                  "stringValue": "Chevrolet 2013"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Plata"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Chevrolet 2013"
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo ventanas a los costados y color plata "
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina, panorámico "
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "fecha": {
+                  "stringValue": "2026-07-13"
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "31614"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "31615"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-13"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina, panorámico "
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "producto": {
+                  "stringValue": "Chevrolet 98.06"
+                },
+                "desc": {
+                  "stringValue": "Ventanas en costados "
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especUnidad": {
+                  "stringValue": "Chevrolet 98.06"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter862220085"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "direccion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "31616"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "producto": {
+                  "stringValue": "Tacoma king cab 10/15"
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo ventanas a los costados y color rojo "
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-13"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina, panorámico "
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "especColor": {
+                  "stringValue": "Rojo "
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especUnidad": {
+                  "stringValue": "Tacoma king cab 10/15 "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter1132215115"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especUnidad": {
+                  "stringValue": "Chevrolet 93/14"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Plata "
+                },
+                "id": {
+                  "integerValue": "319"
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "barcode": {
+                  "stringValue": "2004441323184"
+                },
+                "especForro": {
+                  "stringValue": "Duela de aluminio de 5 ondas color plata "
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Chevrolet 93/14"
+                },
+                "desc": {
+                  "stringValue": "Ventanas en costados y puerta trasera"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Lcu 361190078"
+                },
+                "valor": {
+                  "integerValue": "0"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "320"
+                },
+                "folio": {
+                  "stringValue": "Ter 1079195085"
+                },
+                "producto": {
+                  "stringValue": "Tornado anterior "
+                },
+                "barcode": {
+                  "stringValue": "2004466412085"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "especColor": {
+                  "stringValue": "Rojo"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Panorámico "
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Camper fibra "
+                },
+                "desc": {
+                  "stringValue": "Cerrado"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Chevrolet tornado anterior "
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "valor": {
+                  "integerValue": "0"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "322"
+                },
+                "categoria": {
+                  "stringValue": "Camper de fibra "
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan larga 94/15"
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Camper de fibra de vidrio panorámico, ventanas a los costados, medallón corredizo"
+                },
+                "producto": {
+                  "stringValue": "Nissan larga 94/15"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "LCU373182085"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Panóramica"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "barcode": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Panóramica "
+                },
+                "barcode": {
+                  "stringValue": "2004488390248"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo, ventanas a los costados,"
+                },
+                "producto": {
+                  "stringValue": "Chevrolet 99/15"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Lcu 38205125"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "especUnidad": {
+                  "stringValue": "Chevrolet 99/15"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Azul-gris"
+                },
+                "id": {
+                  "integerValue": "323"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan corta "
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "id": {
+                  "integerValue": "324"
+                },
+                "barcode": {
+                  "stringValue": "2004516894526"
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa blanca "
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter 848185055"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Cerrado,2 puertas"
+                },
+                "producto": {
+                  "stringValue": "Nissan corta"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "lugar": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especForro": {
+                  "stringValue": "Lamina lisa plata"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Aerodinámico "
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter 1133205120"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Ventanas laterales, puertas traseras,color plata"
+                },
+                "producto": {
+                  "stringValue": "Nissan corto"
+                },
+                "especColor": {
+                  "stringValue": "Plata"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan corta "
+                },
+                "categoria": {
+                  "stringValue": "Aerodinámico"
+                },
+                "id": {
+                  "integerValue": "325"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especColor": {
+                  "stringValue": "Plata "
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "326"
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Chevrolet 94/15"
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo, ventanas a los costados, Duela de aluminio de 5 ondas"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "folio": {
+                  "stringValue": "Ter 1070295260"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Chevrolet 94/15"
+                },
+                "especForro": {
+                  "stringValue": "Duela de aluminio de 5 ondas color plata "
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan corta "
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "id": {
+                  "integerValue": "327"
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa blanca "
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina pick-up "
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "Ter 1114325280"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Cerrado,2 puertas traseras"
+                },
+                "producto": {
+                  "stringValue": "Nissan corto "
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "barcode": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "fecha": {
+                  "stringValue": "2026-07-08"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": "Panóramica "
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo ventanas a los costados y color blanco "
+                },
+                "producto": {
+                  "stringValue": "S10 corta"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3376"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter81684065"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "S10 corta "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "Ter138382828"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Plata "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "No lo se"
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Ventanas a los costados "
+                },
+                "producto": {
+                  "stringValue": "No lo se"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-08"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3377"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especUnidad": {
+                  "stringValue": "Toyota king cab T100 "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Plata "
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "Ter 908185085"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3378"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "fecha": {
+                  "stringValue": "2026-07-08"
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Toyota king cab T100"
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo ventanas a los costados y color plata "
+                },
+                "colonia": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "barcode": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-08"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Media puerta trasera ventanas a los costados "
+                },
+                "producto": {
+                  "stringValue": "Ford F-250 super D 2.15"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3379"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "Ter920205078 "
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Menta"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Ford F-250 super D 2.15"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "celular": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "direccion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3380"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "producto": {
+                  "stringValue": "Chevrolet 80/82"
+                },
+                "desc": {
+                  "stringValue": "Ventanas en costados "
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-08"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Azul"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especUnidad": {
+                  "stringValue": "Chevrolet 80/82"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "T869170025"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "Ter1144255135"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Chevrolet Cab.sen.2014"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Plata "
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-08"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo ventanas a los costados y color plata "
+                },
+                "producto": {
+                  "stringValue": "Chevrolet Cab.sen.2014"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3381"
+                },
+                "direccion": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especColor": {
+                  "stringValue": "Plata oscuro "
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especUnidad": {
+                  "stringValue": "Chevrolet 11 cab 2014"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "Ter 1116245150"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3382"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-08"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "barcode": {
+                  "stringValue": "2005540810308"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "desc": {
+                  "stringValue": "Media puerta trasera ventanas a los costados "
+                },
+                "producto": {
+                  "stringValue": "Chevrolet 11cab 2014"
+                },
+                "cestado": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especUnidad": {
+                  "stringValue": "Toyota tundra larga "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Tere 801175075"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3385"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-08"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "producto": {
+                  "stringValue": "Toyota tundra larga "
+                },
+                "desc": {
+                  "stringValue": "Media puerta trasera ventanas a los costados "
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "barcode": {
+                  "stringValue": "2006075379377"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-09"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina, panorámico "
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Nissan larga 94/15"
+                },
+                "desc": {
+                  "stringValue": "Ventanas en costados "
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3386"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "Ter945165048"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan larga 94/15"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "celular": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "notas": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "Tere 863160045"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Ford lobo 07 "
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "fecha": {
+                  "stringValue": "2026-07-09"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina, panorámico "
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo ventanas a los costados y color blanco "
+                },
+                "producto": {
+                  "stringValue": "Ford lobo 07"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3387"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "colonia": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Ford Ranger 4 puertas"
+                },
+                "desc": {
+                  "stringValue": "Medallón corredizo ventanas a los costados y color plata "
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-09"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina, panorámico "
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "3388"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "folio": {
+                  "stringValue": "Ter1069235110"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra de vidrio "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Plata "
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Ford Ranger 4 puertas "
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "categoria": {
+                  "stringValue": "Accesorios camioneta "
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "TER1148165025"
+                },
+                "producto": {
+                  "stringValue": "Tapa Nissan americana"
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Accesorios para camioneta "
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "baja": {
+                  "booleanValue": true
+                },
+                "fecha": {
+                  "stringValue": "2026-07-16"
+                },
+                "especColor": {
+                  "stringValue": "Gris"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "46417"
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Blanco "
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Nissan larga 94/15"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan larga 94/15"
+                },
+                "barcode": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa blanca "
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Volado sobre cabina chasis"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-16"
+                },
+                "folio": {
+                  "stringValue": "LCU391385350"
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "id": {
+                  "integerValue": "46418"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina chasis"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especTipo": {
+                  "stringValue": "Volado chasis"
+                },
+                "colonia": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": "Chasis de 33.5 pulgadas"
+                },
+                "barcode": {
+                  "stringValue": "2009907033157"
+                },
+                "especUnidad": {
+                  "stringValue": "Ford f450"
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina chasis"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "ciudad": {
+                  "stringValue": ""
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "616721"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa "
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Largo 3.75m\nAncho 2.45\nAlto 2.40m"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-08-17"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "valor": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Blanco"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "folio": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "producto": {
+                  "stringValue": "Volado chasis Ford 3 ton."
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "colonia": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "medidas exteriores: largo 2.30m alto 1.70m ancho 1.80m"
+                },
+                "cestado": {
+                  "stringValue": ""
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "732376"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "lugar": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": "TER1149305280"
+                },
+                "especColor": {
+                  "stringValue": "blanco"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "estado": {
+                  "stringValue": "Disponible"
+                },
+                "valor": {
+                  "integerValue": "15000"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "nissan chasis 94/15"
+                },
+                "producto": {
+                  "stringValue": "volado chasis Nissan 94/15"
+                },
+                "especTipo": {
+                  "stringValue": "volado sobe cabina chasis"
+                },
+                "celular": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": "Mena Moreno"
+                },
+                "especForro": {
+                  "stringValue": "lámina lisa"
+                },
+                "clienteNombre": {
+                  "stringValue": "Alejandro"
+                },
+                "categoria": {
+                  "stringValue": "Volado sobre cabina chasis"
+                },
+                "telFijo": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": "2004086754848"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-22"
+                },
+                "ciudad": {
+                  "stringValue": ""
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "updatedAt": {
+      "integerValue": "1788190592453"
+    }
+  },
+  "createTime": "2026-06-07T03:49:44.854174Z",
+  "updateTime": "2026-08-31T15:36:32.943827Z"
+}

@@ -1,0 +1,190 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/ordenesCompra/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788195135457"
+    },
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "total": {
+                  "integerValue": "1776"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-11"
+                },
+                "folio": {
+                  "integerValue": "1"
+                },
+                "proveedor": {
+                  "stringValue": "alammo"
+                },
+                "estado": {
+                  "stringValue": "Borrador"
+                },
+                "creadoEn": {
+                  "stringValue": "2026-07-11T15:55:49.256Z"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "creadoPor": {
+                  "stringValue": "Administrador"
+                },
+                "fechaEntrega": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "17414"
+                },
+                "items": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "precioUnitario": {
+                              "integerValue": "8"
+                            },
+                            "cantidad": {
+                              "integerValue": "222"
+                            },
+                            "descripcion": {
+                              "stringValue": "tubulaes"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "tipoCambio": {
+                  "integerValue": "0"
+                },
+                "provApellido": {
+                  "stringValue": "Ocaña"
+                },
+                "fechaEntrega": {
+                  "stringValue": "2026-09-01"
+                },
+                "provCiudad": {
+                  "stringValue": "Tultitlán"
+                },
+                "provWhatsApp": {
+                  "stringValue": ""
+                },
+                "provEstado": {
+                  "stringValue": "Edo. de México"
+                },
+                "provContacto": {
+                  "stringValue": "Barbara Ocaña"
+                },
+                "provDireccion": {
+                  "stringValue": "La Acocila No.9"
+                },
+                "provRFC": {
+                  "stringValue": ""
+                },
+                "creadoEn": {
+                  "stringValue": "2026-08-18T19:07:55.576Z"
+                },
+                "total": {
+                  "doubleValue": 2430.98
+                },
+                "elaboro": {
+                  "stringValue": "Adriana Gallo"
+                },
+                "creadoPor": {
+                  "stringValue": "Secretaria"
+                },
+                "estado": {
+                  "stringValue": "Borrador"
+                },
+                "id": {
+                  "integerValue": "656917"
+                },
+                "provCP": {
+                  "stringValue": ""
+                },
+                "provColonia": {
+                  "stringValue": ""
+                },
+                "provTelFijo": {
+                  "stringValue": "55 5870 3212"
+                },
+                "notas": {
+                  "stringValue": "Precio en dólares\nNo incluye IVA"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-18"
+                },
+                "proveedor": {
+                  "stringValue": "DIGA"
+                },
+                "items": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "cantidad": {
+                              "integerValue": "152"
+                            },
+                            "descripcion": {
+                              "stringValue": "ROLLO DE ESPUMA EPDM CON ADHESIVO EN UNA CARA 6 MM X 38 MM X 15.24 MTS"
+                            },
+                            "precioUnitario": {
+                              "doubleValue": 13.24
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "cantidad": {
+                              "integerValue": "150"
+                            },
+                            "precioUnitario": {
+                              "doubleValue": 2.79
+                            },
+                            "descripcion": {
+                              "stringValue": "ROLLO DE ESPUMA EPDM CON ADHESIVO EN UNA CARA 3 MM X 12 MM X 15.24 MTS"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "provNombre": {
+                  "stringValue": "Barbara"
+                },
+                "folio": {
+                  "integerValue": "2"
+                },
+                "provCorreo": {
+                  "stringValue": "bocana@diga.com.mx"
+                },
+                "moneda": {
+                  "stringValue": "MXN"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-07-11T15:55:49.770226Z",
+  "updateTime": "2026-08-31T16:52:15.814588Z"
+}

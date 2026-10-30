@@ -1,0 +1,13 @@
+
+[1m[37m===[39m Deploying to 'campers-la-cuesta-84ade'...[22m
+
+[36m[1mi [22m[39m deploying [1mstorage[22m
+[36m[1mi  storage:[22m[39m ensuring required API [1mfirebasestorage.googleapis.com[22m is enabled...
+[36m[1mi  firebase.storage:[22m[39m checking [1mstorage.rules[22m for compilation errors...
+[32m[1m+  firebase.storage:[22m[39m rules file [1mstorage.rules[22m compiled successfully
+[36m[1mi  storage:[22m[39m uploading rules [1mstorage.rules[22m...
+[32m[1m+  storage:[22m[39m released rules [1mstorage.rules[22m to [1mfirebase.storage[22m
+
+[32m[1m+ [22m[39m [1m[4mDeploy complete![24m[22m
+
+[1mProject Console:[22m https://console.firebase.google.com/project/campers-la-cuesta-84ade/overview

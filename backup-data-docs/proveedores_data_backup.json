@@ -1,0 +1,82 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/proveedores/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788195135576"
+    },
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "17413"
+                },
+                "nombre": {
+                  "stringValue": "alammo"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "nombre": {
+                  "stringValue": "DIGA"
+                },
+                "whatsapp": {
+                  "stringValue": ""
+                },
+                "provContacto": {
+                  "stringValue": "Barbara Ocaña"
+                },
+                "provDireccion": {
+                  "stringValue": "La Acocila No.9"
+                },
+                "provCP": {
+                  "stringValue": ""
+                },
+                "provColonia": {
+                  "stringValue": ""
+                },
+                "provCorreo": {
+                  "stringValue": "bocana@diga.com.mx"
+                },
+                "provNombre": {
+                  "stringValue": "Barbara"
+                },
+                "provTelFijo": {
+                  "stringValue": "55 5870 3212"
+                },
+                "provCiudad": {
+                  "stringValue": "Tultitlán"
+                },
+                "provWhatsApp": {
+                  "stringValue": ""
+                },
+                "correo": {
+                  "stringValue": "bocana@diga.com.mx"
+                },
+                "id": {
+                  "integerValue": "664248"
+                },
+                "provApellido": {
+                  "stringValue": "Ocaña"
+                },
+                "provEstado": {
+                  "stringValue": "Edo. de México"
+                },
+                "provRFC": {
+                  "stringValue": ""
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-07-11T15:55:49.957003Z",
+  "updateTime": "2026-08-31T16:52:15.928890Z"
+}

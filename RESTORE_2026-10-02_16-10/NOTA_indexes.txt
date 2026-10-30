@@ -1,0 +1,1 @@
+NO EXISTIA firestore.indexes.json antes de este deploy

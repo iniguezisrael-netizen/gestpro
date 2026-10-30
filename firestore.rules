@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function myRole() {
+      return get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.rol;
+    }
+    function isAdmin() {
+      return isSignedIn() && myRole() == 'admin';
+    }
+    // Solo cuentas con un rol válido asignado en roles/{uid} pueden usar la app.
+    function hasValidRole() {
+      return isSignedIn() && myRole() in ['admin', 'secretaria', 'auxiliar', 'almacen'];
+    }
+    // Roles con acceso a módulos comerciales y financieros (almacen excluido)
+    function isComercial() {
+      return isSignedIn() && myRole() in ['admin', 'secretaria', 'auxiliar'];
+    }
+    // Roles con acceso a gestión administrativa completa
+    function isAdminOrSecretaria() {
+      return isSignedIn() && myRole() in ['admin', 'secretaria'];
+    }
+    // Roles con acceso a editar inventario de materia prima (incluye almacenista)
+    function isInventarioEdit() {
+      return isSignedIn() && myRole() in ['admin', 'secretaria', 'auxiliar', 'almacen'];
+    }
+
+    // Roles: cada usuario solo puede leer su propio rol; el admin puede leer/escribir todos.
+    match /roles/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Colección antigua (contenía contraseñas en texto plano) — bloqueada por completo.
+    match /users/{doc} {
+      allow read, write: if false;
+    }
+
+    // ── MÓDULOS FINANCIEROS Y COMERCIALES ───────────────────────────────────
+    // Lectura y escritura: solo roles comerciales (admin, secretaria, auxiliar).
+    // almacen NO puede leer ni escribir ventas, pedidos, caja, facturas, cobranza,
+    // clientes, reparaciones, agenda, compras, proveedores ni vehículos.
+    match /ventas/{doc=**}          { allow read, write: if isComercial(); }
+    match /cotizaciones/{doc=**}    { allow read, write: if isComercial(); }
+    match /cajas/{doc=**}           { allow read, write: if isComercial(); }
+    match /cobranza/{doc=**}        { allow read, write: if isComercial(); }
+    match /facturas/{doc=**}        { allow read, write: if isComercial(); }
+    match /clientesCredito/{doc=**} { allow read, write: if isComercial(); }
+    match /clientes/{doc=**}        { allow read, write: if isComercial(); }
+    match /reparaciones/{doc=**}    { allow read, write: if isComercial(); }
+    match /entregas/{doc=**}        { allow read, write: if isComercial(); }
+    match /agenda/{doc=**}          { allow read, write: if isComercial(); }
+    match /ordenesCompra/{doc=**}   { allow read, write: if isComercial(); }
+    match /proveedores/{doc=**}     { allow read, write: if isComercial(); }
+    match /vehiculos/{doc=**}       { allow read, write: if isComercial(); }
+    match /reportesEntrega/{doc=**}     { allow read, write: if isComercial(); }
+    match /reportesProduccion/{doc=**}  { allow read, write: if isComercial(); }
+
+    // Producción: acceso comercial
+    match /produccion/{doc=**}   { allow read, write: if isComercial(); }
+
+    // ── INVENTARIOS ──────────────────────────────────────────────────────────
+    // Todos los roles válidos pueden leer y escribir inventario, herramientas y checador.
+    match /materia/{doc=**}              { allow read: if hasValidRole(); allow write: if isInventarioEdit(); }
+    match /productos/{doc=**}            { allow read, write: if hasValidRole(); }
+    match /consignacion/{doc=**}         { allow read, write: if hasValidRole(); }
+    match /catConsig/{doc=**}            { allow read, write: if hasValidRole(); }
+    match /bodegas/{doc=**}              { allow read, write: if hasValidRole(); }
+    match /catalogoMateriales/{doc=**}   { allow read, write: if hasValidRole(); }
+    match /herramientas/{doc=**}         { allow read, write: if hasValidRole(); }
+    match /herramientasAsignadas/{doc=**} { allow read, write: if hasValidRole(); }
+    match /herramientasHistorial/{doc=**} { allow read, write: if hasValidRole(); }
+    match /checadas/{doc=**}             { allow read, write: if hasValidRole(); }
+    match /checadorConfig/{doc=**}       { allow read, write: if hasValidRole(); }
+    match /entregaInsumos/{doc=**}       { allow read, write: if hasValidRole(); }
+
+    // ── META Y CONFIGURACIÓN ─────────────────────────────────────────────────
+    // _meta/loginInfo: adminEmail protegido — resolveAdminEmail (Cloud Function) lo sirve pre-auth.
+    match /_meta/loginInfo { allow read: if isAdmin(); allow write: if isAdmin(); }
+    // Contador de folios: roles comerciales pueden leer y escribir (para autogenerar folios de secretaria/auxiliar)
+    match /_meta/counters { allow read: if hasValidRole(); allow write: if isComercial(); }
+    // _meta/config y demás docs de _meta: protegidos, requieren rol válido.
+    match /_meta/{doc}  { allow read: if hasValidRole(); allow write: if isAdmin(); }
+
+    // Log de accesos (logins): cualquier sesión autenticada puede escribir; solo admin lee.
+    match /_logs/{doc} { allow read: if isAdmin(); allow write: if hasValidRole(); }
+    match /bitacora/{doc} { allow read: if isAdmin(); allow write: if hasValidRole(); }
+
+    // Configuración de empresa (cuenta, tarjeta, CLABE): todos los roles la necesitan para generar PDFs.
+    match /_config/{doc} { allow read: if hasValidRole(); allow write: if isAdmin(); }
+
+    // Recordatorios personales: cualquier rol válido puede leer/escribir los suyos; admin lee todos.
+    match /recordatoriosPersonales/{doc=**} { allow read, write: if hasValidRole(); }
+
+    // Respaldos automáticos: solo admin puede leer/escribir.
+    match /_backups/{doc} { allow read, write: if isAdmin(); }
+
+    // Cualquier otra colección no listada arriba: denegada por defecto.
+  }
+}

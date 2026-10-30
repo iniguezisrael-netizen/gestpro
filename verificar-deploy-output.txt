@@ -1,0 +1,1 @@
+﻿OK - Deploy verificado: _ventaFromCaja=10 refs, saveVentaDesdeCAja=5 refs en produccion

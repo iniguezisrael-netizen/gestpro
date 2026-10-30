@@ -1,0 +1,16 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/herramientasHistorial/data",
+  "fields": {
+    "items": {
+      "arrayValue": {}
+    },
+    "writerId": {
+      "stringValue": "z2kl1g21hk"
+    },
+    "updatedAt": {
+      "integerValue": "1783987223291"
+    }
+  },
+  "createTime": "2026-07-13T22:42:40.803927Z",
+  "updateTime": "2026-07-14T00:00:26.440295Z"
+}

@@ -1,0 +1,275 @@
+{
+  "indexes": [],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "barcode",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "cantidad",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "categoria",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "cel",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "clienteApellido",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "clienteEmpresa",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "clienteNombre",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "codigo",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "desc",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "empresa",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "estante",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "fotos",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "id",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "minimo",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "nombre",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "precio",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "precioPublico",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "sinMinimo",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "tel",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "ubicacion",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "unidad",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "materia",
+      "fieldPath": "vendedor",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "catalogoMateriales",
+      "fieldPath": "cantidad",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "catalogoMateriales",
+      "fieldPath": "costoUnit",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "catalogoMateriales",
+      "fieldPath": "foto",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "catalogoMateriales",
+      "fieldPath": "id",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "catalogoMateriales",
+      "fieldPath": "nombre",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "catalogoMateriales",
+      "fieldPath": "precioPublico",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "catalogoMateriales",
+      "fieldPath": "unidad",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "ventas",
+      "fieldPath": "id",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "ventas",
+      "fieldPath": "fecha",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "ventas",
+      "fieldPath": "hora",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "ventas",
+      "fieldPath": "cliente",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "ventas",
+      "fieldPath": "items",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "ventas",
+      "fieldPath": "total",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "ventas",
+      "fieldPath": "estado",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "ventas",
+      "fieldPath": "usuario",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "ventas",
+      "fieldPath": "formaPago",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "ventas",
+      "fieldPath": "cajaSesion",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "cotizaciones",
+      "fieldPath": "id",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "cotizaciones",
+      "fieldPath": "fecha",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "cotizaciones",
+      "fieldPath": "cliente",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "cotizaciones",
+      "fieldPath": "items",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "cotizaciones",
+      "fieldPath": "total",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "cotizaciones",
+      "fieldPath": "usuario",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "cotizaciones",
+      "fieldPath": "estado",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clientes",
+      "fieldPath": "id",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clientes",
+      "fieldPath": "nombre",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clientes",
+      "fieldPath": "apellido",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clientes",
+      "fieldPath": "empresa",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clientes",
+      "fieldPath": "tel",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clientes",
+      "fieldPath": "email",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clientes",
+      "fieldPath": "rfc",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clientes",
+      "fieldPath": "direccion",
+      "indexes": []
+    }
+  ]
+}

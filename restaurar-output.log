@@ -1,0 +1,18 @@
+Token encontrado en: C:\Users\israe\.config\configstore\firebase-tools.json
+ERROR: No se encontró access_token. Ejecuta: firebase login
+node:fs:2422
+    return binding.writeFileUtf8(
+                   ^
+
+Error: EBUSY: resource busy or locked, open 'C:\Users\israe\Downloads\firebase-deploy\restaurar-output.log'
+    at Object.writeFileSync (node:fs:2422:20)
+    at Object.appendFileSync (node:fs:2504:6)
+    at log (C:\Users\israe\Downloads\firebase-deploy\restaurar-item313.js:17:6)
+    at C:\Users\israe\Downloads\firebase-deploy\restaurar-item313.js:202:19 {
+  errno: -4082,
+  code: 'EBUSY',
+  syscall: 'open',
+  path: 'C:\\Users\\israe\\Downloads\\firebase-deploy\\restaurar-output.log'
+}
+
+Node.js v24.16.0

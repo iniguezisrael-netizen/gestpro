@@ -1,0 +1,385 @@
+{
+  "coleccion": "ventas",
+  "registros": {
+    "150": {
+      "label": "Miguel Angel Olivarez Limón",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "227": {
+      "label": "Vicente  Carmona Neri",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "229": {
+      "label": "Francisco Martin Castellanos Vega",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "232": {
+      "label": "Fernando Ortega",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "234": {
+      "label": "Gerardo  Merino Hernández",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "238": {
+      "label": "Adalberto  Vazquez Orozco",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "251": {
+      "label": "Armando  Vargas",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "262": {
+      "label": "Francisco Javier Moreno González",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "324": {
+      "label": "Juan José Ramírez",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "337": {
+      "label": "Paola Alejandra  García Vigil",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "3371": {
+      "label": "Enrique Velazco",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "10010": {
+      "label": "Alejandro",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "11814": {
+      "label": "Juan José Gómez",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "17414": {
+      "label": "José Torres",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "17614": {
+      "label": "Alejandro",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "23618": {
+      "label": "Jorge Luis  Jiménez",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "23814": {
+      "label": "Adrian Orozco",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "25214": {
+      "label": "Ana Sedano",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "35614": {
+      "label": "Alfredo García",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "35816": {
+      "label": "Miguel  Martínez de la Torre",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "40414": {
+      "label": "Juan Luis  López",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "43417": {
+      "label": "Cintia",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "46219": {
+      "label": "Ernesto Navarro",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "46221": {
+      "label": "José Luis Eduardo González Corona",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "46817": {
+      "label": "Alejandro  Campos",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "46819": {
+      "label": "Roberto López",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "50817": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "50819": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "52817": {
+      "label": "Cruz",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "55617": {
+      "label": "Pepe Barba",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "56417": {
+      "label": "Avigm",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "56817": {
+      "label": "Pedro  Jiménez Ruvalcaba",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "58817": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "59617": {
+      "label": "José Torres",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "59618": {
+      "label": "Fernando Fernández López",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "63217": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "63219": {
+      "label": "Rafa",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "64617": {
+      "label": "Jorge  Ortiz jr. ",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "65017": {
+      "label": "Gilberto  Morales",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "65617": {
+      "label": "Fernando",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "73221": {
+      "label": "Guillermo De La Torre",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "78221": {
+      "label": "Héctor  de la Garza",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "82221": {
+      "label": "Rafa",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "83970": {
+      "label": "Ruben  de la Torre Jiménez",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "107041": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "129723": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "144347": {
+      "label": "Gabriel  Valencia",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "209526": {
+      "label": "Oscar  Gutierrez",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "214731": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "233309": {
+      "label": "Heriberto  Rubalcaba",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "238309": {
+      "label": "Samuel",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "251367": {
+      "label": "Samuel",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "253567": {
+      "label": "Humberto  Peña",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "267728": {
+      "label": "perforaciones tepatitlan",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "281010": {
+      "label": "Juan Manuel Iñiguez De Loza",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "330161": {
+      "label": "Brandon Padilla",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "339221": {
+      "label": "Cristobal  Morales",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "344543": {
+      "label": "Eduardo Solorzano",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "347730": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "416799": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "423899": {
+      "label": "Samuel",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "450165": {
+      "label": "Carlos Martín Ramírez",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "479700": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "515432": {
+      "label": "Esmeralda",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "526543": {
+      "label": "Gemma López",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "550894": {
+      "label": "Gemma López",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "562457": {
+      "label": "publico en general",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "607351": {
+      "label": "Pepe Barba",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "634280": {
+      "label": "Venta en mostrador",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "652079": {
+      "label": "Rosy Rizo",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "690696": {
+      "label": "Raul Torres Bolaños",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "691496": {
+      "label": "Alejandro Campos",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "691696": {
+      "label": "Samuel Piña",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "755691": {
+      "label": "publico en general",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "779030": {
+      "label": "Guillermo De La Torre",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    },
+    "798802": {
+      "label": "Juan Pablo Matínez",
+      "ts": "2026-08-28 18:15:14",
+      "flags": "archivado:true"
+    }
+  }
+}

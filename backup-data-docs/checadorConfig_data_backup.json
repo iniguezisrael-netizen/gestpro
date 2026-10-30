@@ -1,0 +1,40 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/checadorConfig/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788195134982"
+    },
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "40817"
+                },
+                "nombre": {
+                  "stringValue": "gregorio"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "nombre": {
+                  "stringValue": "Luis"
+                },
+                "id": {
+                  "integerValue": "40818"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-07-14T23:50:15.404149Z",
+  "updateTime": "2026-08-31T16:52:15.458532Z"
+}

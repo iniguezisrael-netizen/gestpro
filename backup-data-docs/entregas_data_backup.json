@@ -1,0 +1,13 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/entregas/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788190010054"
+    },
+    "items": {
+      "arrayValue": {}
+    }
+  },
+  "createTime": "2026-06-07T03:49:45.212340Z",
+  "updateTime": "2026-08-31T15:26:50.334470Z"
+}

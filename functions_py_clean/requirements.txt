@@ -1,0 +1,5 @@
+firebase-functions>=0.1.0
+firebase-admin>=6.0.0
+msoffcrypto-tool>=5.0.0
+openpyxl>=3.1.0
+olefile>=0.46

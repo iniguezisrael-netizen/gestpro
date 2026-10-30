@@ -1,0 +1,1273 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/cobranza/data",
+  "fields": {
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "fecha": {
+                  "stringValue": "2026-07-27"
+                },
+                "id": {
+                  "integerValue": "144349"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "credito": {
+                  "stringValue": "1 semana"
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-044"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "total": {
+                  "integerValue": "24500"
+                },
+                "cliente": {
+                  "stringValue": "Gabriel  Valencia"
+                },
+                "abonos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "nota": {
+                              "stringValue": "Anticipo del pedido (previo a cobranza)"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-07-27"
+                            },
+                            "monto": {
+                              "integerValue": "22500"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "encargado": {
+                  "stringValue": "Administrador"
+                },
+                "recNota": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "credito": {
+                  "stringValue": "30 dias"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-049"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-30"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "cliente": {
+                  "stringValue": "Pepe"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "total": {
+                  "doubleValue": 1532.17
+                },
+                "encargado": {
+                  "stringValue": "Administrador"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "id": {
+                  "integerValue": "236311"
+                },
+                "recNota": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "cliente": {
+                  "stringValue": "Guillermo De La Torre"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-036"
+                },
+                "total": {
+                  "integerValue": "15776"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "tel": {
+                  "stringValue": "378 107 5308"
+                },
+                "encargado": {
+                  "stringValue": "Guillermo de la Torre"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "id": {
+                  "integerValue": "244632"
+                },
+                "credito": {
+                  "stringValue": "30 días"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "fecha": {
+                  "stringValue": "2026-07-30"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "tel": {
+                  "stringValue": "348 131 4169"
+                },
+                "total": {
+                  "integerValue": "3600"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "credito": {
+                  "stringValue": "30 días"
+                },
+                "id": {
+                  "integerValue": "250765"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-30"
+                },
+                "cliente": {
+                  "stringValue": "Rafa"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-040"
+                },
+                "encargado": {
+                  "stringValue": "Deysi"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "tel": {
+                  "stringValue": ""
+                },
+                "cliente": {
+                  "stringValue": "Adalberto  Vazquez Orozco"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "ventaId": {
+                  "integerValue": "238"
+                },
+                "id": {
+                  "integerValue": "251767"
+                },
+                "abonos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "63400"
+                            },
+                            "nota": {
+                              "stringValue": "Anticipo del pedido (previo a cobranza)"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-07-31"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "11:43"
+                            },
+                            "monto": {
+                              "integerValue": "450"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "rol": {
+                              "stringValue": "admin"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-07-31"
+                            },
+                            "formaPago": {
+                              "stringValue": "efectivo"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "total": {
+                  "integerValue": "63850"
+                },
+                "encargado": {
+                  "stringValue": "Administrador"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "estado": {
+                  "stringValue": "Pagado"
+                },
+                "pedido": {
+                  "stringValue": "2776"
+                },
+                "folioPedido": {
+                  "stringValue": "2776"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "fecha": {
+                  "stringValue": "2026-07-31"
+                },
+                "credito": {
+                  "stringValue": "2"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "cliente": {
+                  "stringValue": "Chaparral"
+                },
+                "pedido": {
+                  "stringValue": "Nota"
+                },
+                "estado": {
+                  "stringValue": "Pagado"
+                },
+                "encargado": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-07-06"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "abonos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "17:39"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria (Secretaria Adm.)"
+                            },
+                            "monto": {
+                              "integerValue": "1000"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-07-10"
+                            },
+                            "formaPago": {
+                              "stringValue": "transferencia"
+                            },
+                            "rol": {
+                              "stringValue": "secretaria"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "recFecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "credito": {
+                  "stringValue": ""
+                },
+                "total": {
+                  "integerValue": "1000"
+                },
+                "id": {
+                  "integerValue": "297"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "credito": {
+                  "stringValue": "30 días"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "tel": {
+                  "stringValue": "348 113 0989"
+                },
+                "id": {
+                  "integerValue": "321"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "pedido": {
+                  "stringValue": "AM2144"
+                },
+                "total": {
+                  "doubleValue": 13734.4
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "encargado": {
+                  "stringValue": "Rafa"
+                },
+                "recFecha": {
+                  "stringValue": "2026-08-07"
+                },
+                "recNota": {
+                  "stringValue": "Recordar pago"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-07"
+                },
+                "cliente": {
+                  "stringValue": "Los Coyotes"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-018"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-17"
+                },
+                "credito": {
+                  "stringValue": ""
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "encargado": {
+                  "stringValue": "Esmeralda"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "total": {
+                  "doubleValue": 2415.58
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "cliente": {
+                  "stringValue": "Esmeralda"
+                },
+                "recFecha": {
+                  "stringValue": "2026-07-31"
+                },
+                "id": {
+                  "integerValue": "55217"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fecha": {
+                  "stringValue": "2026-08-17"
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-075"
+                },
+                "encargado": {
+                  "stringValue": "pepe"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-075"
+                },
+                "credito": {
+                  "stringValue": "15"
+                },
+                "total": {
+                  "integerValue": "8500"
+                },
+                "ventaId": {
+                  "integerValue": "607351"
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Pagado"
+                },
+                "archivado": {
+                  "booleanValue": true
+                },
+                "id": {
+                  "integerValue": "609153"
+                },
+                "abonos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "formaPago": {
+                              "stringValue": "efectivo"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-26"
+                            },
+                            "rol": {
+                              "stringValue": "admin"
+                            },
+                            "monto": {
+                              "integerValue": "8500"
+                            },
+                            "hora": {
+                              "stringValue": "17:13"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "cliente": {
+                  "stringValue": "Pepe Barba"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "estado": {
+                  "stringValue": "Pagado"
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "cliente": {
+                  "stringValue": "Cristobal  Morales"
+                },
+                "pedido": {
+                  "stringValue": "2788"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "total": {
+                  "integerValue": "23500"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "ventaId": {
+                  "integerValue": "339221"
+                },
+                "id": {
+                  "integerValue": "690480"
+                },
+                "encargado": {
+                  "stringValue": "Secretaria"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-08-19"
+                },
+                "archivado": {
+                  "booleanValue": true
+                },
+                "folioPedido": {
+                  "stringValue": "2788"
+                },
+                "credito": {
+                  "stringValue": "1 semana"
+                },
+                "abonos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "nota": {
+                              "stringValue": "Anticipo del pedido (previo a cobranza)"
+                            },
+                            "monto": {
+                              "integerValue": "5000"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-19"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "18500"
+                            },
+                            "hora": {
+                              "stringValue": "16:25"
+                            },
+                            "rol": {
+                              "stringValue": "secretaria"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-26"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "formaPago": {
+                              "stringValue": "transferencia"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-085"
+                },
+                "cliente": {
+                  "stringValue": "Alejandro Campos"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-085"
+                },
+                "encargado": {
+                  "stringValue": "Administrador"
+                },
+                "archivado": {
+                  "booleanValue": true
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "733176"
+                },
+                "estado": {
+                  "stringValue": "Pagado"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "abonos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "fecha": {
+                              "stringValue": "2026-08-24"
+                            },
+                            "monto": {
+                              "integerValue": "8700"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "formaPago": {
+                              "stringValue": "efectivo"
+                            },
+                            "hora": {
+                              "stringValue": "14:40"
+                            },
+                            "rol": {
+                              "stringValue": "secretaria"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "ventaId": {
+                  "integerValue": "691496"
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-08-22"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "credito": {
+                  "stringValue": "15 dias"
+                },
+                "total": {
+                  "integerValue": "8700"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "estado": {
+                  "stringValue": "Pagado"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-08-26"
+                },
+                "abonos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "doubleValue": 839.38
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-27"
+                            },
+                            "hora": {
+                              "stringValue": "15:15"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "rol": {
+                              "stringValue": "secretaria"
+                            },
+                            "formaPago": {
+                              "stringValue": "transferencia"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "cliente": {
+                  "stringValue": "Guillermo De La Torre"
+                },
+                "credito": {
+                  "stringValue": "30 dias"
+                },
+                "encargado": {
+                  "stringValue": "Administrador"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "ventaId": {
+                  "integerValue": "779030"
+                },
+                "total": {
+                  "doubleValue": 839.38
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-090"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-090"
+                },
+                "id": {
+                  "integerValue": "823368"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "823369"
+                },
+                "ventaId": {
+                  "integerValue": "765849"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-088"
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "credito": {
+                  "stringValue": "15 dias"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "total": {
+                  "doubleValue": 5649.2
+                },
+                "encargado": {
+                  "stringValue": "Secretaria"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "fecha": {
+                  "stringValue": "2026-08-26"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-088"
+                },
+                "cliente": {
+                  "stringValue": "Rafa"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fecha": {
+                  "stringValue": "2026-08-26"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "credito": {
+                  "stringValue": "15 dias"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "id": {
+                  "integerValue": "823370"
+                },
+                "cliente": {
+                  "stringValue": "Luis  Cholico"
+                },
+                "total": {
+                  "doubleValue": 2621.6
+                },
+                "ventaId": {
+                  "integerValue": "664650"
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-081"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "encargado": {
+                  "stringValue": "Administrador"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-081"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "823371"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-077"
+                },
+                "ventaId": {
+                  "integerValue": "618225"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "cliente": {
+                  "stringValue": "José Torres"
+                },
+                "total": {
+                  "integerValue": "7800"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-26"
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-077"
+                },
+                "encargado": {
+                  "stringValue": "Secretaria"
+                },
+                "credito": {
+                  "stringValue": "30 dias"
+                },
+                "recNota": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-08-26"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "total": {
+                  "integerValue": "9150"
+                },
+                "ventaId": {
+                  "integerValue": "554796"
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "cliente": {
+                  "stringValue": "Ivan  Estrella"
+                },
+                "encargado": {
+                  "stringValue": "Administrador"
+                },
+                "id": {
+                  "integerValue": "823372"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-073"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-073"
+                },
+                "credito": {
+                  "stringValue": "15 dias"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "credito": {
+                  "stringValue": "15 dias"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-059"
+                },
+                "cliente": {
+                  "stringValue": "Rodrigo Aceves Padilla"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "encargado": {
+                  "stringValue": "Secretaria"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "total": {
+                  "integerValue": "7500"
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "ventaId": {
+                  "integerValue": "393354"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-26"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-059"
+                },
+                "id": {
+                  "integerValue": "823373"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "834556"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-093"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "encargado": {
+                  "stringValue": "Santiago"
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-093"
+                },
+                "cliente": {
+                  "stringValue": "Santiago García"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-27"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "total": {
+                  "integerValue": "9976"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "credito": {
+                  "stringValue": "30 días"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "ventaId": {
+                  "integerValue": "812934"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-089"
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-089"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-28"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "tel": {
+                  "stringValue": ""
+                },
+                "credito": {
+                  "stringValue": ""
+                },
+                "ventaId": {
+                  "integerValue": "773157"
+                },
+                "total": {
+                  "doubleValue": 6586.65
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "encargado": {
+                  "stringValue": "Secretaria"
+                },
+                "cliente": {
+                  "stringValue": "Esmeralda"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "856093"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "ventaId": {
+                  "integerValue": "612898"
+                },
+                "total": {
+                  "integerValue": "36540"
+                },
+                "estado": {
+                  "stringValue": "Pendiente"
+                },
+                "abonos": {
+                  "arrayValue": {}
+                },
+                "cliente": {
+                  "stringValue": "Guillermo De La Torre"
+                },
+                "recFecha": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-08-28"
+                },
+                "id": {
+                  "integerValue": "857438"
+                },
+                "recNota": {
+                  "stringValue": ""
+                },
+                "credito": {
+                  "stringValue": ""
+                },
+                "pedido": {
+                  "stringValue": "NOTA DE VENTA-076"
+                },
+                "encargado": {
+                  "stringValue": "Secretaria"
+                },
+                "recHecho": {
+                  "booleanValue": false
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-076"
+                },
+                "tel": {
+                  "stringValue": ""
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "updatedAt": {
+      "integerValue": "1788190078829"
+    }
+  },
+  "createTime": "2026-08-31T15:28:00.106666Z",
+  "updateTime": "2026-08-31T15:28:00.106666Z"
+}

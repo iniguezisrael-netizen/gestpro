@@ -1,0 +1,32 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Backups: solo el administrador puede leer o escribir.
+    match /backups/{fileName} {
+      allow read, write: if request.auth != null
+        && firestore.get(/databases/(default)/documents/roles/$(request.auth.uid)).data.rol == 'admin';
+    }
+    // Fotos de ventas, cotizaciones, etc: cualquier usuario con sesión iniciada.
+    // Límite de 10MB y solo tipos de imagen permitidos.
+    match /fotos/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.resource.size <= 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|jpg|png|webp|gif|heic|heif)');
+    }
+    // Facturas (XML/PDF): cualquier usuario con sesión iniciada, máximo 10MB.
+    // Solo se permiten XML y PDF para evitar subida de archivos ejecutables.
+    match /facturas/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.resource.size <= 10 * 1024 * 1024
+        && (request.resource.contentType == 'application/xml'
+            || request.resource.contentType == 'text/xml'
+            || request.resource.contentType == 'application/pdf');
+    }
+    // Cualquier otra ruta no listada: denegada por defecto.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

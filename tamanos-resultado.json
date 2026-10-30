@@ -1,0 +1,114 @@
+{
+  "catalogoMateriales": {
+    "docs": 1600,
+    "totalMB": "1.102",
+    "maxKB": "433.5",
+    "maxId": "data",
+    "avgKB": "0.7",
+    "topFields": [
+      "items=0.423MB",
+      "nombre=0.071MB",
+      "unidad=0.038MB",
+      "id=0.034MB",
+      "costoUnit=0.033MB"
+    ]
+  },
+  "materia": {
+    "docs": 1595,
+    "totalMB": "2.180",
+    "maxKB": "994.0",
+    "maxId": "data",
+    "avgKB": "1.4",
+    "topFields": [
+      "items=0.970MB",
+      "nombre=0.071MB",
+      "categoria=0.050MB",
+      "fotos=0.043MB",
+      "codigo=0.039MB"
+    ]
+  },
+  "clientes": {
+    "docs": 168,
+    "totalMB": "0.187",
+    "maxKB": "80.5",
+    "maxId": "data",
+    "avgKB": "1.1",
+    "topFields": [
+      "items=0.078MB",
+      "nombre=0.004MB",
+      "ultimaCompra=0.004MB",
+      "primeraCompra=0.004MB",
+      "celular=0.004MB"
+    ]
+  },
+  "ventas": {
+    "docs": 127,
+    "totalMB": "0.470",
+    "maxKB": "223.1",
+    "maxId": "data",
+    "avgKB": "3.8",
+    "topFields": [
+      "items=0.241MB",
+      "pagos=0.029MB",
+      "observaciones=0.018MB",
+      "fotos=0.005MB",
+      "cliente=0.004MB"
+    ]
+  },
+  "cotizaciones": {
+    "docs": 96,
+    "totalMB": "0.321",
+    "maxKB": "151.3",
+    "maxId": "data",
+    "avgKB": "3.4",
+    "topFields": [
+      "items=0.163MB",
+      "observaciones=0.025MB",
+      "fotos=0.007MB",
+      "cliente=0.003MB",
+      "unidad=0.003MB"
+    ]
+  },
+  "consignacion": {
+    "docs": 43,
+    "totalMB": "0.105",
+    "maxKB": "39.7",
+    "maxId": "data",
+    "avgKB": "2.5",
+    "topFields": [
+      "items=0.039MB",
+      "fotos=0.021MB",
+      "desc=0.002MB",
+      "categoria=0.002MB",
+      "producto=0.001MB"
+    ]
+  },
+  "cobranza": {
+    "docs": 21,
+    "totalMB": "0.031",
+    "maxKB": "13.4",
+    "maxId": "data",
+    "avgKB": "1.5",
+    "topFields": [
+      "items=0.013MB",
+      "abonos=0.004MB",
+      "pedido=0.001MB",
+      "cliente=0.001MB",
+      "usuario=0.001MB"
+    ]
+  },
+  "productos": {
+    "docs": 25,
+    "totalMB": "0.056",
+    "maxKB": "24.9",
+    "maxId": "data",
+    "avgKB": "2.3",
+    "topFields": [
+      "items=0.024MB",
+      "fotos=0.007MB",
+      "desc=0.001MB",
+      "especObservaciones=0.001MB",
+      "nombre=0.001MB"
+    ]
+  }
+}

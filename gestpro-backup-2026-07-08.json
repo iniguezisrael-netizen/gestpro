@@ -1,0 +1,289 @@
+{
+  "_exportedAt": "2026-07-08T15:04:31.922Z",
+  "collections": {
+    "materia": [],
+    "productos": [],
+    "consignacion": [],
+    "ventas": [],
+    "cotizaciones": [],
+    "cajas": [],
+    "reparaciones": [],
+    "bodegas": [
+      {
+        "id": 1,
+        "nombre": "Bodega Principal"
+      }
+    ],
+    "entregas": [],
+    "facturas": [
+      {
+        "folio": "2109",
+        "rfcReceptor": "TCV251218FD7",
+        "conceptos": [
+          {
+            "importe": "7800.000000",
+            "descripcion": "Reparación de caja",
+            "cantidad": "1",
+            "valorUnitario": "7800.000000"
+          }
+        ],
+        "usoCfdi": "G03",
+        "total": "9048.00",
+        "fecha": "2026-06-19T15:32:57",
+        "subTotal": "7800",
+        "usuario": "Administrador",
+        "uuid": "71F1186D-E0E9-491D-9406-B1D6F828578F",
+        "fechaTimbrado": "2026-06-19T15:32:58",
+        "tipoComprobante": "I",
+        "metodoPago": "PUE",
+        "moneda": "MXN",
+        "serie": "AM",
+        "emisor": "AMANDA LOPEZ GALINDO",
+        "fechaRegistro": "2026-06-19",
+        "rfcEmisor": "LOGA810403SP7",
+        "formaPago": "03",
+        "id": 180,
+        "receptor": "TRUCKS COLD VIP",
+        "tienePdf": true,
+        "tieneXml": true
+      },
+      {
+        "rfcReceptor": "APH050115RC7",
+        "folio": "109",
+        "conceptos": [
+          {
+            "importe": "152844.830000",
+            "valorUnitario": "152844.830000",
+            "descripcion": "Remolque tipo caja seca, doble eje de 5 birlos con frenos en un eje, color: blanco, medidas exteriores: largo: 6.05m, ancho: 2.45m, alto: 2.20m, modelo: 2025, unidad nueva, capacidad de carga: 1500 kilogramos, número de serie:3J9BCBB08SC0 79016, marca: Campers y Casetas La Cuesta.",
+            "cantidad": "1"
+          }
+        ],
+        "total": "177300.00",
+        "usoCfdi": "I02",
+        "fecha": "2025-07-09T17:15:26",
+        "subTotal": "152844.83",
+        "uuid": "02660D0A-60C9-41F6-B128-F4BAAAF19EFC",
+        "usuario": "Administrador",
+        "fechaTimbrado": "2025-07-09T17:15:27",
+        "tipoComprobante": "I",
+        "metodoPago": "PPD",
+        "serie": "RA",
+        "moneda": "MXN",
+        "fechaRegistro": "2026-06-19",
+        "rfcEmisor": "LOGA810403SP7",
+        "emisor": "AMANDA LOPEZ GALINDO",
+        "formaPago": "99",
+        "tieneXml": true,
+        "tienePdf": true,
+        "receptor": "AIR PHARMA",
+        "id": 181
+      },
+      {
+        "fecha": "2023-03-31T12:10:13",
+        "usoCfdi": "G03",
+        "total": "120000.00",
+        "conceptos": [
+          {
+            "cantidad": "1",
+            "valorUnitario": "103448.280000",
+            "descripcion": "Descuento aplicado a factura AM425",
+            "importe": "103448.280000"
+          }
+        ],
+        "folio": "5",
+        "rfcReceptor": "GORA8303248A0",
+        "fechaTimbrado": "2023-03-31T12:10:14",
+        "uuid": "DBF81393-A884-4B32-865D-13A9E3C1049D",
+        "usuario": "Administrador",
+        "subTotal": "103448.28",
+        "emisor": "AMANDA LOPEZ GALINDO",
+        "fechaRegistro": "2026-06-19",
+        "rfcEmisor": "LOGA810403SP7",
+        "serie": "NC",
+        "moneda": "MXN",
+        "metodoPago": "PUE",
+        "tipoComprobante": "E",
+        "receptor": "ADRIANA GONZALEZ RUBALCAVA",
+        "id": 183,
+        "tienePdf": true,
+        "tieneXml": true,
+        "formaPago": "03"
+      },
+      {
+        "fecha": "2026-05-14T15:16:26",
+        "total": "34990",
+        "usoCfdi": "CP01",
+        "conceptos": [
+          {
+            "cantidad": "1",
+            "descripcion": "Pago",
+            "valorUnitario": "0",
+            "importe": "0"
+          }
+        ],
+        "rfcReceptor": "BACD880523MC0",
+        "folio": "",
+        "fechaTimbrado": "2026-05-14T15:16:27",
+        "uuid": "A10B0EAF-A4C8-46C0-9B35-1EB4F66FC4B1",
+        "usuario": "Administrador",
+        "subTotal": "0",
+        "fechaRegistro": "2026-06-19",
+        "rfcEmisor": "LOGA810403SP7",
+        "emisor": "AMANDA LOPEZ GALINDO",
+        "moneda": "XXX",
+        "serie": "",
+        "tipoComprobante": "P",
+        "metodoPago": "",
+        "tieneXml": true,
+        "receptor": "DANIEL MARCELINO BARAJAS CARRANZA",
+        "id": 186,
+        "tienePdf": true,
+        "formaPago": ""
+      },
+      {
+        "conceptos": [
+          {
+            "cantidad": "1",
+            "valorUnitario": "8470.000000",
+            "descripcion": "Reparación de puertas traseras de carrocería",
+            "importe": "8470.000000"
+          }
+        ],
+        "rfcReceptor": "PCU960209TA7",
+        "folio": "2100",
+        "fecha": "2026-06-15T11:17:49",
+        "total": "9825.20",
+        "usoCfdi": "G03",
+        "subTotal": "8470",
+        "fechaTimbrado": "2026-06-15T11:17:51",
+        "uuid": "48AF1DC0-E622-4515-9D85-D489DF8D418F",
+        "usuario": "Secretaria",
+        "tipoComprobante": "I",
+        "metodoPago": "PPD",
+        "emisor": "AMANDA LOPEZ GALINDO",
+        "rfcEmisor": "LOGA810403SP7",
+        "fechaRegistro": "2026-07-06",
+        "moneda": "MXN",
+        "serie": "AM",
+        "tieneXml": true,
+        "id": 296,
+        "receptor": "POSTA EL CUATRO",
+        "tienePdf": true,
+        "formaPago": "99"
+      }
+    ],
+    "cobranza": [
+      {
+        "tel": "",
+        "pedido": "Nota",
+        "id": 297,
+        "recHecho": false,
+        "fecha": "2026-07-06",
+        "recNota": "",
+        "credito": "",
+        "total": 1000,
+        "recFecha": "2026-07-07",
+        "estado": "Pendiente",
+        "abonos": [],
+        "usuario": "Secretaria",
+        "encargado": "",
+        "cliente": "Chaparral"
+      },
+      {
+        "pedido": "AM2144",
+        "recHecho": false,
+        "id": 321,
+        "tel": "348 113 0989",
+        "usuario": "Secretaria",
+        "cliente": "Los Coyotes",
+        "encargado": "Rafa",
+        "recFecha": "2026-08-07",
+        "estado": "Pendiente",
+        "total": 13734.4,
+        "credito": "30 días",
+        "recNota": "Recordar pago",
+        "fecha": "2026-07-07",
+        "abonos": []
+      }
+    ],
+    "vehiculos": [
+      {
+        "usuario": "Secretaria (Secretaria Adm.)",
+        "recPoliza": true,
+        "id": 109,
+        "poliza": "1340410605",
+        "kilometraje": 36800,
+        "recAfinacionHecho": false,
+        "afinacionFecha": "2026-03-01",
+        "recPolizaHecho": false,
+        "recAfinacion": true,
+        "vencimiento": "2026-07-22",
+        "recAfinacionFecha": "2026-12-06",
+        "nombre": "Nissan pick-up larga 2002"
+      },
+      {
+        "id": 304,
+        "recAfinacionHecho": false,
+        "kilometraje": 0,
+        "poliza": "2190086342",
+        "recPoliza": true,
+        "usuario": "Secretaria",
+        "recAfinacionFecha": "",
+        "nombre": "Mercedes Benz Sprinter 515 Wagon toldo alto",
+        "vencimiento": "2027-07-18",
+        "recPolizaHecho": false,
+        "recAfinacion": false,
+        "afinacionFecha": ""
+      },
+      {
+        "usuario": "Secretaria",
+        "id": 331,
+        "poliza": "1340426599",
+        "kilometraje": 0,
+        "recAfinacionHecho": false,
+        "recPoliza": true,
+        "recPolizaHecho": false,
+        "recAfinacion": false,
+        "vencimiento": "2026-09-28",
+        "afinacionFecha": "",
+        "recAfinacionFecha": "",
+        "nombre": "Toyota Sienna 2017"
+      },
+      {
+        "id": 332,
+        "kilometraje": 0,
+        "poliza": "1340425738",
+        "recAfinacionHecho": false,
+        "recPoliza": true,
+        "usuario": "Secretaria",
+        "recAfinacionFecha": "",
+        "nombre": "Toyota Corolla 2013",
+        "recAfinacion": false,
+        "vencimiento": "2026-09-29",
+        "recPolizaHecho": false,
+        "afinacionFecha": ""
+      },
+      {
+        "id": 335,
+        "kilometraje": 0,
+        "recAfinacionHecho": false,
+        "poliza": "2190083369",
+        "recPoliza": true,
+        "usuario": "Secretaria (Secretaria Adm.)",
+        "recAfinacionFecha": "",
+        "nombre": "Toyota Tacoma 2025",
+        "recAfinacion": false,
+        "recPolizaHecho": false,
+        "vencimiento": "2027-05-22",
+        "afinacionFecha": ""
+      }
+    ],
+    "produccion": [],
+    "catalogoMateriales": [],
+    "clientesCredito": [
+      "juan  ramon",
+      "roberta"
+    ],
+    "clientes": []
+  }
+}

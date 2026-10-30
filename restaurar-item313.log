@@ -1,0 +1,14 @@
+Token encontrado en: C:\Users\israe\.config\configstore\firebase-tools.json
+Leyendo consignacion/data de Firestore...
+GET status: 200
+Total items en Firestore: 28
+Item 313 encontrado en índice 5
+Fotos actuales: ["https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/fotos%2Fconsignacion%2Ffoto_1783436158071_vyefcg.jpg?alt=media&token=7a02efea-48ec-4f00-9416-edf65872ee32","https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/fotos%2Fconsignacion%2Ffoto_1783436223914_toa2ej.jpg?alt=media&token=bf046422-dd67-4ccc-b51a-06b1ae8b63a2","https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/fotos%2Fconsignacion%2Ffoto_1783436030913_2zwvl2.jpg?alt=media&token=636e9510-7432-4f9a-996a-419f1226ceea","https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/fotos%2Fconsignacion%2Ffoto_1783436229633_5jy61p.jpg?alt=media&token=0691c791-c581-424e-8690-8f290579b6f2","https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/fotos%2Fconsignacion%2Ffoto_1783436171925_5s1bml.jpg?alt=media&token=7e96435a-9413-496a-b0df-77a9f820d36f"]
+Fotos del backup: 5 fotos
+El item ya tiene fotos. Sobreescribiendo con las del backup...
+
+Escribiendo de vuelta a Firestore...
+PATCH status: 200
+
+✓ Item 313 restaurado exitosamente en Firestore.
+Fotos restauradas: 5

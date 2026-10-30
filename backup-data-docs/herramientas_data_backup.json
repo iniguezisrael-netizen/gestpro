@@ -1,0 +1,34 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/herramientas/data",
+  "fields": {
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "nombre": {
+                  "stringValue": "taladro"
+                },
+                "id": {
+                  "integerValue": "9214"
+                },
+                "estado": {
+                  "stringValue": "buena"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "updatedAt": {
+      "integerValue": "1788195135343"
+    }
+  },
+  "createTime": "2026-07-10T18:00:34.719558Z",
+  "updateTime": "2026-08-31T16:52:15.694205Z"
+}

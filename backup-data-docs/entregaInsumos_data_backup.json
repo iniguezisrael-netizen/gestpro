@@ -1,0 +1,250 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/entregaInsumos/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788195135720"
+    },
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "cliente": {
+                  "stringValue": "Vicente  Carmona Neri"
+                },
+                "entregadoPor": {
+                  "stringValue": "Adriana"
+                },
+                "materiales": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "unidad": {
+                              "stringValue": "pza"
+                            },
+                            "cantidad": {
+                              "integerValue": "2"
+                            },
+                            "descripcion": {
+                              "stringValue": "silicon uso general"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "descripcion": {
+                              "stringValue": "traba o reten cuadrado"
+                            },
+                            "cantidad": {
+                              "integerValue": "1"
+                            },
+                            "unidad": {
+                              "stringValue": "pza"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "cantidad": {
+                              "integerValue": "5"
+                            },
+                            "descripcion": {
+                              "stringValue": "tornillo c/hex maquina 5/16*21/2 nc galvanizado"
+                            },
+                            "unidad": {
+                              "stringValue": "pza"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": {
+                  "integerValue": "59620"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-20"
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-003"
+                },
+                "pedidoId": {
+                  "integerValue": "227"
+                },
+                "notas": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fecha": {
+                  "stringValue": "2026-08-20"
+                },
+                "pedidoId": {
+                  "integerValue": "691696"
+                },
+                "materiales": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "descripcion": {
+                              "stringValue": "media puerta para camper de fibra raz cabina nissan"
+                            },
+                            "unidad": {
+                              "stringValue": "pza"
+                            },
+                            "cantidad": {
+                              "integerValue": "1"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "unidad": {
+                              "stringValue": "pza"
+                            },
+                            "cantidad": {
+                              "integerValue": "2"
+                            },
+                            "descripcion": {
+                              "stringValue": "ventana 381415"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "cantidad": {
+                              "integerValue": "1"
+                            },
+                            "descripcion": {
+                              "stringValue": "medallón fijo chico"
+                            },
+                            "unidad": {
+                              "stringValue": "pza"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": {
+                  "integerValue": "723341"
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-086"
+                },
+                "entregadoPor": {
+                  "stringValue": "Manuel"
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "cliente": {
+                  "stringValue": "Samuel Piña"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "notas": {
+                  "stringValue": ""
+                },
+                "folioPedido": {
+                  "stringValue": "NOTA DE VENTA-038"
+                },
+                "entregadoPor": {
+                  "stringValue": "Manuel"
+                },
+                "id": {
+                  "integerValue": "726708"
+                },
+                "cliente": {
+                  "stringValue": "Héctor  de la Garza"
+                },
+                "pedidoId": {
+                  "integerValue": "78221"
+                },
+                "materiales": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "descripcion": {
+                              "stringValue": "media puerta para camper de fibra raz cabina nissan"
+                            },
+                            "cantidad": {
+                              "integerValue": "1"
+                            },
+                            "unidad": {
+                              "stringValue": "pza"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "cantidad": {
+                              "integerValue": "6"
+                            },
+                            "unidad": {
+                              "stringValue": "pza"
+                            },
+                            "descripcion": {
+                              "stringValue": "ventana 381415"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "cantidad": {
+                              "integerValue": "1"
+                            },
+                            "descripcion": {
+                              "stringValue": "medallón corredizo chico"
+                            },
+                            "unidad": {
+                              "stringValue": "pza"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "fecha": {
+                  "stringValue": "2026-08-20"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-07-20T22:16:24.310043Z",
+  "updateTime": "2026-08-31T16:52:16.086862Z"
+}

@@ -1,0 +1,226 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/vehiculos/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788190024984"
+    },
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "recAfinacionFecha": {
+                  "stringValue": "2026-12-06"
+                },
+                "poliza": {
+                  "stringValue": "1340410605"
+                },
+                "kilometraje": {
+                  "integerValue": "36800"
+                },
+                "recAfinacionHecho": {
+                  "booleanValue": false
+                },
+                "id": {
+                  "integerValue": "109"
+                },
+                "vencimiento": {
+                  "stringValue": "2027-07-22"
+                },
+                "recAfinacion": {
+                  "booleanValue": true
+                },
+                "nombre": {
+                  "stringValue": "Nissan pick-up larga 2002"
+                },
+                "recPoliza": {
+                  "booleanValue": true
+                },
+                "afinacionFecha": {
+                  "stringValue": "2026-03-01"
+                },
+                "recPolizaHecho": {
+                  "booleanValue": false
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "poliza": {
+                  "stringValue": "2190086342"
+                },
+                "recPoliza": {
+                  "booleanValue": true
+                },
+                "id": {
+                  "integerValue": "304"
+                },
+                "recAfinacion": {
+                  "booleanValue": false
+                },
+                "vencimiento": {
+                  "stringValue": "2027-07-18"
+                },
+                "kilometraje": {
+                  "integerValue": "0"
+                },
+                "recAfinacionFecha": {
+                  "stringValue": ""
+                },
+                "recPolizaHecho": {
+                  "booleanValue": false
+                },
+                "recAfinacionHecho": {
+                  "booleanValue": false
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "nombre": {
+                  "stringValue": "Mercedes Benz Sprinter 515 Wagon toldo alto"
+                },
+                "afinacionFecha": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "recAfinacion": {
+                  "booleanValue": false
+                },
+                "poliza": {
+                  "stringValue": "1340426599"
+                },
+                "id": {
+                  "integerValue": "331"
+                },
+                "recPoliza": {
+                  "booleanValue": true
+                },
+                "afinacionFecha": {
+                  "stringValue": ""
+                },
+                "nombre": {
+                  "stringValue": "Toyota Sienna 2017"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "kilometraje": {
+                  "integerValue": "0"
+                },
+                "vencimiento": {
+                  "stringValue": "2026-09-28"
+                },
+                "recAfinacionHecho": {
+                  "booleanValue": false
+                },
+                "recPolizaHecho": {
+                  "booleanValue": false
+                },
+                "recAfinacionFecha": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "recAfinacionFecha": {
+                  "stringValue": ""
+                },
+                "recPolizaHecho": {
+                  "booleanValue": false
+                },
+                "recAfinacionHecho": {
+                  "booleanValue": false
+                },
+                "vencimiento": {
+                  "stringValue": "2026-09-29"
+                },
+                "kilometraje": {
+                  "integerValue": "0"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "nombre": {
+                  "stringValue": "Toyota Corolla 2013"
+                },
+                "afinacionFecha": {
+                  "stringValue": ""
+                },
+                "recPoliza": {
+                  "booleanValue": true
+                },
+                "id": {
+                  "integerValue": "332"
+                },
+                "poliza": {
+                  "stringValue": "1340425738"
+                },
+                "recAfinacion": {
+                  "booleanValue": false
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "335"
+                },
+                "recPoliza": {
+                  "booleanValue": true
+                },
+                "poliza": {
+                  "stringValue": "2190083369"
+                },
+                "recAfinacion": {
+                  "booleanValue": false
+                },
+                "recAfinacionHecho": {
+                  "booleanValue": false
+                },
+                "recAfinacionFecha": {
+                  "stringValue": ""
+                },
+                "recPolizaHecho": {
+                  "booleanValue": false
+                },
+                "kilometraje": {
+                  "integerValue": "0"
+                },
+                "vencimiento": {
+                  "stringValue": "2027-05-22"
+                },
+                "nombre": {
+                  "stringValue": "Toyota Tacoma 2025"
+                },
+                "afinacionFecha": {
+                  "stringValue": ""
+                },
+                "usuario": {
+                  "stringValue": "Secretaria (Secretaria Adm.)"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-06-08T02:27:50.202613Z",
+  "updateTime": "2026-08-31T15:27:05.234451Z"
+}

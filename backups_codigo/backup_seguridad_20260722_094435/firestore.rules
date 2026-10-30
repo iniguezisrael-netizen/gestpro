@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function myRole() {
+      return get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.rol;
+    }
+    function isAdmin() {
+      return isSignedIn() && myRole() == 'admin';
+    }
+    // Solo cuentas con un rol válido asignado en roles/{uid} pueden usar la app.
+    // Esto bloquea cuentas de Firebase Authentication que existan pero no tengan
+    // (o ya no tengan) un rol asignado — por ejemplo, si se borra el acceso de alguien
+    // pero la cuenta de Authentication no se elimina de inmediato.
+    function hasValidRole() {
+      return isSignedIn() && myRole() in ['admin', 'secretaria', 'auxiliar', 'almacen'];
+    }
+
+    // Roles: cada usuario solo puede leer su propio rol; el admin puede leer/escribir todos.
+    match /roles/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Colección antigua (contenía contraseñas en texto plano) — bloqueada por completo.
+    match /users/{doc} {
+      allow read, write: if false;
+    }
+
+    // Datos de la app: cualquier usuario con un rol válido puede leer/escribir.
+    // Nota importante sobre el alcance de esta protección: cada colección se guarda como
+    // UN SOLO documento ('data') que contiene la lista completa de registros (ventas,
+    // facturas, etc.) como un arreglo. Por eso estas reglas pueden exigir que quien escribe
+    // tenga un rol válido, pero NO pueden verificar "solo se modificó el campo permitido de
+    // un registro" dentro de ese arreglo — eso requeriría guardar cada registro como su
+    // propio documento. La protección por botón en pantalla (ej. "solo admin cancela una
+    // venta") sigue siendo solo del lado del navegador; alguien con rol válido y
+    // conocimientos técnicos podría editar esos campos directamente vía la API. Si se quiere
+    // cerrar ese hueco por completo, el siguiente paso sería migrar cada colección a un
+    // documento por registro.
+    match /materia/{doc=**}            { allow read, write: if hasValidRole(); }
+    match /productos/{doc=**}          { allow read, write: if hasValidRole(); }
+    match /consignacion/{doc=**}       { allow read, write: if hasValidRole(); }
+    match /ventas/{doc=**}             { allow read, write: if hasValidRole(); }
+    match /cotizaciones/{doc=**}       { allow read, write: if hasValidRole(); }
+    match /cajas/{doc=**}              { allow read, write: if hasValidRole(); }
+    match /reparaciones/{doc=**}       { allow read, write: if hasValidRole(); }
+    match /bodegas/{doc=**}            { allow read, write: if hasValidRole(); }
+    match /entregas/{doc=**}           { allow read, write: if hasValidRole(); }
+    match /facturas/{doc=**}           { allow read, write: if hasValidRole(); }
+    match /cobranza/{doc=**}           { allow read, write: if hasValidRole(); }
+    match /vehiculos/{doc=**}          { allow read, write: if hasValidRole(); }
+    match /produccion/{doc=**}         { allow read, write: if hasValidRole(); }
+    match /catalogoMateriales/{doc=**} { allow read, write: if hasValidRole(); }
+    match /clientesCredito/{doc=**}    { allow read, write: if hasValidRole(); }
+    match /clientes/{doc=**}           { allow read, write: if hasValidRole(); }
+    match /herramientas/{doc=**}           { allow read, write: if hasValidRole(); }
+    match /herramientasAsignadas/{doc=**}  { allow read, write: if hasValidRole(); }
+    match /herramientasHistorial/{doc=**}  { allow read, write: if hasValidRole(); }
+    match /agenda/{doc=**}                 { allow read, write: if hasValidRole(); }
+    match /ordenesCompra/{doc=**}          { allow read, write: if hasValidRole(); }
+    match /proveedores/{doc=**}            { allow read, write: if hasValidRole(); }
+    match /checadas/{doc=**}              { allow read, write: if hasValidRole(); }
+    match /checadorConfig/{doc=**}        { allow read, write: if hasValidRole(); }
+    match /entregaInsumos/{doc=**}        { allow read, write: if hasValidRole(); }
+    // _meta/config es público en lectura (solo contiene el email del admin para login).
+    // Los demás documentos de _meta requieren rol válido.
+    match /_meta/config               { allow read: if true; allow write: if isAdmin(); }
+    match /_meta/{doc}                { allow read, write: if hasValidRole(); }
+
+    // Respaldos automáticos: solo admin puede leer/escribir.
+    match /_backups/{doc}             { allow read, write: if isAdmin(); }
+
+    // Cualquier otra colección no listada arriba: denegada por defecto.
+  }
+}

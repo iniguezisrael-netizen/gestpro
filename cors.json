@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://sistemas.camperslacuesta.com", "http://localhost", "http://localhost:5000"],
+    "method": ["GET", "HEAD"],
+    "responseHeader": ["Content-Type", "Content-Disposition", "Content-Length"],
+    "maxAgeSeconds": 3600
+  }
+]

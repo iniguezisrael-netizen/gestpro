@@ -1,0 +1,17 @@
+{
+  "name": "Campers La Cuesta",
+  "short_name": "Campers",
+  "description": "Sistema de gestión interno — Campers La Cuesta",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1e293b",
+  "theme_color": "#1e293b",
+  "icons": [
+    {
+      "src": "https://0201.nccdn.net/4_2/000/000/04b/787/logo-la-cuesta-en-amarillo.gif",
+      "sizes": "any",
+      "type": "image/gif"
+    }
+  ]
+}

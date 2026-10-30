@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Corregido (junio 2026): antes era "allow read, write: if true" — público total.
+    // Ahora exige sesión iniciada, igual que Firestore.
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

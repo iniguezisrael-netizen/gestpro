@@ -1,0 +1,88 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/reparaciones/data",
+  "fields": {
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "cotizRef": {
+                  "integerValue": "146"
+                },
+                "estado": {
+                  "stringValue": "Recibida"
+                },
+                "unidad": {
+                  "stringValue": ""
+                },
+                "ticketImpreso": {
+                  "booleanValue": true
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "tel": {
+                  "stringValue": "42"
+                },
+                "folio": {
+                  "stringValue": "REP 2020"
+                },
+                "descripcion": {
+                  "stringValue": ""
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "total": {
+                  "integerValue": "1000"
+                },
+                "fecha": {
+                  "stringValue": "2026-06-13"
+                },
+                "id": {
+                  "integerValue": "147"
+                },
+                "manoObra": {
+                  "integerValue": "0"
+                },
+                "materiales": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "qty": {
+                              "integerValue": "1"
+                            },
+                            "price": {
+                              "integerValue": "1000"
+                            },
+                            "desc": {
+                              "stringValue": "ca"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "ticketFecha": {
+                  "stringValue": "2026-06-13"
+                },
+                "cliente": {
+                  "stringValue": "6434 4"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "updatedAt": {
+      "integerValue": "1788190009234"
+    }
+  },
+  "createTime": "2026-06-07T03:49:45.128698Z",
+  "updateTime": "2026-08-31T15:26:49.934076Z"
+}

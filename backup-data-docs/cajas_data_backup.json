@@ -1,0 +1,3046 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/cajas/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788190458922"
+    },
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "fecha": {
+                  "stringValue": "2026-06-07"
+                },
+                "diferencia": {
+                  "integerValue": "-2000"
+                },
+                "horaCierre": {
+                  "stringValue": "12:24"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "fondo": {
+                  "integerValue": "2500"
+                },
+                "saldoContado": {
+                  "integerValue": "500"
+                },
+                "hora": {
+                  "stringValue": "21:49"
+                },
+                "movimientos": {
+                  "arrayValue": {}
+                },
+                "obsCierre": {
+                  "stringValue": ""
+                },
+                "saldoEsperado": {
+                  "integerValue": "2500"
+                },
+                "id": {
+                  "integerValue": "101"
+                },
+                "fechaCierre": {
+                  "stringValue": "2026-06-19"
+                },
+                "cerrada": {
+                  "booleanValue": true
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "diferencia": {
+                  "integerValue": "-2400"
+                },
+                "horaCierre": {
+                  "stringValue": "20:51"
+                },
+                "fecha": {
+                  "stringValue": "2026-06-18"
+                },
+                "cerrada": {
+                  "booleanValue": true
+                },
+                "movimientos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "monto": {
+                              "integerValue": "600"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "16:42"
+                            },
+                            "concepto": {
+                              "stringValue": "Bisagra"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "integerValue": "200"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago envío"
+                            },
+                            "hora": {
+                              "stringValue": "16:43"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "1000"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "09:10"
+                            },
+                            "concepto": {
+                              "stringValue": "Abono de cobranza — Chaparral"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "obsCierre": {
+                  "stringValue": ""
+                },
+                "saldoEsperado": {
+                  "integerValue": "3900"
+                },
+                "id": {
+                  "integerValue": "161"
+                },
+                "fechaCierre": {
+                  "stringValue": "2026-06-20"
+                },
+                "hora": {
+                  "stringValue": "16:42"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "fondo": {
+                  "integerValue": "2500"
+                },
+                "saldoContado": {
+                  "integerValue": "1500"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "168"
+                },
+                "fondo": {
+                  "integerValue": "2500"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "movimientos": {
+                  "arrayValue": {}
+                },
+                "fecha": {
+                  "stringValue": "2026-06-19"
+                },
+                "cerrada": {
+                  "booleanValue": false
+                },
+                "hora": {
+                  "stringValue": "12:30"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fecha": {
+                  "stringValue": "2026-06-19"
+                },
+                "horaCierre": {
+                  "stringValue": "14:04"
+                },
+                "diferencia": {
+                  "integerValue": "0"
+                },
+                "hora": {
+                  "stringValue": "13:09"
+                },
+                "saldoContado": {
+                  "integerValue": "2500"
+                },
+                "fondo": {
+                  "integerValue": "2500"
+                },
+                "usuario": {
+                  "stringValue": "Auxiliar"
+                },
+                "cerrada": {
+                  "booleanValue": true
+                },
+                "fechaCierre": {
+                  "stringValue": "2026-06-19"
+                },
+                "id": {
+                  "integerValue": "170"
+                },
+                "obsCierre": {
+                  "stringValue": ""
+                },
+                "saldoEsperado": {
+                  "integerValue": "2500"
+                },
+                "movimientos": {
+                  "arrayValue": {}
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "movimientos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "771461"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — publico en general"
+                            },
+                            "monto": {
+                              "doubleValue": 1981.3
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "usuario": {
+                              "stringValue": "Auxiliar"
+                            },
+                            "hora": {
+                              "stringValue": "09:48"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "820568"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "concepto": {
+                              "stringValue": "corte de caja"
+                            },
+                            "hora": {
+                              "stringValue": "12:43"
+                            },
+                            "monto": {
+                              "doubleValue": 3962.6
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": {
+                  "integerValue": "173"
+                },
+                "usuario": {
+                  "stringValue": "Auxiliar"
+                },
+                "fondo": {
+                  "integerValue": "0"
+                },
+                "cerrada": {
+                  "booleanValue": false
+                },
+                "fecha": {
+                  "stringValue": "2026-06-19"
+                },
+                "hora": {
+                  "stringValue": "14:04"
+                },
+                "saldo": {
+                  "doubleValue": -3962.6
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "cerrada": {
+                  "booleanValue": true
+                },
+                "id": {
+                  "integerValue": "187"
+                },
+                "hora": {
+                  "stringValue": "20:51"
+                },
+                "saldo": {
+                  "integerValue": "15575"
+                },
+                "movimientos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Pago de pedido — juan aleman"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "hora": {
+                              "stringValue": "15:45"
+                            },
+                            "monto": {
+                              "integerValue": "1500"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "id": {
+                              "integerValue": "199"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "17:01"
+                            },
+                            "monto": {
+                              "doubleValue": 10.02
+                            },
+                            "id": {
+                              "integerValue": "202"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — roberta"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "204"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — roberta"
+                            },
+                            "hora": {
+                              "stringValue": "17:30"
+                            },
+                            "monto": {
+                              "integerValue": "102"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "1"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-07-06"
+                            },
+                            "concepto": {
+                              "stringValue": "Anticipo pedido NOTA DE VENTA-006 — juan"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "id": {
+                              "integerValue": "270"
+                            },
+                            "hora": {
+                              "stringValue": "09:43"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "10:33"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-07-06"
+                            },
+                            "monto": {
+                              "integerValue": "100"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "concepto": {
+                              "stringValue": "Anticipo pedido NOTA DE VENTA-007 — Juan"
+                            },
+                            "id": {
+                              "integerValue": "275"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "277"
+                            },
+                            "monto": {
+                              "integerValue": "100"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "concepto": {
+                              "stringValue": "Devolución — Juan"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "10:42"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "14:52"
+                            },
+                            "id": {
+                              "integerValue": "299"
+                            },
+                            "monto": {
+                              "integerValue": "100"
+                            },
+                            "concepto": {
+                              "stringValue": "Devolución — cancelación NOTA DE VENTA-007 (Juan)"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "14:53"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-07-06"
+                            },
+                            "monto": {
+                              "integerValue": "100"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "id": {
+                              "integerValue": "301"
+                            },
+                            "concepto": {
+                              "stringValue": "Anticipo pedido NOTA DE VENTA-008 — Juan"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "14:53"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "concepto": {
+                              "stringValue": "Devolución — Juan"
+                            },
+                            "monto": {
+                              "integerValue": "100"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "id": {
+                              "integerValue": "303"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "15:03"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "doubleValue": 1713.02
+                            },
+                            "autorizadoPor": {
+                              "stringValue": "admin"
+                            },
+                            "concepto": {
+                              "stringValue": "Corte del día"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "14014"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "hora": {
+                              "stringValue": "08:44"
+                            },
+                            "monto": {
+                              "integerValue": "1"
+                            },
+                            "concepto": {
+                              "stringValue": "Devolución — cancelación NOTA DE VENTA-006 (juan)"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "17616"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Adalberto  Vazquez Orozco"
+                            },
+                            "hora": {
+                              "stringValue": "11:50"
+                            },
+                            "monto": {
+                              "integerValue": "10000"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Armando  Vargas"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "id": {
+                              "integerValue": "23414"
+                            },
+                            "monto": {
+                              "integerValue": "2700"
+                            },
+                            "hora": {
+                              "stringValue": "10:10"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "13595"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "autorizadoPor": {
+                              "stringValue": "admin"
+                            },
+                            "concepto": {
+                              "stringValue": "Corte del día"
+                            },
+                            "hora": {
+                              "stringValue": "12:04"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "965"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Pago co2 · Distribuidora de Aceros González Gallo"
+                            },
+                            "hora": {
+                              "stringValue": "15:59"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "proveedor": {
+                              "stringValue": "Distribuidora de Aceros González Gallo"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Envío ejes · Transportes Castellanos"
+                            },
+                            "monto": {
+                              "integerValue": "700"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "hora": {
+                              "stringValue": "09:08"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "proveedor": {
+                              "stringValue": "Transportes Castellanos"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "12:03"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-07-14"
+                            },
+                            "concepto": {
+                              "stringValue": "Anticipo pedido 2783 — Alfredo García"
+                            },
+                            "monto": {
+                              "integerValue": "15000"
+                            },
+                            "id": {
+                              "integerValue": "35615"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Corte del día"
+                            },
+                            "monto": {
+                              "integerValue": "15000"
+                            },
+                            "autorizadoPor": {
+                              "stringValue": "admin"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "hora": {
+                              "stringValue": "12:09"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Venta paleta y pijas"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "monto": {
+                              "integerValue": "406"
+                            },
+                            "hora": {
+                              "stringValue": "15:56"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "42655"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "hora": {
+                              "stringValue": "09:04"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Jorge Luis  Jiménez"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "id": {
+                              "integerValue": "46217"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Corte del día"
+                            },
+                            "monto": {
+                              "integerValue": "43000"
+                            },
+                            "hora": {
+                              "stringValue": "12:34"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "autorizadoPor": {
+                              "stringValue": "admin"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "46218"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Alejandro  Campos"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "monto": {
+                              "integerValue": "1900"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "12:50"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "proveedor": {
+                              "stringValue": "Transportes Castellanos"
+                            },
+                            "hora": {
+                              "stringValue": "10:32"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Envío de concha · Transportes Castellanos"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "monto": {
+                              "integerValue": "150"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Pago láminas Lalo"
+                            },
+                            "hora": {
+                              "stringValue": "17:29"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "monto": {
+                              "integerValue": "50"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "10:38"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Nitrógeno · Moy"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "proveedor": {
+                              "stringValue": "Moy"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "integerValue": "480"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "12:38"
+                            },
+                            "monto": {
+                              "integerValue": "367"
+                            },
+                            "concepto": {
+                              "stringValue": "Tubo de aluminio Roy"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Caballetes de redila (cambio)"
+                            },
+                            "monto": {
+                              "integerValue": "100"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "10:28"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "hora": {
+                              "stringValue": "10:56"
+                            },
+                            "monto": {
+                              "integerValue": "120"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Gasolina 5L"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "monto": {
+                              "integerValue": "39000"
+                            },
+                            "id": {
+                              "integerValue": "71621"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Juan Luis  López"
+                            },
+                            "hora": {
+                              "stringValue": "10:03"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "corte"
+                            },
+                            "monto": {
+                              "integerValue": "39000"
+                            },
+                            "autorizadoPor": {
+                              "stringValue": "admin"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "hora": {
+                              "stringValue": "13:54"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "hora": {
+                              "stringValue": "16:24"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Bandas para Nissan (Raúl Ordeñador)"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "integerValue": "637"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "100"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Reparación de bisagras (cambio)"
+                            },
+                            "hora": {
+                              "stringValue": "16:24"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "concepto": {
+                              "stringValue": "Venta NOTA DE VENTA-042 — Venta en mostrador"
+                            },
+                            "id": {
+                              "integerValue": "115278"
+                            },
+                            "hora": {
+                              "stringValue": "11:50"
+                            },
+                            "monto": {
+                              "integerValue": "245"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-07-25"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "12:37"
+                            },
+                            "monto": {
+                              "integerValue": "129"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-07-27"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "id": {
+                              "integerValue": "138359"
+                            },
+                            "concepto": {
+                              "stringValue": "Anticipo pedido NOTA DE VENTA-043 — Venta en mostrador"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "autorizadoPor": {
+                              "stringValue": "admin"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "concepto": {
+                              "stringValue": "Corte del día"
+                            },
+                            "hora": {
+                              "stringValue": "12:44"
+                            },
+                            "monto": {
+                              "integerValue": "1000"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "hora": {
+                              "stringValue": "12:45"
+                            },
+                            "monto": {
+                              "integerValue": "100"
+                            },
+                            "concepto": {
+                              "stringValue": "Cambio monedas"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "autorizadoPor": {
+                              "stringValue": "admin"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Corte del día"
+                            },
+                            "hora": {
+                              "stringValue": "12:48"
+                            },
+                            "monto": {
+                              "doubleValue": 0.6
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Gas co2 · Distribuidora de Aceros González Gallo"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "hora": {
+                              "stringValue": "15:30"
+                            },
+                            "monto": {
+                              "integerValue": "965"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "proveedor": {
+                              "stringValue": "Distribuidora de Aceros González Gallo"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "08:47"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Cambio llanta Roy"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "monto": {
+                              "integerValue": "50"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "fecha": {
+                  "stringValue": "2026-06-20"
+                },
+                "fondo": {
+                  "integerValue": "2500"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "movimientos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "200"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria (Secretaria Adm.)"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Camper usado Hilux (cambio)"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            },
+                            "hora": {
+                              "stringValue": "12:37"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "integerValue": "20"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria (Secretaria Adm.)"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            },
+                            "hora": {
+                              "stringValue": "12:38"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Remolque negro (cambio)"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Reparación (cambio)"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "hora": {
+                              "stringValue": "12:39"
+                            },
+                            "monto": {
+                              "integerValue": "20"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria (Secretaria Adm.)"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            },
+                            "hora": {
+                              "stringValue": "12:39"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Minerales"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria (Secretaria Adm.)"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "monto": {
+                              "integerValue": "50"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Ventanas de camarote (cambio)"
+                            },
+                            "hora": {
+                              "stringValue": "17:27"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "integerValue": "190"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria (Secretaria Adm.)"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "usuario": {
+                              "stringValue": "Secretaria (Secretaria Adm.)"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "monto": {
+                              "integerValue": "700"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Reparación de camión (cambio)"
+                            },
+                            "hora": {
+                              "stringValue": "17:27"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "usuario": {
+                  "stringValue": "Secretaria (Secretaria Adm.)"
+                },
+                "id": {
+                  "integerValue": "336"
+                },
+                "fondo": {
+                  "integerValue": "2500"
+                },
+                "fecha": {
+                  "stringValue": "2026-07-08"
+                },
+                "hora": {
+                  "stringValue": "12:37"
+                },
+                "cerrada": {
+                  "booleanValue": false
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fondo": {
+                  "integerValue": "2500"
+                },
+                "hora": {
+                  "stringValue": "17:18"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "horaCierre": {
+                  "stringValue": "09:53"
+                },
+                "diferencia": {
+                  "integerValue": "0"
+                },
+                "obsCierre": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "343943"
+                },
+                "cerrada": {
+                  "booleanValue": true
+                },
+                "ventas": {
+                  "arrayValue": {}
+                },
+                "saldo": {
+                  "doubleValue": -16817.55
+                },
+                "fecha": {
+                  "stringValue": "2026-08-04"
+                },
+                "saldoEsperado": {
+                  "integerValue": "11000"
+                },
+                "movimientos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "09:04"
+                            },
+                            "monto": {
+                              "integerValue": "855"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-05"
+                            },
+                            "concepto": {
+                              "stringValue": "Anticipo pedido NOTA DE VENTA-058 — Venta en mostrador"
+                            },
+                            "ventaId": {
+                              "integerValue": "347730"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "id": {
+                              "integerValue": "353795"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "48366"
+                            },
+                            "hora": {
+                              "stringValue": "11:11"
+                            },
+                            "id": {
+                              "integerValue": "369570"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Pepe Barba"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "48366"
+                            },
+                            "hora": {
+                              "stringValue": "12:00"
+                            },
+                            "concepto": {
+                              "stringValue": "pepe"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "id": {
+                              "integerValue": "344743"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "25000"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "14:49"
+                            },
+                            "id": {
+                              "integerValue": "377672"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Heriberto  Rubalcaba"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Raúl Ordeñador"
+                            },
+                            "monto": {
+                              "integerValue": "815"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "hora": {
+                              "stringValue": "11:22"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "id": {
+                              "integerValue": "396982"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "proveedor": {
+                              "stringValue": "Transportes Castellanos"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Envío paquete · Transportes Castellanos"
+                            },
+                            "monto": {
+                              "integerValue": "150"
+                            },
+                            "id": {
+                              "integerValue": "402147"
+                            },
+                            "hora": {
+                              "stringValue": "11:22"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "15:06"
+                            },
+                            "monto": {
+                              "integerValue": "26000"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Enrique Velazco"
+                            },
+                            "id": {
+                              "integerValue": "438223"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "monto": {
+                              "integerValue": "2450"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "15:41"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Eduardo Solorzano"
+                            },
+                            "id": {
+                              "integerValue": "443062"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "hora": {
+                              "stringValue": "13:13"
+                            },
+                            "monto": {
+                              "integerValue": "2025"
+                            },
+                            "proveedor": {
+                              "stringValue": "Saltec"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "id": {
+                              "integerValue": "430040"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Reparación de reguladores · Saltec"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "15:37"
+                            },
+                            "monto": {
+                              "integerValue": "1606"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "proveedor": {
+                              "stringValue": "Dupont (Axalta)"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Pintura · Dupont (Axalta)"
+                            },
+                            "id": {
+                              "integerValue": "442187"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Anticipo pedido NOTA DE VENTA-063 — Venta en mostrador"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-08"
+                            },
+                            "hora": {
+                              "stringValue": "09:40"
+                            },
+                            "monto": {
+                              "integerValue": "1000"
+                            },
+                            "id": {
+                              "integerValue": "420234"
+                            },
+                            "ventaId": {
+                              "integerValue": "416799"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "450565"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "integerValue": "26000"
+                            },
+                            "hora": {
+                              "stringValue": "08:56"
+                            },
+                            "concepto": {
+                              "stringValue": "caja"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "11:16"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Pintar camper · Gus"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "id": {
+                              "integerValue": "452048"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "proveedor": {
+                              "stringValue": "Gus"
+                            },
+                            "monto": {
+                              "integerValue": "700"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "integerValue": "20"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Cambio llanta Roy"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "id": {
+                              "integerValue": "459662"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "hora": {
+                              "stringValue": "12:17"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "14:18"
+                            },
+                            "monto": {
+                              "integerValue": "6200"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Carlos Martín Ramírez"
+                            },
+                            "id": {
+                              "integerValue": "480042"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "15:47"
+                            },
+                            "id": {
+                              "integerValue": "478395"
+                            },
+                            "concepto": {
+                              "stringValue": "corte de caja"
+                            },
+                            "monto": {
+                              "integerValue": "6500"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "478396"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "hora": {
+                              "stringValue": "15:47"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "concepto": {
+                              "stringValue": "corte de caja"
+                            },
+                            "monto": {
+                              "integerValue": "25000"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "dinero para pagos en general"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "id": {
+                              "integerValue": "478397"
+                            },
+                            "hora": {
+                              "stringValue": "15:48"
+                            },
+                            "monto": {
+                              "integerValue": "2000"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "id": {
+                              "integerValue": "483578"
+                            },
+                            "ventaId": {
+                              "integerValue": "479700"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-10"
+                            },
+                            "hora": {
+                              "stringValue": "09:18"
+                            },
+                            "monto": {
+                              "integerValue": "722"
+                            },
+                            "concepto": {
+                              "stringValue": "Anticipo pedido NOTA DE VENTA-065 — Venta en mostrador"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "09:19"
+                            },
+                            "id": {
+                              "integerValue": "500955"
+                            },
+                            "monto": {
+                              "integerValue": "50"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "concepto": {
+                              "stringValue": "Cambio en monedas"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "09:02"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Servicios"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Servicios] — Recarga cel"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "id": {
+                              "integerValue": "522745"
+                            },
+                            "monto": {
+                              "integerValue": "100"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "hora": {
+                              "stringValue": "11:53"
+                            },
+                            "monto": {
+                              "integerValue": "1000"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "id": {
+                              "integerValue": "607285"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Juan vacas"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "id": {
+                              "integerValue": "633797"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Encendedor · Tienda"
+                            },
+                            "monto": {
+                              "integerValue": "20"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            },
+                            "hora": {
+                              "stringValue": "08:35"
+                            },
+                            "proveedor": {
+                              "stringValue": "Tienda"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "monto": {
+                              "integerValue": "839"
+                            },
+                            "ventaId": {
+                              "integerValue": "634280"
+                            },
+                            "concepto": {
+                              "stringValue": "Anticipo pedido NOTA DE VENTA-079 — Venta en mostrador"
+                            },
+                            "id": {
+                              "integerValue": "643688"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-18"
+                            },
+                            "hora": {
+                              "stringValue": "11:34"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "id": {
+                              "integerValue": "664518"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "hora": {
+                              "stringValue": "15:00"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Materiales varios (Raúl Ordeñador)"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "integerValue": "726"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "integerValue": "5"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "id": {
+                              "integerValue": "662512"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Gatos 23\" (cambio)"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "hora": {
+                              "stringValue": "15:57"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Maniobras TER1070 (cambio)"
+                            },
+                            "monto": {
+                              "integerValue": "50"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            },
+                            "id": {
+                              "integerValue": "674350"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "hora": {
+                              "stringValue": "11:07"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "18000"
+                            },
+                            "hora": {
+                              "stringValue": "11:49"
+                            },
+                            "ventaId": {
+                              "integerValue": "675566"
+                            },
+                            "concepto": {
+                              "stringValue": "Anticipo pedido 2796 — Luis Felipe De La Torre Barba"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-19"
+                            },
+                            "id": {
+                              "integerValue": "681731"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Héctor  de la Garza"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "id": {
+                              "integerValue": "696496"
+                            },
+                            "monto": {
+                              "integerValue": "12500"
+                            },
+                            "hora": {
+                              "stringValue": "10:55"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Anticipo pedido 2797 — Francisco Franco"
+                            },
+                            "monto": {
+                              "integerValue": "10000"
+                            },
+                            "hora": {
+                              "stringValue": "14:54"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-20"
+                            },
+                            "id": {
+                              "integerValue": "705082"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "ventaId": {
+                              "integerValue": "700685"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "15:48"
+                            },
+                            "monto": {
+                              "integerValue": "10000"
+                            },
+                            "id": {
+                              "integerValue": "709990"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "concepto": {
+                              "stringValue": "corte de caja"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Neopreno Lalo"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "id": {
+                              "integerValue": "735153"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "monto": {
+                              "doubleValue": 97.5
+                            },
+                            "hora": {
+                              "stringValue": "12:26"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "doubleValue": 97.5
+                            },
+                            "hora": {
+                              "stringValue": "14:38"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Neopreno Lalo"
+                            },
+                            "id": {
+                              "integerValue": "733978"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "17:06"
+                            },
+                            "monto": {
+                              "integerValue": "12500"
+                            },
+                            "id": {
+                              "integerValue": "731976"
+                            },
+                            "concepto": {
+                              "stringValue": "corte"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "corte"
+                            },
+                            "hora": {
+                              "stringValue": "17:07"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "monto": {
+                              "integerValue": "12500"
+                            },
+                            "id": {
+                              "integerValue": "731977"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "corte de caja"
+                            },
+                            "monto": {
+                              "integerValue": "12500"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "hora": {
+                              "stringValue": "17:07"
+                            },
+                            "id": {
+                              "integerValue": "731978"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "corte de caja"
+                            },
+                            "hora": {
+                              "stringValue": "17:07"
+                            },
+                            "id": {
+                              "integerValue": "731979"
+                            },
+                            "monto": {
+                              "integerValue": "18000"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Anticipo pedido NOTA DE VENTA-091 — Juan Pablo Matínez"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "monto": {
+                              "integerValue": "987"
+                            },
+                            "hora": {
+                              "stringValue": "11:53"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-24"
+                            },
+                            "ventaId": {
+                              "integerValue": "798802"
+                            },
+                            "id": {
+                              "integerValue": "802960"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "proveedor": {
+                              "stringValue": "Ferre Glez. Gallo"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "id": {
+                              "integerValue": "806383"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "monto": {
+                              "integerValue": "1930"
+                            },
+                            "hora": {
+                              "stringValue": "12:41"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Tanques co2 · Ferre Glez. Gallo"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "14:40"
+                            },
+                            "id": {
+                              "integerValue": "814361"
+                            },
+                            "monto": {
+                              "integerValue": "8700"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Alejandro Campos"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "doubleValue": 24317.55
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "hora": {
+                              "stringValue": "16:13"
+                            },
+                            "concepto": {
+                              "stringValue": "corte"
+                            },
+                            "id": {
+                              "integerValue": "804111"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "12:49"
+                            },
+                            "id": {
+                              "integerValue": "810157"
+                            },
+                            "monto": {
+                              "integerValue": "723"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Gatos de 12\" (2)"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "13:11"
+                            },
+                            "concepto": {
+                              "stringValue": "error del programa"
+                            },
+                            "monto": {
+                              "integerValue": "5000"
+                            },
+                            "id": {
+                              "integerValue": "821570"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "monto": {
+                              "integerValue": "900"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Transportes Castellanos"
+                            },
+                            "hora": {
+                              "stringValue": "14:03"
+                            },
+                            "id": {
+                              "integerValue": "823250"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "16:58"
+                            },
+                            "id": {
+                              "integerValue": "832335"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — Juan Pablo Iñiguez Guevara"
+                            },
+                            "monto": {
+                              "integerValue": "20000"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "id": {
+                              "integerValue": "822368"
+                            },
+                            "monto": {
+                              "integerValue": "20000"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "concepto": {
+                              "stringValue": "corte de caja"
+                            },
+                            "hora": {
+                              "stringValue": "16:59"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "restablecer caja"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "id": {
+                              "integerValue": "822369"
+                            },
+                            "hora": {
+                              "stringValue": "17:01"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "monto": {
+                              "integerValue": "1826"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "fechaCierre": {
+                  "stringValue": "2026-08-27"
+                },
+                "saldoContado": {
+                  "integerValue": "11000"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "826568"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "movimientos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "hora": {
+                              "stringValue": "10:38"
+                            },
+                            "monto": {
+                              "integerValue": "5000"
+                            },
+                            "id": {
+                              "integerValue": "840229"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "concepto": {
+                              "stringValue": "Pago de pedido — José de Jesús Rubio Vera"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "monto": {
+                              "integerValue": "5000"
+                            },
+                            "hora": {
+                              "stringValue": "11:21"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "usuario": {
+                              "stringValue": "Administrador"
+                            },
+                            "concepto": {
+                              "stringValue": "corte de caja"
+                            },
+                            "id": {
+                              "integerValue": "826768"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "concepto": {
+                              "stringValue": "Insumo [Otro] — Raúl Ordeñador"
+                            },
+                            "monto": {
+                              "integerValue": "730"
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Otro"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "hora": {
+                              "stringValue": "15:22"
+                            },
+                            "proveedor": {
+                              "stringValue": ""
+                            },
+                            "id": {
+                              "integerValue": "842664"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "875486"
+                            },
+                            "tipo": {
+                              "stringValue": "salida"
+                            },
+                            "concepto": {
+                              "stringValue": "Insumo [Materiales] — Refacciones varias · Uniferre"
+                            },
+                            "monto": {
+                              "doubleValue": 94.5
+                            },
+                            "hora": {
+                              "stringValue": "13:10"
+                            },
+                            "usuario": {
+                              "stringValue": "Secretaria"
+                            },
+                            "esInsumo": {
+                              "booleanValue": true
+                            },
+                            "categoriaInsumo": {
+                              "stringValue": "Materiales"
+                            },
+                            "proveedor": {
+                              "stringValue": "Uniferre"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "id": {
+                              "integerValue": "876740"
+                            },
+                            "tipo": {
+                              "stringValue": "entrada"
+                            },
+                            "monto": {
+                              "integerValue": "825"
+                            },
+                            "concepto": {
+                              "stringValue": "Anticipo pedido NOTA DE VENTA-097 — Alejandro Guerra"
+                            },
+                            "fecha": {
+                              "stringValue": "2026-08-28"
+                            },
+                            "hora": {
+                              "stringValue": "16:24"
+                            },
+                            "ventaId": {
+                              "integerValue": "875495"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "fecha": {
+                  "stringValue": "2026-08-27"
+                },
+                "cerrada": {
+                  "booleanValue": false
+                },
+                "fondo": {
+                  "integerValue": "2500"
+                },
+                "hora": {
+                  "stringValue": "09:53"
+                },
+                "saldo": {
+                  "doubleValue": 0.5
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-06-07T03:49:45.055570Z",
+  "updateTime": "2026-08-31T15:34:19.459497Z"
+}

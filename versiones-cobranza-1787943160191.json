@@ -1,0 +1,30 @@
+{
+  "coleccion": "cobranza",
+  "registros": {
+    "144349": {
+      "label": "Gabriel  Valencia",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "250765": {
+      "label": "Rafa",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "archivado:true"
+    },
+    "609153": {
+      "label": "Pepe Barba",
+      "ts": "2026-08-28 18:08:46",
+      "flags": "archivado:true"
+    },
+    "690480": {
+      "label": "Cristobal  Morales",
+      "ts": "2026-08-28 18:08:46",
+      "flags": "archivado:true"
+    },
+    "733176": {
+      "label": "Alejandro Campos",
+      "ts": "2026-08-28 18:08:46",
+      "flags": "archivado:true"
+    }
+  }
+}

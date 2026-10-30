@@ -1,0 +1,49 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/reportesProduccion/data",
+  "fields": {
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "revisadoPor": {
+                  "stringValue": "Secretaria"
+                },
+                "id": {
+                  "integerValue": "673197"
+                },
+                "folioPedido": {
+                  "stringValue": "2792"
+                },
+                "pedidoId": {
+                  "integerValue": "9878"
+                },
+                "items": {
+                  "arrayValue": {}
+                },
+                "cliente": {
+                  "stringValue": "Miguel Angel Samaniego"
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "notas": {
+                  "stringValue": ""
+                },
+                "fecha": {
+                  "stringValue": "2026-08-18"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "updatedAt": {
+      "integerValue": "1788195135851"
+    }
+  },
+  "createTime": "2026-08-31T16:52:16.293313Z",
+  "updateTime": "2026-08-31T16:52:16.293313Z"
+}

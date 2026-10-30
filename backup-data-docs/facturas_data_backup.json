@@ -1,0 +1,1048 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/facturas/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788190236179"
+    },
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "fechaTimbrado": {
+                  "stringValue": "2026-06-19T15:32:58"
+                },
+                "folio": {
+                  "stringValue": "2109"
+                },
+                "total": {
+                  "stringValue": "9048.00"
+                },
+                "fecha": {
+                  "stringValue": "2026-06-19T15:32:57"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "id": {
+                  "integerValue": "180"
+                },
+                "moneda": {
+                  "stringValue": "MXN"
+                },
+                "usoCfdi": {
+                  "stringValue": "G03"
+                },
+                "tipoComprobante": {
+                  "stringValue": "I"
+                },
+                "tienePdf": {
+                  "booleanValue": true
+                },
+                "conceptos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "importe": {
+                              "stringValue": "7800.000000"
+                            },
+                            "descripcion": {
+                              "stringValue": "Reparación de caja"
+                            },
+                            "valorUnitario": {
+                              "stringValue": "7800.000000"
+                            },
+                            "cantidad": {
+                              "stringValue": "1"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "serie": {
+                  "stringValue": "AM"
+                },
+                "tieneXml": {
+                  "booleanValue": true
+                },
+                "receptor": {
+                  "stringValue": "TRUCKS COLD VIP"
+                },
+                "formaPago": {
+                  "stringValue": "03"
+                },
+                "emisor": {
+                  "stringValue": "AMANDA LOPEZ GALINDO"
+                },
+                "fechaRegistro": {
+                  "stringValue": "2026-06-19"
+                },
+                "rfcEmisor": {
+                  "stringValue": "LOGA810403SP7"
+                },
+                "subTotal": {
+                  "stringValue": "7800"
+                },
+                "metodoPago": {
+                  "stringValue": "PUE"
+                },
+                "rfcReceptor": {
+                  "stringValue": "TCV251218FD7"
+                },
+                "uuid": {
+                  "stringValue": "71F1186D-E0E9-491D-9406-B1D6F828578F"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "moneda": {
+                  "stringValue": "MXN"
+                },
+                "id": {
+                  "integerValue": "181"
+                },
+                "usoCfdi": {
+                  "stringValue": "I02"
+                },
+                "tipoComprobante": {
+                  "stringValue": "I"
+                },
+                "folio": {
+                  "stringValue": "109"
+                },
+                "fechaTimbrado": {
+                  "stringValue": "2025-07-09T17:15:27"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "fecha": {
+                  "stringValue": "2025-07-09T17:15:26"
+                },
+                "total": {
+                  "stringValue": "177300.00"
+                },
+                "fechaRegistro": {
+                  "stringValue": "2026-06-19"
+                },
+                "rfcEmisor": {
+                  "stringValue": "LOGA810403SP7"
+                },
+                "subTotal": {
+                  "stringValue": "152844.83"
+                },
+                "metodoPago": {
+                  "stringValue": "PPD"
+                },
+                "uuid": {
+                  "stringValue": "02660D0A-60C9-41F6-B128-F4BAAAF19EFC"
+                },
+                "rfcReceptor": {
+                  "stringValue": "APH050115RC7"
+                },
+                "conceptos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "cantidad": {
+                              "stringValue": "1"
+                            },
+                            "descripcion": {
+                              "stringValue": "Remolque tipo caja seca, doble eje de 5 birlos con frenos en un eje, color: blanco, medidas exteriores: largo: 6.05m, ancho: 2.45m, alto: 2.20m, modelo: 2025, unidad nueva, capacidad de carga: 1500 kilogramos, número de serie:3J9BCBB08SC0 79016, marca: Campers y Casetas La Cuesta."
+                            },
+                            "valorUnitario": {
+                              "stringValue": "152844.830000"
+                            },
+                            "importe": {
+                              "stringValue": "152844.830000"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "tienePdf": {
+                  "booleanValue": true
+                },
+                "tieneXml": {
+                  "booleanValue": true
+                },
+                "receptor": {
+                  "stringValue": "AIR PHARMA"
+                },
+                "serie": {
+                  "stringValue": "RA"
+                },
+                "formaPago": {
+                  "stringValue": "99"
+                },
+                "emisor": {
+                  "stringValue": "AMANDA LOPEZ GALINDO"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "emisor": {
+                  "stringValue": "AMANDA LOPEZ GALINDO"
+                },
+                "formaPago": {
+                  "stringValue": "03"
+                },
+                "tieneXml": {
+                  "booleanValue": true
+                },
+                "receptor": {
+                  "stringValue": "ADRIANA GONZALEZ RUBALCAVA"
+                },
+                "serie": {
+                  "stringValue": "NC"
+                },
+                "conceptos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "descripcion": {
+                              "stringValue": "Descuento aplicado a factura AM425"
+                            },
+                            "valorUnitario": {
+                              "stringValue": "103448.280000"
+                            },
+                            "importe": {
+                              "stringValue": "103448.280000"
+                            },
+                            "cantidad": {
+                              "stringValue": "1"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "tienePdf": {
+                  "booleanValue": true
+                },
+                "rfcReceptor": {
+                  "stringValue": "GORA8303248A0"
+                },
+                "uuid": {
+                  "stringValue": "DBF81393-A884-4B32-865D-13A9E3C1049D"
+                },
+                "subTotal": {
+                  "stringValue": "103448.28"
+                },
+                "metodoPago": {
+                  "stringValue": "PUE"
+                },
+                "rfcEmisor": {
+                  "stringValue": "LOGA810403SP7"
+                },
+                "fechaRegistro": {
+                  "stringValue": "2026-06-19"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "total": {
+                  "stringValue": "120000.00"
+                },
+                "fecha": {
+                  "stringValue": "2023-03-31T12:10:13"
+                },
+                "folio": {
+                  "stringValue": "5"
+                },
+                "fechaTimbrado": {
+                  "stringValue": "2023-03-31T12:10:14"
+                },
+                "tipoComprobante": {
+                  "stringValue": "E"
+                },
+                "usoCfdi": {
+                  "stringValue": "G03"
+                },
+                "moneda": {
+                  "stringValue": "MXN"
+                },
+                "id": {
+                  "integerValue": "183"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "moneda": {
+                  "stringValue": "XXX"
+                },
+                "id": {
+                  "integerValue": "186"
+                },
+                "usoCfdi": {
+                  "stringValue": "CP01"
+                },
+                "tipoComprobante": {
+                  "stringValue": "P"
+                },
+                "folio": {
+                  "stringValue": ""
+                },
+                "fechaTimbrado": {
+                  "stringValue": "2026-05-14T15:16:27"
+                },
+                "usuario": {
+                  "stringValue": "Administrador"
+                },
+                "total": {
+                  "stringValue": "34990"
+                },
+                "fecha": {
+                  "stringValue": "2026-05-14T15:16:26"
+                },
+                "fechaRegistro": {
+                  "stringValue": "2026-06-19"
+                },
+                "rfcEmisor": {
+                  "stringValue": "LOGA810403SP7"
+                },
+                "metodoPago": {
+                  "stringValue": ""
+                },
+                "subTotal": {
+                  "stringValue": "0"
+                },
+                "uuid": {
+                  "stringValue": "A10B0EAF-A4C8-46C0-9B35-1EB4F66FC4B1"
+                },
+                "rfcReceptor": {
+                  "stringValue": "BACD880523MC0"
+                },
+                "conceptos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "descripcion": {
+                              "stringValue": "Pago"
+                            },
+                            "valorUnitario": {
+                              "stringValue": "0"
+                            },
+                            "importe": {
+                              "stringValue": "0"
+                            },
+                            "cantidad": {
+                              "stringValue": "1"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "tienePdf": {
+                  "booleanValue": true
+                },
+                "tieneXml": {
+                  "booleanValue": true
+                },
+                "receptor": {
+                  "stringValue": "DANIEL MARCELINO BARAJAS CARRANZA"
+                },
+                "serie": {
+                  "stringValue": ""
+                },
+                "formaPago": {
+                  "stringValue": ""
+                },
+                "emisor": {
+                  "stringValue": "AMANDA LOPEZ GALINDO"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "usoCfdi": {
+                  "stringValue": "G03"
+                },
+                "moneda": {
+                  "stringValue": "MXN"
+                },
+                "id": {
+                  "integerValue": "296"
+                },
+                "tipoComprobante": {
+                  "stringValue": "I"
+                },
+                "folio": {
+                  "stringValue": "2100"
+                },
+                "fechaTimbrado": {
+                  "stringValue": "2026-06-15T11:17:51"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "fecha": {
+                  "stringValue": "2026-06-15T11:17:49"
+                },
+                "total": {
+                  "stringValue": "9825.20"
+                },
+                "rfcEmisor": {
+                  "stringValue": "LOGA810403SP7"
+                },
+                "fechaRegistro": {
+                  "stringValue": "2026-07-06"
+                },
+                "rfcReceptor": {
+                  "stringValue": "PCU960209TA7"
+                },
+                "uuid": {
+                  "stringValue": "48AF1DC0-E622-4515-9D85-D489DF8D418F"
+                },
+                "metodoPago": {
+                  "stringValue": "PPD"
+                },
+                "subTotal": {
+                  "stringValue": "8470"
+                },
+                "receptor": {
+                  "stringValue": "POSTA EL CUATRO"
+                },
+                "tieneXml": {
+                  "booleanValue": true
+                },
+                "serie": {
+                  "stringValue": "AM"
+                },
+                "conceptos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "valorUnitario": {
+                              "stringValue": "8470.000000"
+                            },
+                            "descripcion": {
+                              "stringValue": "Reparación de puertas traseras de carrocería"
+                            },
+                            "importe": {
+                              "stringValue": "8470.000000"
+                            },
+                            "cantidad": {
+                              "stringValue": "1"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "tienePdf": {
+                  "booleanValue": true
+                },
+                "emisor": {
+                  "stringValue": "AMANDA LOPEZ GALINDO"
+                },
+                "formaPago": {
+                  "stringValue": "99"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "uuid": {
+                  "stringValue": "EA1F8DC0-FB34-40F9-A2AB-49FD57FBCE91"
+                },
+                "rfcEmisor": {
+                  "stringValue": "LOGA810403SP7"
+                },
+                "usoCfdi": {
+                  "stringValue": "G03"
+                },
+                "xmlUrl": {
+                  "stringValue": "https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/facturas%2F562455%2Ffactura.xml?alt=media&token=2f4e84b3-33bc-483b-8396-f0089236e7a6"
+                },
+                "subTotal": {
+                  "stringValue": "12730"
+                },
+                "serie": {
+                  "stringValue": "AM"
+                },
+                "tipoComprobante": {
+                  "stringValue": "I"
+                },
+                "pdfUrl": {
+                  "stringValue": "https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/facturas%2F562455%2Ffactura.pdf?alt=media&token=8d4fb565-64f9-40a7-b962-16b3cb5e93c6"
+                },
+                "rfcReceptor": {
+                  "stringValue": "LAV891027PP3"
+                },
+                "receptor": {
+                  "stringValue": "LABORATORIOS AVILAB"
+                },
+                "tienePdf": {
+                  "booleanValue": true
+                },
+                "id": {
+                  "integerValue": "562455"
+                },
+                "folio": {
+                  "stringValue": "2200"
+                },
+                "conceptos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "valorUnitario": {
+                              "stringValue": "12730.000000"
+                            },
+                            "descripcion": {
+                              "stringValue": "Servicio de reparación para caja de Nissan"
+                            },
+                            "importe": {
+                              "stringValue": "12730.000000"
+                            },
+                            "cantidad": {
+                              "stringValue": "1"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "moneda": {
+                  "stringValue": "MXN"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-05T15:52:51"
+                },
+                "metodoPago": {
+                  "stringValue": "PPD"
+                },
+                "fechaRegistro": {
+                  "stringValue": "2026-08-14"
+                },
+                "formaPago": {
+                  "stringValue": "99"
+                },
+                "emisor": {
+                  "stringValue": "AMANDA LOPEZ GALINDO"
+                },
+                "fechaTimbrado": {
+                  "stringValue": "2026-08-05T15:52:52"
+                },
+                "total": {
+                  "stringValue": "14766.80"
+                },
+                "tieneXml": {
+                  "booleanValue": true
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "formaPago": {
+                  "stringValue": ""
+                },
+                "tienePdf": {
+                  "booleanValue": true
+                },
+                "folio": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "627329"
+                },
+                "metodoPago": {
+                  "stringValue": ""
+                },
+                "subTotal": {
+                  "stringValue": "0"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "xmlUrl": {
+                  "stringValue": "https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/facturas%2F627329%2Ffactura.xml?alt=media&token=2f518e29-4152-440a-a6b5-ee224e6be08c"
+                },
+                "serie": {
+                  "stringValue": ""
+                },
+                "usoCfdi": {
+                  "stringValue": "CP01"
+                },
+                "fecha": {
+                  "stringValue": "2026-08-17T15:40:50"
+                },
+                "fechaTimbrado": {
+                  "stringValue": "2026-08-17T15:40:51"
+                },
+                "total": {
+                  "stringValue": "10000"
+                },
+                "rfcEmisor": {
+                  "stringValue": "LOGA810403SP7"
+                },
+                "tieneXml": {
+                  "booleanValue": true
+                },
+                "fechaRegistro": {
+                  "stringValue": "2026-08-17"
+                },
+                "rfcReceptor": {
+                  "stringValue": "GARL620621R22"
+                },
+                "moneda": {
+                  "stringValue": "XXX"
+                },
+                "uuid": {
+                  "stringValue": "25D73269-9708-4E2E-8F3A-90D814509225"
+                },
+                "emisor": {
+                  "stringValue": "AMANDA LOPEZ GALINDO"
+                },
+                "receptor": {
+                  "stringValue": "LUIS GONZAGA GARCIA RIVERA"
+                },
+                "tipoComprobante": {
+                  "stringValue": "P"
+                },
+                "conceptos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "importe": {
+                              "stringValue": "0"
+                            },
+                            "descripcion": {
+                              "stringValue": "Pago"
+                            },
+                            "valorUnitario": {
+                              "stringValue": "0"
+                            },
+                            "cantidad": {
+                              "stringValue": "1"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "pdfUrl": {
+                  "stringValue": "https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/facturas%2F627329%2Ffactura.pdf?alt=media&token=cfac7cdf-ca0f-49e4-addd-4252b11f6a6d"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "subTotal": {
+                  "stringValue": "0"
+                },
+                "uuid": {
+                  "stringValue": "32BD067F-9B01-476B-BE62-573DA0E15F41"
+                },
+                "conceptos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "valorUnitario": {
+                              "stringValue": "0"
+                            },
+                            "descripcion": {
+                              "stringValue": "Pago"
+                            },
+                            "cantidad": {
+                              "stringValue": "1"
+                            },
+                            "importe": {
+                              "stringValue": "0"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "fecha": {
+                  "stringValue": "2026-04-24T09:12:39"
+                },
+                "tipoComprobante": {
+                  "stringValue": "P"
+                },
+                "receptor": {
+                  "stringValue": "ELIZABETH MARTINEZ CASTAÑEDA"
+                },
+                "tieneXml": {
+                  "booleanValue": true
+                },
+                "pdfUrl": {
+                  "stringValue": "https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/facturas%2F690694%2Ffactura.pdf?alt=media&token=00d44d4c-4d4b-4478-994a-f9725af3cd56"
+                },
+                "usoCfdi": {
+                  "stringValue": "CP01"
+                },
+                "tienePdf": {
+                  "booleanValue": true
+                },
+                "formaPago": {
+                  "stringValue": ""
+                },
+                "xmlUrl": {
+                  "stringValue": "https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/facturas%2F690694%2Ffactura.xml?alt=media&token=da944f23-ae96-4491-bbb0-45bd9a959db2"
+                },
+                "fechaTimbrado": {
+                  "stringValue": "2026-04-24T09:12:41"
+                },
+                "emisor": {
+                  "stringValue": "AMANDA LOPEZ GALINDO"
+                },
+                "rfcEmisor": {
+                  "stringValue": "LOGA810403SP7"
+                },
+                "serie": {
+                  "stringValue": ""
+                },
+                "folio": {
+                  "stringValue": ""
+                },
+                "moneda": {
+                  "stringValue": "XXX"
+                },
+                "fechaRegistro": {
+                  "stringValue": "2026-08-19"
+                },
+                "metodoPago": {
+                  "stringValue": ""
+                },
+                "total": {
+                  "stringValue": "25000"
+                },
+                "rfcReceptor": {
+                  "stringValue": "MACE650815BB2"
+                },
+                "id": {
+                  "integerValue": "690694"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "moneda": {
+                  "stringValue": "MXN"
+                },
+                "tienePdf": {
+                  "booleanValue": true
+                },
+                "tipoComprobante": {
+                  "stringValue": "I"
+                },
+                "total": {
+                  "stringValue": "1981.30"
+                },
+                "metodoPago": {
+                  "stringValue": "PUE"
+                },
+                "emisor": {
+                  "stringValue": "AMANDA LOPEZ GALINDO"
+                },
+                "rfcReceptor": {
+                  "stringValue": "VADL620221IJ1"
+                },
+                "id": {
+                  "integerValue": "771868"
+                },
+                "receptor": {
+                  "stringValue": "JOSE LUIS VAZQUEZ DILLON"
+                },
+                "uuid": {
+                  "stringValue": "81F21AC0-DE6B-4975-96EF-2D9D0F8273D5"
+                },
+                "pdfUrl": {
+                  "stringValue": "https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/facturas%2F771868%2Ffactura.pdf?alt=media&token=62e0a23b-766b-4b0e-8023-2c810a31a78b"
+                },
+                "conceptos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "descripcion": {
+                              "stringValue": "Chapa hundida cuadrada chica de acero inoxidable"
+                            },
+                            "cantidad": {
+                              "stringValue": "1"
+                            },
+                            "valorUnitario": {
+                              "stringValue": "585.220000"
+                            },
+                            "importe": {
+                              "stringValue": "585.220000"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "importe": {
+                              "stringValue": "1122.800000"
+                            },
+                            "descripcion": {
+                              "stringValue": "Argollas tipo D"
+                            },
+                            "valorUnitario": {
+                              "stringValue": "280.700000"
+                            },
+                            "cantidad": {
+                              "stringValue": "4"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "fecha": {
+                  "stringValue": "2026-08-22T12:25:34"
+                },
+                "fechaTimbrado": {
+                  "stringValue": "2026-08-22T12:25:35"
+                },
+                "subTotal": {
+                  "stringValue": "1708.02"
+                },
+                "rfcEmisor": {
+                  "stringValue": "LOGA810403SP7"
+                },
+                "serie": {
+                  "stringValue": "AM"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "folio": {
+                  "stringValue": "2228"
+                },
+                "formaPago": {
+                  "stringValue": "01"
+                },
+                "fechaRegistro": {
+                  "stringValue": "2026-08-24"
+                },
+                "tieneXml": {
+                  "booleanValue": true
+                },
+                "xmlUrl": {
+                  "stringValue": "https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/facturas%2F771868%2Ffactura.xml?alt=media&token=38ac1819-ba03-4024-9252-6d1beb6bded4"
+                },
+                "usoCfdi": {
+                  "stringValue": "G03"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fecha": {
+                  "stringValue": "2024-10-16T16:25:29"
+                },
+                "subTotal": {
+                  "stringValue": "11225"
+                },
+                "usuario": {
+                  "stringValue": "Secretaria"
+                },
+                "rfcReceptor": {
+                  "stringValue": "GAG931203GC4"
+                },
+                "conceptos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "descripcion": {
+                              "stringValue": "Bisagra de puerta"
+                            },
+                            "valorUnitario": {
+                              "stringValue": "742.000000"
+                            },
+                            "importe": {
+                              "stringValue": "742.000000"
+                            },
+                            "cantidad": {
+                              "stringValue": "1"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "cantidad": {
+                              "stringValue": "2"
+                            },
+                            "importe": {
+                              "stringValue": "1050.000000"
+                            },
+                            "valorUnitario": {
+                              "stringValue": "525.000000"
+                            },
+                            "descripcion": {
+                              "stringValue": "Tramo de PTR de 6.10M x 2 x 1"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "valorUnitario": {
+                              "stringValue": "8691.000000"
+                            },
+                            "descripcion": {
+                              "stringValue": "Servicio mano de obra, costado dañado, Ajustar puertas, reparar marco de puertas placa: 8HG1172"
+                            },
+                            "cantidad": {
+                              "stringValue": "1"
+                            },
+                            "importe": {
+                              "stringValue": "8691.000000"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mapValue": {
+                          "fields": {
+                            "cantidad": {
+                              "stringValue": "2"
+                            },
+                            "descripcion": {
+                              "stringValue": "Sellador de poliuretano duretan"
+                            },
+                            "valorUnitario": {
+                              "stringValue": "371.000000"
+                            },
+                            "importe": {
+                              "stringValue": "742.000000"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "uuid": {
+                  "stringValue": "252F67D1-17E7-46FF-AA17-24DD2F8C57B3"
+                },
+                "total": {
+                  "stringValue": "12369.95"
+                },
+                "tieneXml": {
+                  "booleanValue": true
+                },
+                "fechaRegistro": {
+                  "stringValue": "2026-08-22"
+                },
+                "xmlUrl": {
+                  "stringValue": "https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/facturas%2F774446%2Ffactura.xml?alt=media&token=ec23ff6c-325c-42f0-89af-073c93122734"
+                },
+                "tipoComprobante": {
+                  "stringValue": "I"
+                },
+                "usoCfdi": {
+                  "stringValue": "G03"
+                },
+                "metodoPago": {
+                  "stringValue": "PPD"
+                },
+                "formaPago": {
+                  "stringValue": "99"
+                },
+                "tienePdf": {
+                  "booleanValue": true
+                },
+                "moneda": {
+                  "stringValue": "MXN"
+                },
+                "folio": {
+                  "stringValue": "1300"
+                },
+                "fechaTimbrado": {
+                  "stringValue": "2024-10-16T16:25:30"
+                },
+                "pdfUrl": {
+                  "stringValue": "https://firebasestorage.googleapis.com/v0/b/campers-la-cuesta-84ade.firebasestorage.app/o/facturas%2F774446%2Ffactura.pdf?alt=media&token=b9262db7-59fe-45ae-a696-646ce515cbdd"
+                },
+                "serie": {
+                  "stringValue": "AM"
+                },
+                "receptor": {
+                  "stringValue": "GENA AGROPECUARIA"
+                },
+                "rfcEmisor": {
+                  "stringValue": "LOGA810403SP7"
+                },
+                "emisor": {
+                  "stringValue": "AMANDA LOPEZ GALINDO"
+                },
+                "id": {
+                  "integerValue": "774446"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-06-07T03:49:45.265258Z",
+  "updateTime": "2026-08-31T15:30:36.749146Z"
+}

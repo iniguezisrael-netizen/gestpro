@@ -1,0 +1,26 @@
+[debug] [2026-07-11T17:50:32.563Z] ----------------------------------------------------------------------
+[debug] [2026-07-11T17:50:32.565Z] Command:       /usr/bin/node /tmp/fb/bin/firebase deploy --only hosting --project campers-la-cuesta-84ade
+[debug] [2026-07-11T17:50:32.565Z] CLI Version:   15.23.0
+[debug] [2026-07-11T17:50:32.565Z] Platform:      linux
+[debug] [2026-07-11T17:50:32.565Z] Node Version:  v22.22.3
+[debug] [2026-07-11T17:50:32.565Z] Detected Agent: unknown
+[debug] [2026-07-11T17:50:32.565Z] Time:          Sat Jul 11 2026 11:50:32 GMT-0600 (Central Standard Time)
+[debug] [2026-07-11T17:50:32.565Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-07-11T17:50:32.571Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-07-11T17:50:33.038Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-07-11T17:50:33.057Z] Error: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.
+    at GoogleAuth.getApplicationDefaultAsync (/tmp/fb/lib/node_modules/firebase-tools/node_modules/google-auth-library/build/src/auth/googleauth.js:287:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async GoogleAuth._GoogleAuth_determineClient (/tmp/fb/lib/node_modules/firebase-tools/node_modules/google-auth-library/build/src/auth/googleauth.js:834:32)
+    at async GoogleAuth.getClient (/tmp/fb/lib/node_modules/firebase-tools/node_modules/google-auth-library/build/src/auth/googleauth.js:698:20)
+    at async GoogleAuth.getAccessToken (/tmp/fb/lib/node_modules/firebase-tools/node_modules/google-auth-library/build/src/auth/googleauth.js:722:24)
+    at async autoAuth (/tmp/fb/lib/node_modules/firebase-tools/lib/requireAuth.js:38:19)
+    at async requireAuth (/tmp/fb/lib/node_modules/firebase-tools/lib/requireAuth.js:100:20)
+    at async requirePermissions (/tmp/fb/lib/node_modules/firebase-tools/lib/requirePermissions.js:17:5)
+    at async /tmp/fb/lib/node_modules/firebase-tools/lib/command.js:278:17
+[error] 
+[error] Error: Failed to authenticate, have you run firebase login?
+[debug] [2026-07-11T17:50:33.061Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET","dispatcher":{"_events":{},"_eventsCount":0}}): Error: Request was cancelled.
+[warn] ⚠  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-07-11T17:50:33.061Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json

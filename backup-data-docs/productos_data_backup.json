@@ -1,0 +1,1858 @@
+{
+  "name": "projects/campers-la-cuesta-84ade/databases/(default)/documents/productos/data",
+  "fields": {
+    "updatedAt": {
+      "integerValue": "1788190335636"
+    },
+    "items": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Saveiro"
+                },
+                "minimo": {
+                  "integerValue": "1"
+                },
+                "desc": {
+                  "stringValue": "Cerrado sin ventanas"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "nombre": {
+                  "stringValue": "Camper panorámico"
+                },
+                "sinMinimo": {
+                  "booleanValue": false
+                },
+                "bajaUsuario": {
+                  "stringValue": "Administrador"
+                },
+                "especTipo": {
+                  "stringValue": "Camper panorámico"
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "baja": {
+                  "booleanValue": true
+                },
+                "codigo": {
+                  "stringValue": "PROD-00002"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1782321065952_fbcsuq.jpg"
+                      }
+                    ]
+                  }
+                },
+                "bajaMotivo": {
+                  "stringValue": ""
+                },
+                "bajaFecha": {
+                  "stringValue": "2026-07-06"
+                },
+                "especObservaciones": {
+                  "stringValue": "Para camionetas del 2020 en delante"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": "PROD-00002"
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "id": {
+                  "integerValue": "208"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": "PROD-00001"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "codigo": {
+                  "stringValue": "PROD-00001"
+                },
+                "desc": {
+                  "stringValue": "Cerrado"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783351510084_t9oype.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783357595993_g30nsq.jpg"
+                      }
+                    ]
+                  }
+                },
+                "especForro": {
+                  "stringValue": "Fibra"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especTipo": {
+                  "stringValue": "Panoramico"
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "nombre": {
+                  "stringValue": "Camper de fibra de vidrio panorámico saveiro"
+                },
+                "id": {
+                  "integerValue": "266"
+                },
+                "especUnidad": {
+                  "stringValue": "VW saveiro"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "id": {
+                  "integerValue": "267"
+                },
+                "especUnidad": {
+                  "stringValue": "Remolque"
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783351807096_4q08jm.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783351847689_wdxv6q.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783357711942_mguek3.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783357721726_xceepo.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783357751354_84ebnl.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783357802465_81k981.jpg"
+                      }
+                    ]
+                  }
+                },
+                "desc": {
+                  "stringValue": "Media puerta en costado copiloto con barra."
+                },
+                "especColor": {
+                  "stringValue": "Amarillo"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "codigo": {
+                  "stringValue": "PROD-00003"
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "especTipo": {
+                  "stringValue": "Loncher"
+                },
+                "nombre": {
+                  "stringValue": "Remolque lonchero"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00003"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Remolques"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "268"
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "categoria": {
+                  "stringValue": "Remolques"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Remolque"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Plata"
+                },
+                "desc": {
+                  "stringValue": "Media puerta en costado copiloto con barra."
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783352346426_4qlvzd.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783352370399_wrok1v.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783357871503_quachc.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783357881766_wp3upo.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783357895460_t0t283.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783357908893_4zxhx7.jpg"
+                      }
+                    ]
+                  }
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "nombre": {
+                  "stringValue": "Remolque lonchero"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "especTipo": {
+                  "stringValue": "Lonchero"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00004"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "especForro": {
+                  "stringValue": "Lamina lisa"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "codigo": {
+                  "stringValue": "PROD-00004"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "nombre": {
+                  "stringValue": "Camper Hilux doble cabina 16/xx ras cabina"
+                },
+                "desc": {
+                  "stringValue": "Cerrado"
+                },
+                "id": {
+                  "integerValue": "269"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "codigo": {
+                  "stringValue": "PROD-00005"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especForro": {
+                  "stringValue": "Fibra"
+                },
+                "cantidad": {
+                  "integerValue": "3"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "especUnidad": {
+                  "stringValue": "Toyota hilux doble cabina 16/xx"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783357975920_5wmw4y.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783358000657_3crfxy.jpg"
+                      }
+                    ]
+                  }
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00005"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "id": {
+                  "integerValue": "270"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00006"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "nombre": {
+                  "stringValue": "Camper Toyota Tacoma 16/XX ras cabina "
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "codigo": {
+                  "stringValue": "PROD-00006"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Toyota tacoma16/xx"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783353371118_6q34wr.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783353418799_x03ncf.jpg"
+                      }
+                    ]
+                  }
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "desc": {
+                  "stringValue": "Cerrado"
+                },
+                "especForro": {
+                  "stringValue": "Fibra"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "nombre": {
+                  "stringValue": "VW saveiro ras"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783358187864_0nok7t.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783358214284_25yrj4.jpg"
+                      }
+                    ]
+                  }
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00007"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Cerrado"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "id": {
+                  "integerValue": "278"
+                },
+                "cantidad": {
+                  "integerValue": "2"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "VW saveiro "
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "codigo": {
+                  "stringValue": "PROD-00007"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": "Cerrado"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783358433075_b437ka.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783358459830_mab380.jpg"
+                      }
+                    ]
+                  }
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00008"
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "nombre": {
+                  "stringValue": "Camper de fibra Nissan doble cabina 21/XX ras cabina "
+                },
+                "id": {
+                  "integerValue": "279"
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan doble cabina 16/XX"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "codigo": {
+                  "stringValue": "PROD-00008"
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "nombre": {
+                  "stringValue": "Hilux Dob cab 16/XX"
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783358756628_jcjn5j.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783358784700_ywobvx.jpg"
+                      }
+                    ]
+                  }
+                },
+                "especUnidad": {
+                  "stringValue": "Toyota Hilux doble cabina 16/xx"
+                },
+                "baja": {
+                  "booleanValue": true
+                },
+                "barcode": {
+                  "stringValue": "PROD-00009"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "bajaMotivo": {
+                  "stringValue": ""
+                },
+                "unidad": {
+                  "stringValue": "pza"
+                },
+                "desc": {
+                  "stringValue": "Cerrado"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "codigo": {
+                  "stringValue": "PROD-00009"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "280"
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "cantidad": {
+                  "integerValue": "2"
+                },
+                "bajaUsuario": {
+                  "stringValue": "Administrador"
+                },
+                "bajaFecha": {
+                  "stringValue": "2026-08-26"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "id": {
+                  "integerValue": "281"
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan Dob cab 21/XX"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00010"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "especTipo": {
+                  "stringValue": "Panoramico"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "nombre": {
+                  "stringValue": "Nissan Dob cab 21/XX"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "codigo": {
+                  "stringValue": "PROD-00010"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783359232170_c6je3f.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783359265642_0z7nrz.jpg"
+                      }
+                    ]
+                  }
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "desc": {
+                  "stringValue": "Ventanas en costados."
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "id": {
+                  "integerValue": "282"
+                },
+                "categoria": {
+                  "stringValue": ""
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "especUnidad": {
+                  "stringValue": "Ter 880285130 Chevrolet 4 puertas 13/19"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783360399983_6kpfq4.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783360504896_4tdphp.jpg"
+                      }
+                    ]
+                  }
+                },
+                "desc": {
+                  "stringValue": "Cerrado"
+                },
+                "nombre": {
+                  "stringValue": "Ter 880285130 Chevrolet 4 puertas 13/19"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "codigo": {
+                  "stringValue": "PROD-00011"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio "
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "barcode": {
+                  "stringValue": "PROD-00011"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "0"
+                },
+                "codigo": {
+                  "stringValue": "PROD-00012"
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "id": {
+                  "integerValue": "283"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": "PROD-00012"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783360812431_lmj85q.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783360858023_jznjf7.jpg"
+                      }
+                    ]
+                  }
+                },
+                "unidad": {
+                  "stringValue": "pza"
+                },
+                "categoria": {
+                  "stringValue": ""
+                },
+                "nombre": {
+                  "stringValue": "PROD-00012"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especUnidad": {
+                  "stringValue": "Toyota hilux doble cabina 16/xx"
+                },
+                "unidad": {
+                  "stringValue": "pza"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "cantidad": {
+                  "integerValue": "2"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "especTipo": {
+                  "stringValue": "Panoramico"
+                },
+                "desc": {
+                  "stringValue": "Ventanas al costado y medallón corredizo al frente"
+                },
+                "nombre": {
+                  "stringValue": "Hilux doble cabina 16/XX panorámico "
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00013"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783361778449_lvnxbv.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783361812169_bu5aye.jpg"
+                      }
+                    ]
+                  }
+                },
+                "id": {
+                  "integerValue": "288"
+                },
+                "codigo": {
+                  "stringValue": "PROD-00013"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "barcode": {
+                  "stringValue": "PROD-00014"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "id": {
+                  "integerValue": "289"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Tracker"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "codigo": {
+                  "stringValue": "PROD-00014"
+                },
+                "desc": {
+                  "stringValue": "Cerrado "
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783363630253_58wgq2.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783363684940_c5h58u.jpg"
+                      }
+                    ]
+                  }
+                },
+                "unidad": {
+                  "stringValue": "pza"
+                },
+                "nombre": {
+                  "stringValue": "Tracker"
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "bajaUsuario": {
+                  "stringValue": "Administrador"
+                },
+                "especColor": {
+                  "stringValue": ""
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "id": {
+                  "integerValue": "290"
+                },
+                "categoria": {
+                  "stringValue": ""
+                },
+                "baja": {
+                  "booleanValue": true
+                },
+                "unidad": {
+                  "stringValue": "pza"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "codigo": {
+                  "stringValue": "PROD-00015"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "0"
+                },
+                "especForro": {
+                  "stringValue": ""
+                },
+                "bajaFecha": {
+                  "stringValue": "2026-08-26"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": ""
+                },
+                "barcode": {
+                  "stringValue": "PROD-00015"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": ""
+                },
+                "desc": {
+                  "stringValue": ""
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "bajaMotivo": {
+                  "stringValue": ""
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "nombre": {
+                  "stringValue": "PROD-00015"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783363704545_n0kuhq.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783363753922_g1flxa.jpg"
+                      }
+                    ]
+                  }
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "codigo": {
+                  "stringValue": "PROD-00016"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00016"
+                },
+                "desc": {
+                  "stringValue": "Cerrado "
+                },
+                "especUnidad": {
+                  "stringValue": "Tracker anterior "
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "nombre": {
+                  "stringValue": "Tracker anterior "
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "unidad": {
+                  "stringValue": "pza"
+                },
+                "id": {
+                  "integerValue": "291"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "unidad": {
+                  "stringValue": "pza"
+                },
+                "id": {
+                  "integerValue": "305"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "especUnidad": {
+                  "stringValue": "Nissan Dob cab panorámico 21/XX"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783373911988_j3rwgq.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783373965934_drf5gm.jpg"
+                      }
+                    ]
+                  }
+                },
+                "desc": {
+                  "stringValue": "Cerrado"
+                },
+                "nombre": {
+                  "stringValue": "Nissan Dob cab panorámico 21/XX"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Panoramico"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "codigo": {
+                  "stringValue": "PROD-00017"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "barcode": {
+                  "stringValue": "PROD-00017"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Ford Triton "
+                },
+                "id": {
+                  "integerValue": "306"
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "codigo": {
+                  "stringValue": "PROD-00018"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783377416245_k6acq7.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783377449276_6cfde2.jpg"
+                      }
+                    ]
+                  }
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "unidad": {
+                  "stringValue": "pza"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00018"
+                },
+                "nombre": {
+                  "stringValue": "Ford Triton "
+                },
+                "desc": {
+                  "stringValue": "Cerrado "
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "id": {
+                  "integerValue": "307"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "nombre": {
+                  "stringValue": "Tacoma 16/22"
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "codigo": {
+                  "stringValue": "PROD-00019"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Tacoma 16/22"
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783377684831_e73x2q.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783377702971_j2wdt3.jpg"
+                      }
+                    ]
+                  }
+                },
+                "barcode": {
+                  "stringValue": "PROD-00019"
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "desc": {
+                  "stringValue": "Cerrado"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especUnidad": {
+                  "stringValue": "Sio dob cab 16/xx"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "unidad": {
+                  "stringValue": "Pza"
+                },
+                "id": {
+                  "integerValue": "308"
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "codigo": {
+                  "stringValue": "PROD-00020"
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "barcode": {
+                  "stringValue": "PROD-00020"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783377805988_s6pgok.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1783377839170_jsg5xk.jpg"
+                      }
+                    ]
+                  }
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "desc": {
+                  "stringValue": "Cerrado "
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "nombre": {
+                  "stringValue": "Chevrolet S10 dob cab 16/Xx"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "especUnidad": {
+                  "stringValue": "Toyota hilux doble cabina 16/xx"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "nombre": {
+                  "stringValue": "Hilux dob cab 16/xx panorámico"
+                },
+                "desc": {
+                  "stringValue": "Con ventanas"
+                },
+                "unidad": {
+                  "stringValue": "pza"
+                },
+                "especTipo": {
+                  "stringValue": "Panoramico"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "codigo": {
+                  "stringValue": "PROD-00021"
+                },
+                "estante": {
+                  "stringValue": ""
+                },
+                "minimo": {
+                  "integerValue": "5"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "id": {
+                  "integerValue": "713286"
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1787263549385_as4zbp.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1787263579252_m709rm.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1787263624985_uvz23p.jpg"
+                      }
+                    ]
+                  }
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00021"
+                },
+                "precio": {
+                  "integerValue": "0"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "especUnidad": {
+                  "stringValue": "Mitsubishi L200 2025"
+                },
+                "clienteApellido": {
+                  "stringValue": ""
+                },
+                "unidad": {
+                  "stringValue": "pza"
+                },
+                "precioPublico": {
+                  "integerValue": "0"
+                },
+                "barcode": {
+                  "stringValue": "PROD-00022"
+                },
+                "nombre": {
+                  "stringValue": "Mitsubishi L200 2025 ras"
+                },
+                "id": {
+                  "integerValue": "718640"
+                },
+                "ubicacion": {
+                  "stringValue": ""
+                },
+                "especForro": {
+                  "stringValue": "Fibra de vidrio"
+                },
+                "sinMinimo": {
+                  "booleanValue": true
+                },
+                "clienteEmpresa": {
+                  "stringValue": ""
+                },
+                "cantidad": {
+                  "integerValue": "1"
+                },
+                "estante": {
+                  "stringValue": ""
+                },
+                "precio": {
+                  "integerValue": "0"
+                },
+                "desc": {
+                  "stringValue": "Con ventanas"
+                },
+                "especColor": {
+                  "stringValue": "Fondo blanco"
+                },
+                "especTipo": {
+                  "stringValue": "Ras cabina"
+                },
+                "clienteNombre": {
+                  "stringValue": ""
+                },
+                "codigo": {
+                  "stringValue": "PROD-00022"
+                },
+                "especObservaciones": {
+                  "stringValue": ""
+                },
+                "categoria": {
+                  "stringValue": "Campers de fibra"
+                },
+                "fotos": {
+                  "arrayValue": {
+                    "values": [
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1787263742869_9drkae.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1787263754555_3or6em.jpg"
+                      },
+                      {
+                        "stringValue": "https://pub-2661113d195648a2bb72e8015b05fd3f.r2.dev/fotos/inventario/foto_1787263770294_91h05j.jpg"
+                      }
+                    ]
+                  }
+                },
+                "minimo": {
+                  "integerValue": "5"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-06-07T03:49:44.792751Z",
+  "updateTime": "2026-08-31T15:32:16.248159Z"
+}

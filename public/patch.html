@@ -1,0 +1,22 @@
+<script data-cfasync="false">
+(function(){
+  try{
+    if(!firebase.apps.length){
+      firebase.initializeApp({
+        apiKey:"AIzaSyBDweepw3IwglqJw4xddDg_JYKqZGj4R1Q",
+        authDomain:"campers-la-cuesta-84ade.firebaseapp.com",
+        projectId:"campers-la-cuesta-84ade",
+        storageBucket:"campers-la-cuesta-84ade.firebasestorage.app",
+        messagingSenderId:"825076885501",
+        appId:"__APPID__"
+      });
+    }
+    firebase.auth().onAuthStateChanged(function(user){
+      var ls=document.getElementById("login-screen");
+      if(!ls)return;
+      if(user){ls.style.display="none";}
+      else{ls.style.display="flex";ls.removeAttribute("hidden");}
+    });
+  }catch(e){console.error("patch-fb:",e);}
+})();
+</script>

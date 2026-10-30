@@ -1,0 +1,20 @@
+{
+  "totalMB": "0.48",
+  "totalFiles": 12,
+  "folders": {
+    "facturas": {
+      "count": 12,
+      "bytes": 505456
+    }
+  },
+  "types": {
+    "pdf": {
+      "count": 6,
+      "bytes": 472959
+    },
+    "xml": {
+      "count": 6,
+      "bytes": 32497
+    }
+  }
+}

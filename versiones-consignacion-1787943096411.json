@@ -1,0 +1,25 @@
+{
+  "coleccion": "consignacion",
+  "registros": {
+    "231": {
+      "label": "id:231",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "baja:true"
+    },
+    "46417": {
+      "label": "id:46417",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "baja:true"
+    },
+    "167080": {
+      "label": "id:167080",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "baja:true"
+    },
+    "209287": {
+      "label": "id:209287",
+      "ts": "2026-08-28 16:32:11",
+      "flags": "baja:true"
+    }
+  }
+}
