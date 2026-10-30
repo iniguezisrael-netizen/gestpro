@@ -1,9 +1,52 @@
-# Dependencias (se reinstalan con npm install)
-functions/node_modules/
+# Dependencias
+node_modules/
 
-# Caché local de Firebase CLI
+# Firebase
 .firebase/
+.firebaserc
+
+# Wrangler / Cloudflare temp
+.wrangler/
+
+# PDFs y cotizaciones generadas
+*.pdf
+
+# Logs y outputs de scripts
+*.log
+verificar-output.log
+verificar-deploy-output.txt
+
+# Scripts de test y debug
+test-seguridad*.ps1
+test-seguridad*.bat
+verificar*.ps1
+verificar*.bat
+verificar*.js
+verificar-consignacion.js
+verificar-legacy.js
+run_deploy*.vbs
+run_deploy*.bat
+BORRAR-STORAGE.bat
+setup-daemon.bat
+set-r2-secrets.bat
+set-cors.ps1
+sync-cobranza-totales.js
+
+# JSONs de versiones/snapshots
+versiones-*.json
+versiones-cobranza-*.json
+versiones-consignacion-*.json
+versiones-ventas-*.json
+
+# Resultados de scripts
+*-resultado.json
+storage-resultado.json
+verificacion-resultado.json
+tamanos-resultado.json
+
+# Tokens y credenciales
+token.txt
+ziA588s6
 
 # Archivos de sistema
-.DS_Store
-Thumbs.db
+.fuse_hidden*
