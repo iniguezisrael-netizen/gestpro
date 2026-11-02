@@ -5195,7 +5195,7 @@ function _vtRowsHTML() {
   if (window._ventasSearchConcepto) { // v301: filtro por producto/concepto
     const _vcW = _normSearch(window._ventasSearchConcepto).split(' ').filter(Boolean);
     if (_vcW.length) ventasFiltradas = ventasFiltradas.filter(vt => {
-      const hay = _normSearch((vt.items||[]).map(i=>i.producto||i.nombre||'').join(' '));
+      const hay = _normSearch((vt.items||[]).map(i=>i.producto||i.nombre||'').join(' ')+' '+(vt.unidad||'')+' '+(vt.tipo||'')+' '+(vt.forro||'')+' '+(vt.color||'')); // v304
       return _vcW.every(w => hay.includes(w));
     });
   }
