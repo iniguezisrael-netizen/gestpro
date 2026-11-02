@@ -11640,11 +11640,12 @@ function _doPedidoPDF(vt, logoB64, logoW, logoH, fontB64) {
   y += 8;
 
   vt.items.forEach(item => {
-    const rh = 8;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
+    const descLines = doc.splitTextToSize(String(item.producto), cQty - M - 8); // v303
+    const rh = Math.max(8, descLines.length * 5 + 3); // v303: altura dinámica
     doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
     doc.line(M, y+rh, M+tableW, y+rh);
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
-    doc.text(String(item.producto).substring(0,50), M+4, y+5.5);
+    doc.text(descLines, M+4, y+5.5);
     doc.text(String(item.cantidad), cQty, y+5.5, {align:'right'});
     doc.text(`$${fmt(item.precio)}`, cPrice, y+5.5, {align:'right'});
     doc.setFont('helvetica','bold');
