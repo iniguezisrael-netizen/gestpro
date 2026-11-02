@@ -5192,6 +5192,13 @@ function _vtRowsHTML() {
       return _vsW.every(w => hay.includes(w));
     });
   }
+  if (window._ventasSearchConcepto) { // v301: filtro por producto/concepto
+    const _vcW = _normSearch(window._ventasSearchConcepto).split(' ').filter(Boolean);
+    if (_vcW.length) ventasFiltradas = ventasFiltradas.filter(vt => {
+      const hay = _normSearch((vt.items||[]).map(i=>i.producto||i.nombre||'').join(' '));
+      return _vcW.every(w => hay.includes(w));
+    });
+  }
   window._vtTotalVentas = ventasFiltradas.length;
   const _vtPaged = _pg('ventas', ventasFiltradas);
   const rows = window._vtTotalVentas ? _vtPaged.map(vt => `<tr>
@@ -5345,6 +5352,7 @@ function renderVentas(force) {
       ` : `
         <div class="search-bar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <input type="text" placeholder="Buscar por cliente, # pedido, cotización o fecha..." value="${esc(window._ventasSearch||'')}" oninput="_vtSearchInput(this.value)" style="flex:1;min-width:160px" />
+          <input type="text" placeholder="Buscar por producto..." value="${esc(window._ventasSearchConcepto||'')}" oninput="window._ventasSearchConcepto=this.value;window._pgState['ventas']=0;const w=document.getElementById('ventas-rows-wrap');if(w)w.innerHTML=_vtRowsHTML();" style="flex:1;min-width:140px" />
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
           ${['','hoy','semana','mes','mesant'].map(f=>{const a=(window._vtFiltroFecha||'')===f;return `<button onclick="window._vtFiltroFecha='${f}';window._pgState['ventas']=0;renderVentas(true)" style="padding:3px 12px;border-radius:20px;font-size:0.77rem;font-weight:600;border:1.5px solid ${a?'var(--primary)':'var(--border)'};background:${a?'var(--primary)':'transparent'};color:${a?'white':'var(--text-light)'};cursor:pointer">${f===''?'Todas':f==='hoy'?'📅 Hoy':f==='semana'?'Esta semana':f==='mes'?'Este mes':'Mes pasado'}</button>`;}).join('')}
@@ -20899,6 +20907,10 @@ function openAgendaModal(id, prefill) {
         <input id="ag-tel" class="form-control" value="${esc(c?.telefono||prefill?.telefono||'')}" placeholder="opcional" />
       </div>
       <div class="form-group">
+        <label>Celular</label>
+        <input id="ag-cel" class="form-control" value="${esc(c?.celular||prefill?.celular||'')}" placeholder="opcional" />
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
         <label>Tipo *</label>
         <select id="ag-tipo" class="form-control" onchange="const ot=document.getElementById('ag-tipo-otro-wrap');if(ot)ot.style.display=this.value==='Otro'?'block':'none'">${tiposOpc}</select>
         <div id="ag-tipo-otro-wrap" style="margin-top:6px;display:${_tipoEsOtro?'block':'none'}">
@@ -20968,6 +20980,7 @@ function openAgendaModal(id, prefill) {
         const idx = agenda.findIndex(x => x.id === id);
         if (idx >= 0) agenda[idx] = { ...agenda[idx],
           cliente, telefono: document.getElementById('ag-tel').value.trim(),
+          celular: document.getElementById('ag-cel').value.trim(), // v302
           tipo: _tipoFinal,
           pedido: document.getElementById('ag-pedido').value.trim() || 'No aplica',
           fecha, hora: document.getElementById('ag-hora').value,
@@ -20976,6 +20989,7 @@ function openAgendaModal(id, prefill) {
       } else {
         agenda.push({ id: nextId++, cliente,
           telefono: document.getElementById('ag-tel').value.trim(),
+          celular: document.getElementById('ag-cel').value.trim(), // v302
           tipo: _tipoFinal,
           pedido: document.getElementById('ag-pedido').value.trim() || 'No aplica',
           fecha, hora: document.getElementById('ag-hora').value,
