@@ -2060,6 +2060,7 @@ async function loadFromFirebase() {
     setTimeout(() => _migrarVentasSinCaja(), 800);
     if (currentPage) renderPage(currentPage);
     if (session && session.rol === 'admin') _iniciarRespaldoAutomatico();
+    _cargarRolesParaCaja(); // cargar roles al inicio para Recordatorios
     // Disparar recordatorios en cuanto los datos están disponibles
     setTimeout(() => window._checkRecordatorios && window._checkRecordatorios(), 1500);
 
@@ -2088,6 +2089,7 @@ async function loadFromFirebase() {
     console.error('Error cargando Firebase:', e);
     setSyncStatus('error');
     if (session && session.rol === 'admin') _iniciarRespaldoAutomatico();
+    _cargarRolesParaCaja(); // cargar roles al inicio para Recordatorios
   }
 }
 
@@ -2174,7 +2176,7 @@ function _startSingleCollectionListener(colName) {
       if (!snap.exists) return;
       // Ignorar si es escritura propia (pendiente o dentro del guard de esta colección)
       if (snap.metadata.hasPendingWrites) return;
-      if (Date.now() < (window._ownWriteUntilByCol?.[colName] || window._ownWriteUntil || 0)) return;
+      if (Date.now() < Math.max(window._ownWriteUntilByCol?.[colName] || 0, window._ownWriteUntil || 0)) return;
       const remote = snap.data();
       db[colName] = remote.items || [];
       save('gp_' + colName, db[colName]);
@@ -2272,7 +2274,7 @@ function _startSingleCollectionListener(colName) {
         });
       } else {
         // Snapshots posteriores: ignorar si es escritura propia de esta colección
-        if (Date.now() < (window._ownWriteUntilByCol?.[colName] || window._ownWriteUntil || 0)) return;
+        if (Date.now() < Math.max(window._ownWriteUntilByCol?.[colName] || 0, window._ownWriteUntil || 0)) return;
         snapshot.docChanges().forEach(change => {
           if (change.doc.id.startsWith('_')) return;
           if (change.doc.metadata.hasPendingWrites) return; // escritura propia aún pendiente
@@ -4248,16 +4250,31 @@ window.addEventListener('online', () => {
       window._ownWriteUntil = Date.now() + 10000;
       try {
         const colsASubir = [..._pendingSyncCols].filter(c => db[c] != null);
+        // v295: Guard por colección + snapshot de datos antes de cualquier await.
+        // Firebase puede enviar snapshots del servidor ANTES de que el evento 'online'
+        // del browser se dispare. El guard global (_ownWriteUntil) aún no actúa y el
+        // _ownWriteUntilByCol del edit offline ya expiró (duraba 2s). Esto permite que
+        // onSnapshot sobreescriba db[col] con el valor viejo del servidor antes de
+        // que terminemos de subir los datos offline.
+        // Fix: (a) guard per-col INMEDIATO antes del primer await, y (b) snapshot de
+        // los datos a subir capturado síncronamente para que un onSnapshot tardío no
+        // cambie lo que se va a escribir en Firestore.
+        if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {};
+        colsASubir.forEach(c => { window._ownWriteUntilByCol[c] = Date.now() + 12000; });
+        const _dataToSync = {};
+        colsASubir.forEach(c => { try { _dataToSync[c] = JSON.parse(JSON.stringify(db[c])); } catch(e) { _dataToSync[c] = db[c]; } });
         console.log('[online] Sincronizando', colsASubir.length, 'colección(es):', colsASubir.join(', '));
         if (colsASubir.length > 0) {
-          await Promise.all(colsASubir.map(c => fsWriteCollection(c, db[c])));
+          await Promise.all(colsASubir.map(c => fsWriteCollection(c, _dataToSync[c])));
         }
         _clearPendingSync();
         // Extender guard 1s más para atrapar snapshots tardíos de confirmación
         window._ownWriteUntil = Math.max(window._ownWriteUntil || 0, Date.now() + 1000);
+        colsASubir.forEach(c => { window._ownWriteUntilByCol[c] = Math.max(window._ownWriteUntilByCol[c] || 0, Date.now() + 1000); });
       } catch(e) {
         syncOk = false;
         window._ownWriteUntil = 0;
+        colsASubir.forEach(c => { window._ownWriteUntilByCol[c] = 0; });
         setSyncStatus('error', e && e.message ? e.message : String(e));
       }
     } else {
@@ -7650,7 +7667,7 @@ function _fijarPrecioVenta(id) {
       if (FIREBASE_ENABLED && firestore) {
         firestore.collection('ventas').doc(String(id)).update({ items: vt.items, total: _finalTotal, iva: vt.iva, ivaMode: _ivaMode, subtotal: _subtotal, ivaAmount: _ivaAmt, pendienteCotizar: false, anticipo: vt.anticipo, saldo: vt.saldo }).catch(()=>{});
       }
-      saveDb(['ventas','cobranza']); closeModal();
+      saveDb(['ventas','cobranza']); closeModal(); renderVentas(); // v299: actualizar lista inmediatamente
       setTimeout(() => { verVenta(id, vt.folioPedido); _info('✓ Total actualizado correctamente.'); }, 150);
     }},
     { label:'Cancelar', cls:'btn-secondary', action: closeModal }
@@ -12228,7 +12245,7 @@ async function _cargarRolesParaCaja() {
   if (!firestore) return;
   try {
     const snap = await firestore.collection('roles').get();
-    _rolesParaCaja = snap.docs.map(d => d.data());
+    _rolesParaCaja = snap.docs.map(d => ({uid: d.id, ...d.data()}));
   } catch(e) {
     _rolesParaCaja = [];
   }
@@ -17512,6 +17529,7 @@ function closeModal() {
   if (typeof rbDetenerGlobalScanner === 'function') rbDetenerGlobalScanner();
   if (typeof _mbGlobalKeyHandler === 'function') document.removeEventListener('keydown', _mbGlobalKeyHandler);
   setTimeout(function(){ if (typeof window._gsRefocusIfActive === 'function') window._gsRefocusIfActive(); }, 150);
+  if (typeof window._checkRecordatorios === 'function') setTimeout(window._checkRecordatorios, 350);
 }
 
 // Cierre con confirmación — usar en ✕ y clic en fondo para modales con formulario
@@ -20387,7 +20405,7 @@ function renderAgenda() {
       if (!_matches([p.titulo,p.descripcion,p.usuarioNombre])) return '';
       const stripe = tipo==='v'?'#dc2626':tipo==='p'?'#7c3aed':'#64748b';
       const meta = tipo==='v'?`⚠️ ${p.fecha===hoy?'<b style="color:#dc2626">Hoy</b>':fechaLarga(p.fecha)}${p.hora?' · '+p.hora:''}`:tipo==='p'?`📅 ${fechaLarga(p.fecha)}${p.hora?' · '+p.hora:''}`:`💤 ${_fmtSnz(p.snoozeHasta)}`;
-      return `<div class="rec-row"><div class="rec-stripe" style="background:${stripe}"></div><div class="rec-body"><div class="rec-title">${_hl(p.titulo,_q)}${tipo==='v'?'<span style="font-size:0.62rem;background:#ede9fe;color:#7c3aed;border-radius:4px;padding:0 5px;margin-left:5px;font-weight:500">personal</span>':''}${p.periodicidad?'<span style="font-size:0.62rem;background:#dcfce7;color:#166534;border-radius:4px;padding:0 5px;margin-left:4px;font-weight:500">🔁</span>':''}</div><div class="rec-meta">${meta}${esAdmin&&p.usuarioNombre?' · <span style="color:#94a3b8">'+esc(p.usuarioNombre)+'</span>':''}</div>${p.descripcion?`<div class="rec-nota">${_hl(p.descripcion,_q)}</div>`:''}${p.imagenes&&p.imagenes.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${p.imagenes.slice(0,4).map((url,i)=>`<img src="${url}" style="width:44px;height:44px;object-fit:cover;border-radius:5px;border:1px solid #e2e8f0;cursor:pointer" onclick="event.stopPropagation();_lbFotos=${JSON.stringify(p.imagenes)};_lbIdx=${i};showLightbox()" />`).join('')}${p.imagenes.length>4?`<span style="font-size:0.7rem;color:#94a3b8;line-height:44px">+${p.imagenes.length-4}</span>`:''}</div>`:''}</div><div class="rec-actions"><button class="btn btn-outline btn-sm" onclick="openPersonalRecModal('${p.id}')">✏️</button>${tipo==='v'?`<button onclick="_abrirModalPosponer('${p.id}','pers')" style="font-size:0.72rem;padding:3px 10px;background:#1d4ed8;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:500">💤 Posponer</button><button onclick="marcarPersonalHecho('${p.id}')" style="background:#16a34a;color:white;border:none;border-radius:5px;padding:3px 8px;font-size:0.75rem;cursor:pointer">✓</button>`:''}</div></div>`;
+      return `<div class="rec-row" data-pers-id="${p.id}"><div class="rec-stripe" style="background:${stripe}"></div><div class="rec-body"><div class="rec-title">${_hl(p.titulo,_q)}${tipo==='v'?'<span style="font-size:0.62rem;background:#ede9fe;color:#7c3aed;border-radius:4px;padding:0 5px;margin-left:5px;font-weight:500">personal</span>':''}${p.periodicidad?'<span style="font-size:0.62rem;background:#dcfce7;color:#166534;border-radius:4px;padding:0 5px;margin-left:4px;font-weight:500">🔁</span>':''}</div><div class="rec-meta">${meta}${esAdmin&&p.usuarioNombre?' · <span style="color:#94a3b8">'+esc(p.usuarioNombre)+'</span>':''}</div>${p.descripcion?`<div class="rec-nota">${_hl(p.descripcion,_q)}</div>`:''}${p.imagenes&&p.imagenes.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${p.imagenes.slice(0,4).map((url,i)=>`<img src="${url}" style="width:44px;height:44px;object-fit:cover;border-radius:5px;border:1px solid #e2e8f0;cursor:pointer" onclick="event.stopPropagation();_lbFotos=${JSON.stringify(p.imagenes)};_lbIdx=${i};showLightbox()" />`).join('')}${p.imagenes.length>4?`<span style="font-size:0.7rem;color:#94a3b8;line-height:44px">+${p.imagenes.length-4}</span>`:''}</div>`:''}</div><div class="rec-actions"><button class="btn btn-outline btn-sm" onclick="openPersonalRecModal('${p.id}')">✏️</button>${tipo==='v'?`<button onclick="_abrirModalPosponer('${p.id}','pers')" style="font-size:0.72rem;padding:3px 10px;background:#1d4ed8;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:500">💤 Posponer</button><button onclick="marcarPersonalHecho('${p.id}')" style="background:#16a34a;color:white;border:none;border-radius:5px;padding:3px 8px;font-size:0.75rem;cursor:pointer">✓</button>`:''}</div></div>`;
     }
     // ── Collapsible group ───────────────────────────────────────────────────
     let _gn = 0;
@@ -20460,7 +20478,7 @@ function renderAgenda() {
     const _allFilterUsers = [...new Set([..._recUsuarios,..._persUsuarios.map(u=>u.n)])].filter(n=>n!==session.nombre).sort();
     const _curFiltVal = !window._recAgAdminFilter?'':window._recAgAdminFilter===session.nombre?`${session.nombre}|${session.uid}`:`${window._recAgAdminFilter}|${window._persAdminFilter}`;
     const _adminFilter = esAdmin?`<select onchange="var p=this.value.split('|');window._recAgAdminFilter=p[0]||'';window._persAdminFilter=p[1]||'';renderAgenda()" style="font-size:0.72rem;padding:3px 7px;border:1px solid var(--border,#e2e8f0);border-radius:6px;background:var(--card,#fff);color:var(--text,#374151)"><option value="" ${!_curFiltVal?'selected':''}>🔔 Todos</option><option value="${session.nombre}|${session.uid}" ${_curFiltVal===session.nombre+'|'+session.uid?'selected':''}>Solo míos</option>${_allFilterUsers.map(n=>{const uid=_userNameToUid[n]||'';const v=n+'|'+uid;return`<option value="${v}" ${_curFiltVal===v?'selected':''}>${esc(n)}</option>`}).join('')}</select>`:'';
-    return `<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="window._recSearchQ=this.value;renderAgenda()" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
+    return `<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="window._recSearchQ=this.value;renderAgenda()" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
   })() : `<div class="card" style="text-align:center;padding:30px;color:#94a3b8">Sin acceso a recordatorios.</div>`;
 
   if (window._recSecOpen === undefined) {
@@ -20649,6 +20667,23 @@ function openPersonalRecModal(id, defaultFecha) {
   const hoy = new Date().toISOString().slice(0,10);
   showModal(p ? 'Editar Recordatorio Personal' : 'Nuevo Recordatorio Personal', `
     <div style="display:flex;flex-direction:column;gap:12px">
+      ${p ? `<div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+        <span style="font-size:0.72rem;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.04em">💤 Posponer</span>
+        <button type="button" id="pr-snz-5" style="background:#ede9fe;color:#7c3aed;border:1px solid #c4b5fd;border-radius:6px;padding:3px 10px;font-size:0.78rem;font-weight:600;cursor:pointer">5 min</button>
+        <span style="color:#d1d5db">|</span>
+        <select id="pr-snz-sel" style="flex:1;min-width:110px;font-size:0.78rem;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;background:white;color:#1e293b">
+          <option value="10">10 minutos</option>
+          <option value="15">15 minutos</option>
+          <option value="30">30 minutos</option>
+          <option value="60">1 hora</option>
+          <option value="120">2 horas</option>
+          <option value="tomorrow">Mañana 8:00</option>
+          <option value="2days">En 2 días</option>
+          <option value="manual">Manual…</option>
+        </select>
+        <input type="date" id="pr-snz-date" style="display:none;font-size:0.78rem;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;color:#1e293b" />
+        <button type="button" id="pr-snz-ok" style="background:#7c3aed;color:white;border:none;border-radius:6px;padding:4px 12px;font-size:0.78rem;font-weight:600;cursor:pointer">Aplicar</button>
+      </div>` : ''}
       <div class="form-group">
         <label>Título *</label>
         <input id="pr-titulo" class="form-control" value="${esc(p?.titulo||'')}" placeholder="¿Qué necesitas hacer?" autocomplete="off" />
@@ -20659,8 +20694,13 @@ function openPersonalRecModal(id, defaultFecha) {
           <input id="pr-fecha" type="date" class="form-control" value="${p?.fecha||defaultFecha||hoy}" />
         </div>
         <div class="form-group">
-          <label>Hora (opcional)</label>
-          <input id="pr-hora" type="time" class="form-control" value="${p?.hora||''}" />
+          <label style="display:flex;align-items:center;gap:8px">Hora (opcional)
+            <label style="display:flex;align-items:center;gap:4px;font-size:0.78rem;font-weight:400;cursor:pointer;color:#64748b">
+              <input type="checkbox" id="pr-todo-dia" ${!(p?.hora) ? 'checked' : ''} style="width:13px;height:13px;cursor:pointer">
+              Todo el día
+            </label>
+          </label>
+          <input id="pr-hora" type="time" class="form-control" value="${p?.hora||''}" style="${!(p?.hora) ? 'display:none' : ''}" />
         </div>
       </div>
       <div class="form-group">
@@ -20717,9 +20757,10 @@ function openPersonalRecModal(id, defaultFecha) {
       </div>
     </div>
   `, [
-    {label:'Cancelar', cls:'btn-outline', action:()=>{_prCleanup();closeModal();}},
-    ...(p ? [{label:'🗑️ Eliminar', cls:'btn-danger', action:()=>{_prCleanup();_eliminarPersonalRec(p.id);}}] : []),
-    {label: p ? '💾 Guardar' : '+ Crear', cls:'btn-primary', action:()=>savePersonalRec(p?p.id:null)}
+    {label:'Cancelar', cls:'btn-outline', style:'font-size:0.78rem;padding:0 10px;height:30px', action:()=>{_prCleanup();closeModal();setTimeout(()=>{if(typeof window._checkRecordatorios==='function')window._checkRecordatorios();},300);}},
+    ...(p ? [{label:'Eliminar', cls:'btn-danger', style:'font-size:0.78rem;padding:0 10px;height:30px', action:()=>{_prCleanup();_eliminarPersonalRec(p.id);}}] : []),
+    ...(p ? [{label:'✓ Hecho', cls:'btn-primary', style:'background:#16a34a;color:white;font-size:0.78rem;padding:0 10px;height:30px', action:()=>{_prCleanup();closeModal();marcarPersonalHecho(p.id);}}] : []),
+    {label: p ? 'Guardar' : '+ Crear', cls:'btn-primary', style:'font-size:0.78rem;padding:0 10px;height:30px', action:()=>savePersonalRec(p?p.id:null)}
   ]);
   setTimeout(() => {
     document.getElementById('pr-titulo')?.focus();
@@ -20748,6 +20789,36 @@ function openPersonalRecModal(id, defaultFecha) {
       const ff = document.getElementById('pr-fin-fecha'); if(ff) ff.style.display = v==='fecha'?'':'none';
       const fr = document.getElementById('pr-fin-reps'); if(fr) fr.style.display = v==='repeticiones'?'':'none';
     };
+    // Snooze y Todo el día
+    if (p) {
+      const _prSnoozeAply = (ts) => {
+        const updated = (db.recordatoriosPersonales||[]).map(x => x.id===p.id ? {...x, snoozeHasta:ts} : x);
+        db.recordatoriosPersonales = updated;
+        saveDb('recordatoriosPersonales');
+        if (firestore) firestore.collection('recordatoriosPersonales').doc(String(p.id)).update({snoozeHasta:ts}).catch(()=>{});
+        _prCleanup(); closeModal();
+        if (currentPage==='agenda') renderAgenda();
+        else if (typeof window._checkRecordatorios === 'function') setTimeout(window._checkRecordatorios, 300);
+      };
+      document.getElementById('pr-snz-5')?.addEventListener('click', () => _prSnoozeAply(Date.now() + 5*60000));
+      document.getElementById('pr-snz-ok')?.addEventListener('click', () => {
+        const v = document.getElementById('pr-snz-sel')?.value;
+        let ts;
+        if (v==='tomorrow') { const t=new Date(); t.setDate(t.getDate()+1); t.setHours(8,0,0,0); ts=t.getTime(); }
+        else if (v==='2days') { const t=new Date(); t.setDate(t.getDate()+2); t.setHours(8,0,0,0); ts=t.getTime(); }
+        else if (v==='manual') { const d=document.getElementById('pr-snz-date')?.value; if(!d){_info('Selecciona una fecha.');return;} const dt=new Date(d); dt.setHours(8,0,0,0); ts=dt.getTime(); }
+        else { ts = Date.now() + parseInt(v||'15')*60000; }
+        _prSnoozeAply(ts);
+      });
+      document.getElementById('pr-snz-sel')?.addEventListener('change', function() {
+        const di = document.getElementById('pr-snz-date');
+        if (di) di.style.display = this.value==='manual' ? 'inline-block' : 'none';
+      });
+    }
+    document.getElementById('pr-todo-dia')?.addEventListener('change', function() {
+      const inp = document.getElementById('pr-hora');
+      if (inp) { if(this.checked){inp.style.display='none';inp.value='';}else{inp.style.display='';} }
+    });
     if (p && p.periodicidad) {
       const per = p.periodicidad;
       const pCb = document.getElementById('pr-periodica'); if(pCb){pCb.checked=true; document.getElementById('pr-per-opts').style.display='block';}
@@ -22877,7 +22948,19 @@ function openEntregaRapidaModal(ventaId, soloDevolucion) {
     const _erHIDHandler = (e) => {
       const scanEl = document.getElementById('er-scan');
       if (!scanEl) { document.removeEventListener('keydown', _erHIDHandler); return; } // modal cerrado
-      if (document.activeElement === scanEl) return; // ya tiene foco, el input lo maneja
+      // v297: en Android tablet con inputmode="none", el HID scanner no escribe en el campo
+      // aunque tenga foco. Acumulamos en buffer de respaldo; en Enter, si el campo quedó
+      // vacío (Android) y el buffer tiene código, lo usamos. En PC el campo ya tiene valor.
+      if (document.activeElement === scanEl) {
+        if (e.key.length === 1) { _erHIDBuf += e.key; clearTimeout(_erHIDTimer); _erHIDTimer = setTimeout(() => { _erHIDBuf = ''; }, 150); }
+        if (e.key === 'Enter' || e.key === 'Tab') {
+          if (_erHIDBuf.length >= 3 && !scanEl.value.trim() && Date.now() - (window._erLastScanAdd||0) > 100) {
+            scanEl.value = _erHIDBuf; _erScanHint(_erHIDBuf); clearTimeout(_erHIDTimer); _erHIDBuf = '';
+            setTimeout(() => _erScanAdd(), 60);
+          } else { clearTimeout(_erHIDTimer); _erHIDBuf = ''; }
+        }
+        return;
+      }
       if (e.key === 'Enter' || e.key === 'Tab') {
         if (_erHIDBuf.length >= 3) {
           scanEl.value = _erHIDBuf;
@@ -22981,6 +23064,7 @@ function _erScanAdd() {
   const qty  = parseFloat(document.getElementById('er-qty')?.value)||1;
   const uni  = (document.getElementById('er-uni')?.value||'').trim();
   if (!desc) { _info('Escribe o escanea un material.'); return; }
+  window._erLastScanAdd = Date.now(); // v297: timestamp para distinguir Android vs PC en HID handler
   const item = (db.materia||[]).find(i =>
     (i.barcode && i.barcode.trim().toLowerCase() === desc.toLowerCase()) ||
     (i.codigo  && i.codigo.trim().toLowerCase()  === desc.toLowerCase()) ||
@@ -23377,10 +23461,17 @@ bgInput.addEventListener('input', function() {
   });
 
   // Activar escáner en el PRIMER toque del usuario (no en carga — evita teclado al abrir app)
-  document.addEventListener('touchstart', function _initScan() {
-    document.removeEventListener('touchstart', _initScan, true);
-    setTimeout(_gsRefocus, 300);
-  }, {once: true, passive: true, capture: true});
+  document.addEventListener('touchend', function() {
+    setTimeout(_gsRefocus, 350);
+  }, {passive: true, capture: true});
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) setTimeout(_gsRefocus, 500);
+  });
+  setInterval(function() {
+    var active = document.activeElement;
+    var tag = active ? active.tagName.toLowerCase() : '';
+    if (!['input','textarea','select'].includes(tag) && active !== bgInput) _gsRefocus();
+  }, 3000);
 
   window._gsCleanup = function() { clearTimeout(_gsTimer); clearTimeout(_gsFocusTimer); };
 }
@@ -23939,13 +24030,13 @@ document.addEventListener('keydown', function(e) {
       if (!app || app.style.display === 'none') return;
       const ov = document.getElementById('modal-overlay');
       if (ov && ov.classList.contains('open')) closeModal();
-      if (typeof auth !== 'undefined' && auth) auth.signOut().catch(() => {});
       showModal('⏱️ Sesión expirada', `
         <div style="text-align:center;padding:16px 0">
           <div style="font-size:3rem;margin-bottom:14px">🔒</div>
           <p style="color:var(--text-light)">Tu sesión se cerró por 20 minutos de inactividad.</p>
         </div>`, [
-        { label: 'Entrar de nuevo', cls: 'btn-primary', action: () => { closeModal(); logout(); } }
+        { label: 'Continuar', cls: 'btn-primary', action: () => { closeModal(); } },
+        { label: 'Cerrar sesión', cls: 'btn-secondary btn-sm', action: () => { closeModal(); logout(); } }
       ]);
     }, TIMEOUT);
   }
@@ -24052,6 +24143,7 @@ function logActividad(accion, detalle) {
   function _checkRecordatorios() {
     if (!db || !session) return;
     const esAdmin = session.rol === 'admin';
+    if (esAdmin && _rolesParaCaja === null) { _cargarRolesParaCaja().then(() => _checkRecordatorios()); return; }
     // Filtro del popup: independiente del toggle de cotizaciones
     // 'mios' = solo propios (default), 'todos' = todos, o nombre de usuario específico
     if (typeof window._popupRecModo === 'undefined') window._popupRecModo = 'mios';
@@ -24062,7 +24154,7 @@ function logActividad(accion, detalle) {
       if (!esAdmin) return _recOwner === session.nombre || c.usuario === session.nombre;
       if (_modo === 'mios') return _recOwner === session.nombre;
       if (_modo === 'todos') return true;
-      return _recOwner === _modo;
+      return (_recOwner||'').toLowerCase() === (_modo||'').toLowerCase();
     });
     // También revisar recordatorios personales vencidos del usuario actual
     const _hoyStr = today();
@@ -24122,8 +24214,8 @@ function logActividad(accion, detalle) {
       { label:'2 horas', val:120 }, { label:'4 horas', val:240 },
       { label:'1 día', val:1440 }, { label:'2 días', val:2880 },
       { label:'3 días', val:4320 }, { label:'1 semana', val:10080 },
-      { label:'2 semanas', val:20160 }, { label:'Mañana (8:00 am)', val:'tomorrow' },
-      { label:'Fecha manual...', val:'manual' }
+      { label:'2 semanas', val:20160 },
+      { label:'📅 Seleccionar fecha...', val:'manual' }
     ];
 
     // Dropdown de usuarios: incluye todos los que tienen recordatorios pendientes,
@@ -24136,8 +24228,14 @@ function logActividad(accion, detalle) {
     // Personales vencidos del usuario actual (para popup)
     const _popupHoy = (typeof today==='function') ? today() : new Date().toISOString().slice(0,10);
     const _popupHM = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
+    // Si admin filtra por usuario específico, mostrar sus personales (no los propios)
+    const _modoActual = window._popupRecModo;
+    // null = sin filtro de uid (todos); string = uid específico
+    const _uidParaPers = (esAdmin && _modoActual && _modoActual !== 'mios' && _modoActual !== 'todos')
+      ? ((_rolesParaCaja||[]).find(u => (u.nombre||'').toLowerCase() === _modoActual.toLowerCase())?.uid || session.uid)
+      : (esAdmin && _modoActual === 'todos' ? null : session.uid);
     const _popupPersV = (db.recordatoriosPersonales||[]).filter(p =>
-      !p.completado && p.usuarioId === session.uid &&
+      !p.completado && (_uidParaPers === null || p.usuarioId === _uidParaPers) &&
       !(p.snoozeHasta && p.snoozeHasta > Date.now()) &&
       p.fecha && (p.fecha < _popupHoy || (p.fecha === _popupHoy && (!p.hora || p.hora <= _popupHM)))
     );
@@ -24164,7 +24262,7 @@ function logActividad(accion, detalle) {
           const dotCls = vencido ? 'vencido' : 'hoy';
           const tiempoLabel = vencido
             ? `<span style="color:#ef4444;font-size:0.72rem">Vencido</span>`
-            : `<span style="color:#f59e0b;font-size:0.72rem">Hoy</span>`;
+            : '';
           const k = _recKey(c);
           return `<div class="rec-item" data-key="${k}" data-id="${c.id}">
             <div class="rec-dot ${dotCls}"></div>
@@ -24176,8 +24274,8 @@ function logActividad(accion, detalle) {
               </div>
               ${c.recNota ? `<div style="font-size:0.76rem;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.recNota)}</div>` : ''}
               <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
-                <button onclick="window._recAbrir(${c.id})" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#2563eb;cursor:pointer">Abrir</button>
-                <button onclick="window._recDescartar('${k}',${c.id})" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Descartar</button>
+                <button onclick="window._recAbrirCotizModal(${c.id})" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#2563eb;cursor:pointer">Abrir</button>
+                <button onclick="window._recDescartar('${k}',${c.id})" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Hecho</button>
               </div>
               <div style="display:flex;gap:4px;margin-top:5px">
                 <select class="_rec-item-snooze" data-key="${k}" onchange="const inp=this.closest('div').querySelector('._rec-manual-inp');if(inp)inp.style.display=this.value==='manual'?'block':'none'" style="flex:1;font-size:0.68rem;padding:3px 4px;border:1px solid #e2e8f0;border-radius:5px;background:white;color:#1e293b;min-width:0">
@@ -24190,34 +24288,39 @@ function logActividad(accion, detalle) {
           </div>`;
         }).join('')}
         ${_popupPersV.map(p => {
-          const dotCls = 'vencido';
+          const _persHoy = (typeof today==='function') ? today() : new Date().toISOString().slice(0,10);
+          const _persVencido = p.fecha < _persHoy;
+          const dotCls = _persVencido ? 'vencido' : 'hoy';
           return `<div class="rec-item" data-pers-id="${p.id}">
             <div class="rec-dot ${dotCls}"></div>
             <div style="flex:1;min-width:0">
               <div style="font-weight:600;font-size:0.83rem;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📌 ${esc(p.titulo||'Sin título')}</div>
               <div style="font-size:0.72rem;color:#64748b;margin-top:1px">
-                ${p.hora ? p.hora+' · ' : ''}<span style="color:#ef4444;font-size:0.72rem">Vencido</span>
+                ${p.hora ? p.hora+' · ' : ''}${_persVencido ? '<span style="color:#ef4444;font-size:0.72rem">Vencido</span>' : ''}${esAdmin ? (' · <span style="color:#7c3aed;font-size:0.72rem">' + esc(((_rolesParaCaja||[]).find(u=>u.uid===p.usuarioId)||{}).nombre || session.nombre) + '</span>') : ''}
               </div>
               ${p.descripcion ? `<div style="font-size:0.76rem;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.descripcion)}</div>` : ''}
               <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
-                <button onclick="window._recAbrirAgenda()" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
-                <button onclick="window._recDescartarPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Descartar</button>
+                <button onclick="(function(){var panel=document.getElementById('_rec-panel');if(panel)panel.remove();openPersonalRecModal('${p.id}');})()" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
+                <button onclick="window._recDescartarPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Hecho</button>
               </div>
-              <div style="display:flex;gap:4px;margin-top:5px">
-                <select class="_rec-pers-snooze" data-pers-id="${p.id}" style="flex:1;font-size:0.68rem;padding:3px 4px;border:1px solid #e2e8f0;border-radius:5px;background:white;color:#1e293b;min-width:0">
-                  ${snoozeOpts.filter(o=>o.val!=='manual').map(o=>`<option value="${o.val}">${o.label}</option>`).join('')}
+              <div class="snooze-pers-wrap" style="display:flex;flex-direction:column;gap:3px;margin-top:5px">
+              <div style="display:flex;gap:4px">
+                <select class="_rec-pers-snooze" data-pers-id="${p.id}" onchange="var inp=this.closest('.snooze-pers-wrap').querySelector('._rec-pers-manual');if(inp){inp.style.display=this.value==='manual'?'block':'none';if(this.value==='manual')try{inp.showPicker();}catch(e){}}" style="flex:1;font-size:0.68rem;padding:3px 4px;border:1px solid #e2e8f0;border-radius:5px;background:white;color:#1e293b;min-width:0">
+                  ${snoozeOpts.map(o=>`<option value="${o.val}">${o.label}</option>`).join('')}
                 </select>
                 <button onclick="window._recPosponerPers(this)" data-pers-id="${p.id}" style="font-size:0.68rem;padding:3px 8px;border:none;border-radius:5px;background:#1d4ed8;color:white;cursor:pointer;white-space:nowrap">Posponer</button>
               </div>
+              <input type="datetime-local" class="_rec-pers-manual" style="display:none;width:100%;font-size:0.68rem;padding:3px 4px;border:1px solid #93c5fd;border-radius:5px;background:white;color:#1e293b">
             </div>
-          </div>`;
+          </div>
+        </div>`;
         }).join('')}
       </div>
       <div id="_rec-foot" style="padding:10px 14px;border-top:1px solid #e2e8f0;flex-shrink:0;display:flex;flex-direction:column;gap:6px">
         <select id="_rec-snooze-sel" onchange="const inp=document.getElementById('_rec-snooze-manual');if(inp)inp.style.display=this.value==='manual'?'block':'none'" style="width:100%;padding:6px 8px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.8rem;background:white;color:#1e293b">
           ${snoozeOpts.map(o=>`<option value="${o.val}">${o.label}</option>`).join('')}
         </select>
-        <input type="date" id="_rec-snooze-manual" style="display:none;width:100%;padding:6px 8px;border:1px solid #93c5fd;border-radius:7px;font-size:0.8rem;box-sizing:border-box">
+        <input type="datetime-local" id="_rec-snooze-manual" style="display:none;width:100%;padding:6px 8px;border:1px solid #93c5fd;border-radius:7px;font-size:0.8rem;box-sizing:border-box;background:white;color:#1e293b">
         <div style="display:flex;gap:6px">
           <button id="_rec-snooze-btn" style="flex:1;padding:6px;background:#1d4ed8;color:white;border:none;border-radius:7px;cursor:pointer;font-size:0.8rem;font-weight:600">Posponer todos</button>
           <button id="_rec-dismiss-all" style="flex:1;padding:6px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:7px;cursor:pointer;font-size:0.8rem">Descartar todo</button>
@@ -24311,7 +24414,7 @@ function logActividad(accion, detalle) {
       if (selVal === 'manual') {
         const dv = document.getElementById('_rec-snooze-manual')?.value;
         if (!dv) { alert('Selecciona una fecha'); return; }
-        const d = new Date(dv + 'T08:00:00');
+        const d = new Date(dv);
         if (isNaN(d.getTime())) { alert('Fecha inválida'); return; }
         manualTs = d.getTime();
       }
@@ -24383,6 +24486,94 @@ function logActividad(accion, detalle) {
   };
 
   // Abrir cotización desde el panel
+  window._recAbrirCotizModal = function(cotizId) {
+    // Quitar del panel popup
+    const _el = document.querySelector('#_rec-panel .rec-item[data-id="'+cotizId+'"]');
+    if (_el) _el.remove();
+    const _pan = document.getElementById('_rec-panel');
+    if (_pan && !_pan.querySelector('.rec-item[data-id]')) _pan.remove();
+    const c = (window.db && db.cotizaciones||[]).find(x => x.id === cotizId);
+    if (!c) return;
+    const _snzOpts = `<option value="10">10 minutos</option><option value="15">15 minutos</option><option value="30">30 minutos</option><option value="60">1 hora</option><option value="120">2 horas</option><option value="tomorrow">Mañana 8:00</option><option value="2days">En 2 días</option><option value="manual">Manual…</option>`;
+    showModal('Recordatorio — ' + esc(c.cliente||('#'+c.id)), `
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <span style="font-size:0.72rem;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.04em">💤 Posponer</span>
+          <button type="button" id="cz-snz-5" style="background:#ede9fe;color:#7c3aed;border:1px solid #c4b5fd;border-radius:6px;padding:3px 10px;font-size:0.78rem;font-weight:600;cursor:pointer">5 min</button>
+          <span style="color:#d1d5db">|</span>
+          <select id="cz-snz-sel" style="flex:1;min-width:110px;font-size:0.78rem;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;background:white;color:#1e293b">${_snzOpts}</select>
+          <input type="date" id="cz-snz-date" style="display:none;font-size:0.78rem;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;color:#1e293b" />
+          <button type="button" id="cz-snz-ok" style="background:#7c3aed;color:white;border:none;border-radius:6px;padding:4px 12px;font-size:0.78rem;font-weight:600;cursor:pointer">Aplicar</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group">
+            <label>Fecha recordatorio *</label>
+            <input id="cz-rec-fecha" type="date" class="form-control" value="${c.recFecha||''}" />
+          </div>
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px">Hora (opcional)
+              <label style="display:flex;align-items:center;gap:4px;font-size:0.78rem;font-weight:400;cursor:pointer;color:#64748b">
+                <input type="checkbox" id="cz-todo-dia" ${!c.recHora ? 'checked' : ''} style="width:13px;height:13px;cursor:pointer"> Todo el día
+              </label>
+            </label>
+            <input id="cz-rec-hora" type="time" class="form-control" value="${c.recHora||''}" style="${!c.recHora ? 'display:none' : ''}" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Nota</label>
+          <textarea id="cz-rec-nota" class="form-control" rows="2" placeholder="Detalles del recordatorio...">${esc(c.recNota||'')}</textarea>
+        </div>
+        <div style="font-size:0.72rem;color:#94a3b8">Cliente: ${esc(c.cliente||'')}${c.ctEmpresa?' · '+esc(c.ctEmpresa):''} · #${c.id}</div>
+      </div>
+    `, [
+      {label:'Cancelar', cls:'btn-outline', style:'font-size:0.78rem;padding:0 10px;height:30px', action:()=>closeModal()},
+      {label:'🗑️ Quitar', cls:'btn-danger', style:'font-size:0.78rem;padding:0 10px;height:30px', action:()=>{
+        const upd=(db.cotizaciones||[]).map(x=>x.id===cotizId?{...x,recFecha:'',recHora:'',recNota:'',recHecho:true,recSnoozeHasta:9999999999999}:x);
+        db.cotizaciones=upd; saveDb('cotizaciones');
+        if(firestore) firestore.collection('cotizaciones').doc(String(cotizId)).set({recFecha:'',recHora:'',recNota:'',recHecho:true,recSnoozeHasta:9999999999999},{merge:true}).catch(()=>{});
+        closeModal(); if(currentPage==='agenda') renderAgenda();
+      }},
+      {label:'✓ Marcar hecho', cls:'btn-primary', style:'background:#16a34a;color:white;font-size:0.78rem;padding:0 10px;height:30px', action:()=>{marcarRecHecho(cotizId);closeModal();}},
+      {label:'💾 Guardar', cls:'btn-primary', style:'font-size:0.78rem;padding:0 10px;height:30px', action:()=>{
+        const fecha=document.getElementById('cz-rec-fecha')?.value||'';
+        const hora=document.getElementById('cz-todo-dia')?.checked?'':(document.getElementById('cz-rec-hora')?.value||'');
+        const nota=(document.getElementById('cz-rec-nota')?.value||'').trim();
+        if(!fecha){_info('La fecha es obligatoria.');return;}
+        const upd=(db.cotizaciones||[]).map(x=>x.id===cotizId?{...x,recFecha:fecha,recHora:hora,recNota:nota,recHecho:false,recSnoozeHasta:0}:x);
+        db.cotizaciones=upd; saveDb('cotizaciones');
+        if(firestore) firestore.collection('cotizaciones').doc(String(cotizId)).set({recFecha:fecha,recHora:hora,recNota:nota,recHecho:false,recSnoozeHasta:0},{merge:true}).catch(()=>{});
+        closeModal(); if(currentPage==='agenda') renderAgenda();
+        _info('Recordatorio guardado.');
+      }}
+    ]);
+    setTimeout(()=>{
+      const _czSnz = (ts) => {
+        const upd=(db.cotizaciones||[]).map(x=>x.id===cotizId?{...x,recSnoozeHasta:ts}:x);
+        db.cotizaciones=upd; saveDb('cotizaciones');
+        if(firestore) firestore.collection('cotizaciones').doc(String(cotizId)).set({recSnoozeHasta:ts},{merge:true}).catch(()=>{});
+        closeModal(); if(currentPage==='agenda') renderAgenda();
+        else if(typeof window._checkRecordatorios==='function') setTimeout(window._checkRecordatorios,300);
+      };
+      document.getElementById('cz-snz-5')?.addEventListener('click',()=>_czSnz(Date.now()+5*60000));
+      document.getElementById('cz-snz-ok')?.addEventListener('click',()=>{
+        const v=document.getElementById('cz-snz-sel')?.value;
+        let ts;
+        if(v==='tomorrow'){const t=new Date();t.setDate(t.getDate()+1);t.setHours(8,0,0,0);ts=t.getTime();}
+        else if(v==='2days'){const t=new Date();t.setDate(t.getDate()+2);t.setHours(8,0,0,0);ts=t.getTime();}
+        else if(v==='manual'){const d=document.getElementById('cz-snz-date')?.value;if(!d){_info('Selecciona una fecha.');return;}const dt=new Date(d);dt.setHours(8,0,0,0);ts=dt.getTime();}
+        else{ts=Date.now()+parseInt(v||'15')*60000;}
+        _czSnz(ts);
+      });
+      document.getElementById('cz-snz-sel')?.addEventListener('change',function(){
+        const di=document.getElementById('cz-snz-date');if(di)di.style.display=this.value==='manual'?'inline-block':'none';
+      });
+      document.getElementById('cz-todo-dia')?.addEventListener('change',function(){
+        const inp=document.getElementById('cz-rec-hora');
+        if(inp){if(this.checked){inp.style.display='none';inp.value='';}else{inp.style.display='';}}
+      });
+    },50);
+  };
+
   window._recAbrir = function(id) {
     window._recAbrirCotizId = id;   // marca para que verCotiz muestre banner
     const _recItemEl = document.querySelector(`#_rec-panel .rec-item[data-id="${id}"]`);
@@ -24406,10 +24597,44 @@ function logActividad(accion, detalle) {
   };
 
   // Descartar un item individual
-  window._recAbrirAgenda = function() {
+  window._recAbrirAgenda = function(persId) {
+    window._agendaTargetPersId = persId || null;
     const panel = document.getElementById('_rec-panel');
     if (panel) panel.remove();
+    // Forzar vista lista para que el elemento esté en el DOM
+    window._recTabView = 'lista';
+    // Si hay persId, buscar el recordatorio y ajustar filtros de admin si es necesario
+    if (persId && window.db && window.session) {
+      const p = (window.db.recordatoriosPersonales||[]).find(r => r.id === persId || r.id === Number(persId));
+      if (p && p.usuarioId && window.session.rol === 'admin') {
+        // Limpiar filtros para que el recordatorio sea visible
+        window._persAdminFilter = '';
+        window._recAgAdminFilter = '';
+      }
+    }
     if (typeof navigate === 'function') navigate('agenda');
+    if (persId) {
+      let intentos = 0;
+      const _intentar = () => {
+        intentos++;
+        const el = document.querySelector('[data-pers-id="'+persId+'"]');
+        if (el) {
+          // Expandir grupos colapsados que contengan el elemento
+          let parent = el.parentElement;
+          while (parent && parent !== document.body) {
+            if (parent.style && parent.style.display === 'none') parent.style.display = 'block';
+            parent = parent.parentElement;
+          }
+          el.scrollIntoView({behavior:'smooth', block:'center'});
+          el.style.outline = '2px solid #7c3aed';
+          el.style.background = '#ede9fe';
+          setTimeout(() => { el.style.outline = ''; el.style.background = ''; }, 2500);
+        } else if (intentos < 20) {
+          setTimeout(_intentar, 150);
+        }
+      };
+      setTimeout(_intentar, 300);
+    }
   };
   window._recDescartarPers = function(persId) {
     const updated = (db.recordatoriosPersonales||[]).map(p => p.id===persId ? {...p, completado:true} : p);
@@ -24427,8 +24652,15 @@ function logActividad(accion, detalle) {
     if (!persId || !sel) return;
     const selVal = sel.value;
     let ts;
-    if (selVal === 'tomorrow') { const t=new Date(); t.setDate(t.getDate()+1); t.setHours(8,0,0,0); ts=t.getTime(); }
-    else { ts = Date.now() + parseInt(selVal)*60000; }
+    if (selVal === 'manual') {
+      const wrap = btn.closest('.snooze-pers-wrap');
+      const inp = wrap ? wrap.querySelector('._rec-pers-manual') : null;
+      const dv = inp ? inp.value : '';
+      if (!dv) { alert('Selecciona una fecha'); return; }
+      const d = new Date(dv);
+      if (isNaN(d.getTime())) { alert('Fecha inválida'); return; }
+      ts = d.getTime();
+    } else { ts = Date.now() + parseInt(selVal)*60000; }
     const updated = (db.recordatoriosPersonales||[]).map(p => p.id===persId ? {...p, snoozeHasta:ts} : p);
     db.recordatoriosPersonales = updated;
     saveDb('recordatoriosPersonales');
