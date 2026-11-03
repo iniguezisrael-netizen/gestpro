@@ -7526,7 +7526,7 @@ function verVenta(id, folioParam) {
           <td style="padding:6px 8px">${fechaLarga(p.fecha)}</td>
           <td style="padding:6px 8px;color:#64748b">${p.hora||'-'}</td>
           <td style="padding:6px 8px;text-align:right;color:var(--success);font-weight:600">$${fmt(p.monto)}</td>
-          <td style="padding:6px 8px;color:#64748b">${p.nota||'-'}</td>
+          <td style="padding:6px 8px;color:#64748b">${esc(p.nota||'-')}</td>
           <td style="padding:6px 8px;color:#64748b">${p.recibidoPor||'-'}</td>
           <td style="padding:6px 8px;text-align:right;white-space:nowrap">
             <button onclick="generarReciboPago(${vt.id},${i})" style="background:none;border:none;cursor:pointer;color:#0ea5e9;font-size:0.85rem;margin-right:6px" title="Generar recibo de pago">🧾</button>
@@ -8292,7 +8292,7 @@ function eliminarPago(id, idx) {
   showModal('🔒 Autorización requerida', `
     <div style="padding:4px 0">
       <p style="font-size:0.9rem;color:#475569;margin-bottom:12px">
-        Solo un <strong>administrador</strong> puede cancelar un pago recibido ($${fmt(p.monto)} · ${p.nota||'sin nota'}).<br>
+        Solo un <strong>administrador</strong> puede cancelar un pago recibido ($${fmt(p.monto)} · ${esc(p.nota||'sin nota')}).<br>
         Solicita a un administrador que escriba aquí su usuario y contraseña para autorizar la cancelación.
       </p>
       <div class="form-group" style="margin-bottom:8px">
@@ -8625,7 +8625,7 @@ function archivarVentasSeleccionadas() {
           const folio = vt.folioPedido || ('#'+vt.id);
           const cobMonto = _cobSaldoMonto(vt.id);
           const razon = vt.archivado ? 'ya archivado' : cobMonto > 0 ? ('saldo en cobranza $'+fmt(cobMonto)) : vt.saldo > 0 ? ('saldo pendiente $'+vt.saldo.toLocaleString('es-MX')) : ('estado: '+vt.estado);
-          return `<li><strong>${folio}</strong> (${vt.cliente||'—'}) — ${razon}</li>`;
+          return `<li><strong>${folio}</strong> (${esc(vt.cliente||'—')}) — ${razon}</li>`;
         }).join('')
       + `</ul>` : '';
   const body = (validas.length
@@ -14685,7 +14685,7 @@ function _eliminarCobranzaArchivada(id) {
   if (!can(['admin'])) return;
   const c = db.cobranza.find(x => x.id === id);
   if (!c) return;
-  _confirm(`¿Eliminar definitivamente el registro de "${c.cliente}"? Esta acción no se puede deshacer.`, () => {
+  _confirm(`¿Eliminar definitivamente el registro de "${esc(c.cliente)}"? Esta acción no se puede deshacer.`, () => {
     _addTombstone('cobranza', id); // evita resurrección desde Firestore offline
     db.cobranza = db.cobranza.filter(x => x.id !== id);
     if (window._serverSnapshot?.cobranza?.[String(id)]) delete window._serverSnapshot.cobranza[String(id)];
@@ -24427,10 +24427,12 @@ function logActividad(accion, detalle) {
     if (typeof navigate === 'function') navigate('agenda');
   };
   window._recDescartarPers = function(persId) {
-    const updated = (db.recordatoriosPersonales||[]).map(p => p.id===persId ? {...p, completado:true} : p);
+    // Solo cierra el popup — NO marca como completado para que el recordatorio permanezca en la Agenda
+    const snoozeTs = 9999999999999;
+    const updated = (db.recordatoriosPersonales||[]).map(p => p.id===persId ? {...p, snoozeHasta:snoozeTs} : p);
     db.recordatoriosPersonales = updated;
     saveDb('recordatoriosPersonales');
-    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(persId)).update({completado:true}).catch(()=>{});
+    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(persId)).update({snoozeHasta:snoozeTs}).catch(()=>{});
     const el = document.querySelector('[data-pers-id="'+persId+'"]');
     if (el) el.remove();
     const panel = document.getElementById('_rec-panel');
