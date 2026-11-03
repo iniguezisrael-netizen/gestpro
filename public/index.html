@@ -24212,7 +24212,7 @@ function logActividad(accion, detalle) {
               </div>
               ${p.descripcion ? `<div style="font-size:0.76rem;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.descripcion)}</div>` : ''}
               <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
-                <button onclick="window._recAbrirAgenda()" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
+                <button onclick="window._verRecPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
                 <button onclick="window._recDescartarPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Descartar</button>
               </div>
               <div style="display:flex;gap:4px;margin-top:5px">
@@ -24434,6 +24434,56 @@ function logActividad(accion, detalle) {
     if (el) el.remove();
     const panel = document.getElementById('_rec-panel');
     if (panel && !panel.querySelector('.rec-item')) panel.remove();
+  };
+  window._posponerDesdeVista = function(persId) {
+    var sel = document.getElementById('_vrp-snooze');
+    if (!sel) return;
+    var sv = sel.value;
+    var ts;
+    if (sv === 'tomorrow') { var t=new Date(); t.setDate(t.getDate()+1); t.setHours(8,0,0,0); ts=t.getTime(); }
+    else { ts = Date.now() + parseInt(sv)*60000; }
+    var upd = (db.recordatoriosPersonales||[]).map(function(p){ return String(p.id)===String(persId) ? Object.assign({},p,{snoozeHasta:ts}) : p; });
+    db.recordatoriosPersonales = upd;
+    saveDb('recordatoriosPersonales');
+    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(persId)).update({snoozeHasta:ts}).catch(function(){});
+    var el = document.querySelector('[data-pers-id="'+persId+'"]');
+    if (el) el.remove();
+    var pnl = document.getElementById('_rec-panel');
+    if (pnl && !pnl.querySelector('.rec-item')) pnl.remove();
+    closeModal();
+  };
+  window._verRecPers = function(persId) {
+    var p = (db.recordatoriosPersonales||[]).find(function(x){ return String(x.id)===String(persId); });
+    if (!p) return;
+    var _hoy = new Date().toISOString().slice(0,10);
+    var _hm = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
+    var _venc = p.fecha && (p.fecha < _hoy || (p.fecha===_hoy && p.hora && p.hora <= _hm));
+    var snoozeOpts = [
+      {val:'5',label:'5 minutos'},{val:'15',label:'15 minutos'},{val:'30',label:'30 minutos'},
+      {val:'60',label:'1 hora'},{val:'120',label:'2 horas'},{val:'240',label:'4 horas'},
+      {val:'1440',label:'1 día'},{val:'2880',label:'2 días'},{val:'10080',label:'1 semana'},
+      {val:'tomorrow',label:'Mañana (8:00 am)'}
+    ];
+    var optsHtml = snoozeOpts.map(function(o){ return '<option value="'+o.val+'">'+o.label+'</option>'; }).join('');
+    showModal(esc(p.titulo||'Recordatorio'),
+      '<div style="padding:2px 0">' +
+      '<div style="font-size:0.83rem;color:#64748b;margin-bottom:10px">' +
+      (p.fecha||'Sin fecha') + (p.hora ? ' · '+p.hora : '') +
+      (_venc ? '<span style="color:#ef4444;font-weight:600;margin-left:8px">Vencido</span>' : '') +
+      '</div>' +
+      (p.descripcion ? '<div style="background:#f8fafc;border-radius:8px;padding:10px 12px;font-size:0.88rem;color:#334155;margin-bottom:14px">'+esc(p.descripcion)+'</div>' : '') +
+      '<div style="display:flex;gap:8px;align-items:center">' +
+      '<select id="_vrp-snooze" style="flex:1;padding:7px 8px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.82rem;background:white;color:#1e293b">' +
+      optsHtml +
+      '</select>' +
+      '<button onclick="window._posponerDesdeVista(\'' + persId + '\')" style="padding:7px 14px;background:#1d4ed8;color:white;border:none;border-radius:7px;font-size:0.82rem;cursor:pointer;font-weight:600;white-space:nowrap">⏰ Posponer</button>' +
+      '</div></div>',
+      [
+        { label:'✏️ Editar', cls:'btn-outline', action: function(){ closeModal(); setTimeout(function(){ openPersonalRecModal(persId); },120); } },
+        { label:'Descartar', cls:'btn-danger', action: function(){ closeModal(); window._recDescartarPers(persId); } },
+        { label:'Cerrar', cls:'btn-secondary', action: closeModal }
+      ]
+    );
   };
   window._recPosponerPers = function(btn) {
     const persId = btn.dataset.persId;
