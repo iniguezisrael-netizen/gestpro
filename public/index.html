@@ -22853,10 +22853,10 @@ function openEntregaRapidaModal(ventaId, soloDevolucion) {
         📦 Recibir con código
       </button>
     </div>
-    <div style="margin-bottom:8px">
+    <div style="margin-bottom:8px;cursor:pointer" onclick="document.getElementById('er-scan').focus()">
       <label style="font-size:0.8rem;color:#64748b;display:block;margin-bottom:4px">Escanear o escribir código / nombre</label>
       <div style="display:flex;gap:6px">
-        <input type="text" id="er-scan" placeholder="Escanear aquí…" autocomplete="off" autofocus inputmode="none"
+        <input type="text" id="er-scan" placeholder="Escanear aquí…" autocomplete="off" autofocus
           style="flex:1;padding:10px 12px;border:2px solid var(--primary);border-radius:8px;font-size:1rem;background:var(--bg)"
           onkeydown="if(event.key==='Enter'){event.preventDefault();_erScanAdd();}"
           oninput="_erScanHint(this.value)">
