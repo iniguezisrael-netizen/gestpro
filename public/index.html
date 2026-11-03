@@ -24450,9 +24450,12 @@ function logActividad(accion, detalle) {
     if (el) el.remove();
     var pnl = document.getElementById('_rec-panel');
     if (pnl && !pnl.querySelector('.rec-item')) pnl.remove();
-    closeModal();
+    var mini = document.getElementById('_vrp-mini');
+    if (mini) mini.remove();
   };
   window._verRecPers = function(persId) {
+    var prev = document.getElementById('_vrp-mini');
+    if (prev) prev.remove();
     var p = (db.recordatoriosPersonales||[]).find(function(x){ return String(x.id)===String(persId); });
     if (!p) return;
     var _hoy = new Date().toISOString().slice(0,10);
@@ -24465,25 +24468,33 @@ function logActividad(accion, detalle) {
       {val:'tomorrow',label:'Mañana (8:00 am)'}
     ];
     var optsHtml = snoozeOpts.map(function(o){ return '<option value="'+o.val+'">'+o.label+'</option>'; }).join('');
-    showModal(esc(p.titulo||'Recordatorio'),
-      '<div style="padding:2px 0">' +
-      '<div style="font-size:0.83rem;color:#64748b;margin-bottom:10px">' +
-      (p.fecha||'Sin fecha') + (p.hora ? ' · '+p.hora : '') +
-      (_venc ? '<span style="color:#ef4444;font-weight:600;margin-left:8px">Vencido</span>' : '') +
+    var mini = document.createElement('div');
+    mini.id = '_vrp-mini';
+    mini.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10050;width:290px;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.22);padding:16px;font-family:inherit';
+    mini.innerHTML =
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">' +
+        '<div style="font-weight:700;font-size:0.92rem;color:#1e293b;flex:1;padding-right:8px;line-height:1.3">' + esc(p.titulo||'Recordatorio') + '</div>' +
+        '<button onclick="document.getElementById('_vrp-mini').remove()" style="border:none;background:none;font-size:1.1rem;cursor:pointer;color:#94a3b8;line-height:1;padding:0;flex-shrink:0">✕</button>' +
       '</div>' +
-      (p.descripcion ? '<div style="background:#f8fafc;border-radius:8px;padding:10px 12px;font-size:0.88rem;color:#334155;margin-bottom:14px">'+esc(p.descripcion)+'</div>' : '') +
-      '<div style="display:flex;gap:8px;align-items:center">' +
-      '<select id="_vrp-snooze" style="flex:1;padding:7px 8px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.82rem;background:white;color:#1e293b">' +
-      optsHtml +
-      '</select>' +
-      '<button onclick="window._posponerDesdeVista(\'' + persId + '\')" style="padding:7px 14px;background:#1d4ed8;color:white;border:none;border-radius:7px;font-size:0.82rem;cursor:pointer;font-weight:600;white-space:nowrap">⏰ Posponer</button>' +
-      '</div></div>',
-      [
-        { label:'✏️ Editar', cls:'btn-outline', action: function(){ closeModal(); setTimeout(function(){ openPersonalRecModal(persId); },120); } },
-        { label:'Descartar', cls:'btn-danger', action: function(){ closeModal(); window._recDescartarPers(persId); } },
-        { label:'Cerrar', cls:'btn-secondary', action: closeModal }
-      ]
-    );
+      '<div style="font-size:0.78rem;color:#64748b;margin-bottom:10px">' +
+        (p.fecha||'Sin fecha') + (p.hora ? ' · '+p.hora : '') +
+        (_venc ? '<span style="color:#ef4444;font-weight:600;margin-left:6px">Vencido</span>' : '') +
+      '</div>' +
+      (p.descripcion ? '<div style="background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:0.83rem;color:#334155;margin-bottom:12px">' + esc(p.descripcion) + '</div>' : '') +
+      '<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">' +
+        '<select id="_vrp-snooze" style="flex:1;padding:6px 7px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.78rem;background:white;color:#1e293b">' + optsHtml + '</select>' +
+        '<button onclick="window._posponerDesdeVista(\'' + persId + '\')" style="padding:6px 12px;background:#1d4ed8;color:white;border:none;border-radius:7px;font-size:0.78rem;cursor:pointer;font-weight:600;white-space:nowrap">⏰ Posponer</button>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px">' +
+        '<button onclick="document.getElementById('_vrp-mini').remove();setTimeout(function(){openPersonalRecModal(\'' + persId + '\')},80)" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:7px;font-size:0.78rem;cursor:pointer;background:white;color:#1e293b">✏️ Editar</button>' +
+        '<button onclick="document.getElementById('_vrp-mini').remove();window._recDescartarPers(\'' + persId + '\')" style="flex:1;padding:6px 8px;border:none;border-radius:7px;font-size:0.78rem;cursor:pointer;background:#fee2e2;color:#dc2626;font-weight:600">Descartar</button>' +
+      '</div>';
+    document.body.appendChild(mini);
+    function _vrpClose(e) {
+      var m = document.getElementById('_vrp-mini');
+      if (m && !m.contains(e.target)) { m.remove(); document.removeEventListener('mousedown', _vrpClose); }
+    }
+    setTimeout(function(){ document.addEventListener('mousedown', _vrpClose); }, 100);
   };
   window._recPosponerPers = function(btn) {
     const persId = btn.dataset.persId;
