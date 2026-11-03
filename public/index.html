@@ -24178,7 +24178,7 @@ function logActividad(accion, detalle) {
               </div>
               ${p.descripcion ? `<div style="font-size:0.76rem;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.descripcion)}</div>` : ''}
               <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
-                <button onclick="window._recAbrirAgenda()" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
+                <button onclick="(function(){var panel=document.getElementById('_rec-panel');if(panel)panel.remove();openPersonalRecModal('${p.id}');})()" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
                 <button onclick="window._recDescartarPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Descartar</button>
               </div>
               <div style="display:flex;gap:4px;margin-top:5px">
