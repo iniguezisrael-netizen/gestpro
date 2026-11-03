@@ -978,15 +978,13 @@ function getLoginEmail(loginUser) {
   return (loginUser === ADMIN_USERNAME && _adminRealEmail) ? _adminRealEmail : (emailUser + EMAIL_DOMAIN);
 }
 async function _loadAdminEmail() {
-  // Usa Cloud Function para no leer Firestore pre-auth (loginInfo está cerrado a no-admins)
+  if (!firestore) return;
   try {
-    if (!functions) _tryInitFunctions && _tryInitFunctions();
-    if (functions) {
-      const _raeFn = functions.httpsCallable('resolveAdminEmail');
-      const _raeRes = await _raeFn({ username: ADMIN_USERNAME });
-      if (_raeRes.data && _raeRes.data.email) { _adminRealEmail = _raeRes.data.email; return; }
-    }
-  } catch(_raeErr) {}
+    const pub = await firestore.collection('_meta').doc('loginInfo').get();
+    if (pub.exists && pub.data().adminEmail) { _adminRealEmail = pub.data().adminEmail; return; }
+    const cfg = await firestore.collection('_meta').doc('config').get();
+    if (cfg.exists && cfg.data().adminEmail) { _adminRealEmail = cfg.data().adminEmail; }
+  } catch(e) {}
 }
 if (FIREBASE_ENABLED) _loadAdminEmail();
 async function recuperarPassword() {
