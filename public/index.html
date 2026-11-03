@@ -24486,8 +24486,8 @@ function logActividad(accion, detalle) {
         '<button onclick="window._posponerDesdeVista(\'' + persId + '\')" style="padding:6px 12px;background:#1d4ed8;color:white;border:none;border-radius:7px;font-size:0.78rem;cursor:pointer;font-weight:600;white-space:nowrap">⏰ Posponer</button>' +
       '</div>' +
       '<div style="display:flex;gap:6px">' +
-        '<button onclick="document.getElementById('_vrp-mini').remove();setTimeout(function(){openPersonalRecModal(\'' + persId + '\')},80)" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:7px;font-size:0.78rem;cursor:pointer;background:white;color:#1e293b">✏️ Editar</button>' +
-        '<button onclick="document.getElementById('_vrp-mini').remove();window._recDescartarPers(\'' + persId + '\')" style="flex:1;padding:6px 8px;border:none;border-radius:7px;font-size:0.78rem;cursor:pointer;background:#fee2e2;color:#dc2626;font-weight:600">Descartar</button>' +
+        '<button onclick="document.getElementById(\'_vrp-mini\').remove();setTimeout(function(){openPersonalRecModal(\'' + persId + '\')},80)" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:7px;font-size:0.78rem;cursor:pointer;background:white;color:#1e293b">✏️ Editar</button>' +
+        '<button onclick="document.getElementById(\'_vrp-mini\').remove();window._recDescartarPers(\'' + persId + '\')" style="flex:1;padding:6px 8px;border:none;border-radius:7px;font-size:0.78rem;cursor:pointer;background:#fee2e2;color:#dc2626;font-weight:600">Descartar</button>' +
       '</div>';
     document.body.appendChild(mini);
     function _vrpClose(e) {
