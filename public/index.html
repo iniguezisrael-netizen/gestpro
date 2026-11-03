@@ -758,7 +758,7 @@
 <!-- APP -->
 <div id="app">
 <!-- Banner Modo Desarrollo -->
-<div id="modo-dev-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#f97316;color:#fff;text-align:center;padding:6px 12px;font-size:0.8rem;font-weight:700;letter-spacing:0.03em;cursor:pointer" title="Haz clic para apagar el Modo Desarrollo" onclick="_apgarModoDev()">
+<div id="modo-dev-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#f97316;color:#fff;text-align:center;padding:6px 12px;font-size:0.8rem;font-weight:700;letter-spacing:0.03em;cursor:pointer" title="Haz clic para apagar el Modo Desarrollo" onclick="_apgarModoDev()">
   🔧 MODO DESARROLLO ACTIVO — sin Firebase &nbsp;·&nbsp; Clic aquí para apagar
 </div>
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
@@ -945,6 +945,12 @@ function _apgarModoDev() {
 function _toggleModoDev() {
   _MODO_DEV = !_MODO_DEV;
   try { localStorage.setItem(_MODO_DEV_KEY, _MODO_DEV ? '1' : '0'); } catch(e) {}
+  // Al activar dev mode: cancelar listeners activos para evitar sobrescrituras de Firestore
+  if (_MODO_DEV) {
+    _syncUnsubscribers.forEach(u => u());
+    _syncUnsubscribers = [];
+    _listenersStarted.clear();
+  }
   const sw = document.getElementById('modo-dev-switch');
   const kn = document.getElementById('modo-dev-knob');
   if (sw) sw.style.background = _MODO_DEV ? '#f97316' : '#cbd5e1';
@@ -957,7 +963,7 @@ function _initModoDev() {
   const wrap = document.getElementById('modo-dev-wrap');
   if (!inp || !wrap) return;
   inp.addEventListener('input', () => {
-    wrap.style.display = (inp.value.trim().toLowerCase() === ADMIN_USERNAME) ? 'block' : 'none';
+    wrap.style.display = inp.value.trim().length >= 3 ? 'block' : 'none';
   });
   // Aplicar estado guardado al toggle visual
   if (_MODO_DEV) {
@@ -965,8 +971,7 @@ function _initModoDev() {
     const kn = document.getElementById('modo-dev-knob');
     if (sw) sw.style.background = '#f97316';
     if (kn) kn.style.transform = 'translateX(17px)';
-    // Pre-rellenar usuario admin si hay modo dev guardado
-    if (inp && !inp.value) { inp.value = ADMIN_USERNAME; wrap.style.display = 'block'; }
+    // Mostrar el toggle activo (no pre-rellenar usuario para evitar confusión con secretaria/auxiliar)
   }
 }
 // Iniciar cuando el DOM esté listo
@@ -978,13 +983,19 @@ function getLoginEmail(loginUser) {
   return (loginUser === ADMIN_USERNAME && _adminRealEmail) ? _adminRealEmail : (emailUser + EMAIL_DOMAIN);
 }
 async function _loadAdminEmail() {
-  if (!firestore) return;
+  // Usa Cloud Function (onRequest) para no leer Firestore pre-auth.
+  // fetch directo evita el proxy de compatibilidad v1 que falla CORS en algunos navegadores.
   try {
-    const pub = await firestore.collection('_meta').doc('loginInfo').get();
-    if (pub.exists && pub.data().adminEmail) { _adminRealEmail = pub.data().adminEmail; return; }
-    const cfg = await firestore.collection('_meta').doc('config').get();
-    if (cfg.exists && cfg.data().adminEmail) { _adminRealEmail = cfg.data().adminEmail; }
-  } catch(e) {}
+    const _raeRes = await fetch(
+      'https://resolveadminemail-lcujyb3zza-uc.a.run.app',
+      { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: ADMIN_USERNAME }) }
+    );
+    if (_raeRes.ok) {
+      const _raeData = await _raeRes.json();
+      if (_raeData && _raeData.email) { _adminRealEmail = _raeData.email; }
+    }
+  } catch(_raeErr) {}
 }
 if (FIREBASE_ENABLED) _loadAdminEmail();
 async function recuperarPassword() {
@@ -1274,6 +1285,10 @@ async function fsWriteCollection(colName, arr) {
             if (server.baja === true && !final.baja) final.baja = true;
             if (server.archivado === true && !final.archivado) { final.archivado = true; if (server.archivadoPor) final.archivadoPor = server.archivadoPor; if (server.archivadoEn) final.archivadoEn = server.archivadoEn; }
             if (final.recHecho === true && !server.recHecho) { server.recHecho = true; if (final.recSnoozeHasta) server.recSnoozeHasta = final.recSnoozeHasta; }
+            // Preservar campos del servidor que este dispositivo no tiene (ej: barcode)
+            for (const key of Object.keys(server)) {
+              if (!(key in item)) final[key] = server[key];
+            }
           }
           tx.set(docRef, final);
           committed = final;
@@ -1762,6 +1777,13 @@ function saveDb(colChanged) {
     if (key) save(key, db[c] != null ? db[c] : []);
   });
   // Firestore (nube)
+  if (_MODO_DEV) {
+    // En dev mode solo proteger snapshots, sin escribir a Firestore
+    if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {};
+    const _devCols = colChanged ? (Array.isArray(colChanged) ? colChanged : [colChanged]) : Object.keys(_LS_KEYS);
+    _devCols.forEach(c => { window._ownWriteUntilByCol[c] = Date.now() + 5000; });
+    return;
+  }
   if (FIREBASE_ENABLED && firestore) {
     const isOffline = !navigator.onLine;
     // Proteger datos locales durante la escritura (online o offline).
@@ -5170,6 +5192,13 @@ function _vtRowsHTML() {
       return _vsW.every(w => hay.includes(w));
     });
   }
+  if (window._ventasSearchConcepto) { // v301: filtro por producto/concepto
+    const _vcW = _normSearch(window._ventasSearchConcepto).split(' ').filter(Boolean);
+    if (_vcW.length) ventasFiltradas = ventasFiltradas.filter(vt => {
+      const hay = _normSearch((vt.items||[]).map(i=>i.producto||i.nombre||'').join(' ')+' '+(vt.unidad||'')+' '+(vt.tipo||'')+' '+(vt.forro||'')+' '+(vt.color||'')); // v304
+      return _vcW.every(w => hay.includes(w));
+    });
+  }
   window._vtTotalVentas = ventasFiltradas.length;
   const _vtPaged = _pg('ventas', ventasFiltradas);
   const rows = window._vtTotalVentas ? _vtPaged.map(vt => `<tr>
@@ -5323,6 +5352,7 @@ function renderVentas(force) {
       ` : `
         <div class="search-bar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <input type="text" placeholder="Buscar por cliente, # pedido, cotización o fecha..." value="${esc(window._ventasSearch||'')}" oninput="_vtSearchInput(this.value)" style="flex:1;min-width:160px" />
+          <input type="text" placeholder="Buscar por producto..." value="${esc(window._ventasSearchConcepto||'')}" oninput="window._ventasSearchConcepto=this.value;window._pgState['ventas']=0;const w=document.getElementById('ventas-rows-wrap');if(w)w.innerHTML=_vtRowsHTML();" style="flex:1;min-width:140px" />
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
           ${['','hoy','semana','mes','mesant'].map(f=>{const a=(window._vtFiltroFecha||'')===f;return `<button onclick="window._vtFiltroFecha='${f}';window._pgState['ventas']=0;renderVentas(true)" style="padding:3px 12px;border-radius:20px;font-size:0.77rem;font-weight:600;border:1.5px solid ${a?'var(--primary)':'var(--border)'};background:${a?'var(--primary)':'transparent'};color:${a?'white':'var(--text-light)'};cursor:pointer">${f===''?'Todas':f==='hoy'?'📅 Hoy':f==='semana'?'Esta semana':f==='mes'?'Este mes':'Mes pasado'}</button>`;}).join('')}
@@ -5600,10 +5630,16 @@ function openVentaModal() {
     </div>
     <div id="venta-items-list"></div>
     <div id="venta-total" style="text-align:right;font-weight:700;font-size:1.1rem;margin-top:8px;color:var(--primary)"></div>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:6px;cursor:pointer;font-size:0.88rem;color:#64748b;user-select:none">
-      <input type="checkbox" id="v-pendiente-cotizar" style="width:16px;height:16px" onchange="document.getElementById('venta-total').style.opacity=this.checked?'0.3':'1'" />
-      Precio pendiente de cotizar (sin total definido)
-    </label>
+    <div style="display:flex;align-items:center;gap:16px;margin-top:6px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;color:#64748b;user-select:none">
+        <input type="checkbox" id="v-pendiente-cotizar" style="width:16px;height:16px" onchange="if(this.checked)document.getElementById('v-garantia').checked=false;document.getElementById('venta-total').style.opacity=this.checked?'0.3':'1'" />
+        Precio pendiente de cotizar (sin total definido)
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;color:#16a34a;font-weight:600;user-select:none">
+        <input type="checkbox" id="v-garantia" style="width:16px;height:16px;accent-color:#16a34a" onchange="if(this.checked){document.getElementById('v-pendiente-cotizar').checked=false;document.getElementById('venta-total').style.opacity='1'}" />
+        🛡️ Garantía (sin cobro al cliente)
+      </label>
+    </div>
     <div style="display:flex;align-items:center;gap:16px;margin-top:6px;padding:7px 10px;background:#f8fafc;border-radius:8px;border:1.5px solid var(--border)">
       <span style="font-size:0.82rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.4px">Precio:</span>
       <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:0.9rem;font-weight:600">
@@ -5641,9 +5677,6 @@ function openVentaModal() {
           <input id="v-cambio" readonly placeholder="—" style="background:#f0fdf4;font-weight:700;color:#16a34a" />
         </div>
       </div>
-    </div>
-    <div class="form-group" style="margin-top:12px"><label>Estado</label>
-      <select id="v-estado-form"><option selected>Pendiente</option><option>En Proceso</option><option>Terminada</option><option>Entregado</option><option>Pagada</option><option>Cancelada</option></select>
     </div>
   `, [
     { label: _ventaFromCaja ? '🛒 Generar Venta y Ticket' : 'Registrar Pedido', cls:'btn-primary', action: _ventaFromCaja ? saveVentaDesdeCAja : saveVenta },
@@ -6098,7 +6131,7 @@ function saveVenta() {
     items:ventaItems, total, anticipo, saldo, pagos: pagosIniciales,
     iva: ivaModeSv !== 'neto', ivaMode: ivaModeSv, subtotal: netoSv, ivaAmount: ivaAmtSv,
     pendienteCotizar: _pendienteCotizar || undefined,
-    tiempoFabricacion:v('v-tiempo-fabricacion'), numFactura:(document.getElementById('v-factura')?.value?.trim()||undefined), estado:v('v-estado-form'), fechaEntrega:v('v-fecha-entrega'), usuario:session.nombre
+    tiempoFabricacion:v('v-tiempo-fabricacion'), numFactura:(document.getElementById('v-factura')?.value?.trim()||undefined), estado:'Pendiente', fechaEntrega:v('v-fecha-entrega'), usuario:session.nombre
   });
   // Descontar stock de los artículos agregados desde inventario (materia/productos/consignación).
   let _tieneProductosPendientes = false;
@@ -6404,7 +6437,7 @@ function updateEditPedidoItems() {
     ${ventaItems.map((i,idx) => { const _ip = !!i.pendienteCotizar; return `<tr style="border-top:1px solid var(--border)${_ip?';background:#f0f9ff':''}">
       <td style="padding:4px 6px"><input value="${esc(i.producto)}" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.85rem${_ip?';color:#0369a1;font-weight:600':''}" onchange="ventaItems[${idx}].producto=this.value" /></td>
       <td style="padding:4px 6px"><input type="number" value="${i.cantidad}" min="1" style="width:60px;border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.85rem" onchange="ventaItems[${idx}].cantidad=+this.value;updateEditPedidoItems()" /></td>
-      <td style="padding:4px 6px">${_ip ? `<input type="number" disabled placeholder="—" style="width:90px;border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.85rem;background:var(--surface,#f8fafc);color:var(--text-light,#64748b)">` : `<input type="number" value="${i.precio}" min="0" step="0.01" style="width:90px;border:1px solid ${i.precio===0?'var(--danger)':'var(--border)'};border-radius:6px;padding:4px 6px;font-size:0.85rem;font-weight:600" onchange="ventaItems[${idx}].precio=+this.value;updateEditPedidoItems()">`}</td>
+      <td style="padding:4px 6px">${_ip ? `<input type="number" disabled placeholder="—" style="width:90px;border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.85rem;background:#f8fafc;color:#64748b">` : `<input type="number" value="${i.precio}" min="0" step="0.01" style="width:90px;border:1px solid ${i.precio===0?'var(--danger)':'var(--border)'};border-radius:6px;padding:4px 6px;font-size:0.85rem;font-weight:600" onchange="ventaItems[${idx}].precio=+this.value;updateEditPedidoItems()">`}</td>
       <td style="padding:4px 6px;font-weight:600">${_ip ? `<span style="color:#0369a1;font-size:0.82rem;font-weight:700">—</span>` : `$${fmt(i.cantidad*i.precio)}`}</td>
       <td style="padding:4px 6px;white-space:nowrap">${_ip ? `<button onclick="_epTogglePendiente(${idx})" style="display:inline-flex;align-items:center;gap:3px;font-size:0.75rem;font-weight:600;padding:2px 7px;border-radius:5px;border:1.5px solid #bae6fd;background:#f0f9ff;color:#0369a1;cursor:pointer;margin-right:4px">📋 Pendiente</button>` : ''}<button onclick="ventaItems.splice(${idx},1);updateEditPedidoItems()" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button></td>
     </tr>`; }).join('')}
@@ -6423,10 +6456,10 @@ function updateEditPedidoItems() {
       : ivaMode === 'incluido'
       ? `<span style="font-size:0.8rem;color:#7c3aed;font-weight:600;margin-left:6px">NETO con IVA</span>`
       : `<span style="font-size:0.8rem;color:#64748b;font-weight:600;margin-left:6px">NETO sin IVA</span>`;
-    const pendingBadge = _pendingCount > 0 ? ` <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;font-weight:600;color:#0369a1;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:2px 8px;margin-left:8px">+ ${_pendingCount} artículo${_pendingCount>1?'s':''} por cotizar</span>` : '';
+    const _pBadge = _pendingCount > 0 ? ` <span style="display:inline-flex;align-items:center;font-size:0.78rem;font-weight:600;color:#0369a1;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:2px 8px;margin-left:8px">+ ${_pendingCount} artículo${_pendingCount>1?'s':''} por cotizar</span>` : '';
     tv.innerHTML = (ivaMode === 'mas'
       ? `<span style="font-weight:700;font-size:1.1rem;color:var(--primary)">Total: $${fmt(totalEpUi)}</span> <span style="font-size:0.8rem;color:#64748b">(base $${fmt(subtotal)} + IVA $${fmt(ivaAmtEpUi)})</span>`
-      : `<span style="font-weight:700;font-size:1.1rem;color:var(--primary)">Total: $${fmt(totalEpUi)}</span>${labelEp}`) + pendingBadge;
+      : `<span style="font-weight:700;font-size:1.1rem;color:var(--primary)">Total: $${fmt(totalEpUi)}</span>${labelEp}`) + _pBadge;
   }
 }
 function _epTogglePendiente(idx) {
@@ -6442,7 +6475,6 @@ function _epTogglePendiente(idx) {
   }, 50);
 }
 window['_epTogglePendiente'] = _epTogglePendiente;
-
 function guardarEditPedido(id) {
   if (!can(['admin','secretaria','auxiliar'])) { _info('Sin permiso para editar pedidos.'); return; }
   // Usa la referencia directa guardada al abrir el modal (evita buscar por ID con duplicados).
@@ -7449,7 +7481,7 @@ function verVenta(id, folioParam) {
       <div><strong>Fecha:</strong> ${fechaLarga(vt.fecha)}</div>
       <div><strong>Registrado por:</strong> ${esc(vt.usuario||'-')}</div>
       <div><strong>Estado:</strong> <span class="badge ${vt.estado==='Pagada'||vt.estado==='Entregado'?'badge-green':vt.estado==='Listo para entrega'?'badge-orange':vt.estado==='Pendiente'||vt.estado==='En Proceso'?'badge-yellow':'badge-red'}">${vt.estado}</span></div>
-      ${(vt.ctTelFijo||vt.telefono)&&(vt.ctTelFijo||vt.telefono)!=='No aplica'?`<div><strong>Tel.:</strong> ${esc(vt.ctTelFijo||vt.telefono||'—')}</div>`:''}${(vt.ctCelular||vt.celular)&&(vt.ctCelular||vt.celular)!=='No aplica'?`<div><strong>Cel.:</strong> ${esc(vt.ctCelular||vt.celular||'—')}</div>`:''}
+      ${(()=>{const _t=vt.ctTelFijo||vt.telefono||'';return _t&&_t!=='No aplica'?`<div><strong>Tel.:</strong> ${esc(_t)} <span data-cp="${esc(_t)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;font-size:0.75rem;opacity:.7" title="Copiar teléfono">📋</span></div>`:''})()}${(()=>{const _c=vt.ctCelular||vt.celular||'';return _c&&_c!=='No aplica'?`<div><strong>Cel.:</strong> ${esc(_c)} <span data-cp="${esc(_c)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;font-size:0.75rem;opacity:.7" title="Copiar celular">📋</span></div>`:''})()}
       ${vt.cotizRef?`<div><strong>Cotización:</strong> COTS-${String(vt.cotizRef).padStart(5,'0')}</div>`:''}
       ${vt.cobranzaId?`<div><strong>Crédito:</strong> <span class="badge badge-yellow">🏦 Enviado a Cobranza</span></div>`:''}
       ${vt.usoInterno?`<div style="grid-column:1/-1"><span style="display:inline-block;background:#fef3c7;border:1.5px solid #f59e0b;color:#92400e;font-weight:700;padding:3px 10px;border-radius:6px;font-size:0.82rem">🏷️ Sin cobro — Uso interno / Exhibición</span></div>`:''}
@@ -7494,7 +7526,7 @@ function verVenta(id, folioParam) {
           <td style="padding:6px 8px">${fechaLarga(p.fecha)}</td>
           <td style="padding:6px 8px;color:#64748b">${p.hora||'-'}</td>
           <td style="padding:6px 8px;text-align:right;color:var(--success);font-weight:600">$${fmt(p.monto)}</td>
-          <td style="padding:6px 8px;color:#64748b">${p.nota||'-'}</td>
+          <td style="padding:6px 8px;color:#64748b">${esc(p.nota||'-')}</td>
           <td style="padding:6px 8px;color:#64748b">${p.recibidoPor||'-'}</td>
           <td style="padding:6px 8px;text-align:right;white-space:nowrap">
             <button onclick="generarReciboPago(${vt.id},${i})" style="background:none;border:none;cursor:pointer;color:#0ea5e9;font-size:0.85rem;margin-right:6px" title="Generar recibo de pago">🧾</button>
@@ -8260,7 +8292,7 @@ function eliminarPago(id, idx) {
   showModal('🔒 Autorización requerida', `
     <div style="padding:4px 0">
       <p style="font-size:0.9rem;color:#475569;margin-bottom:12px">
-        Solo un <strong>administrador</strong> puede cancelar un pago recibido ($${fmt(p.monto)} · ${p.nota||'sin nota'}).<br>
+        Solo un <strong>administrador</strong> puede cancelar un pago recibido ($${fmt(p.monto)} · ${esc(p.nota||'sin nota')}).<br>
         Solicita a un administrador que escriba aquí su usuario y contraseña para autorizar la cancelación.
       </p>
       <div class="form-group" style="margin-bottom:8px">
@@ -8593,7 +8625,7 @@ function archivarVentasSeleccionadas() {
           const folio = vt.folioPedido || ('#'+vt.id);
           const cobMonto = _cobSaldoMonto(vt.id);
           const razon = vt.archivado ? 'ya archivado' : cobMonto > 0 ? ('saldo en cobranza $'+fmt(cobMonto)) : vt.saldo > 0 ? ('saldo pendiente $'+vt.saldo.toLocaleString('es-MX')) : ('estado: '+vt.estado);
-          return `<li><strong>${folio}</strong> (${vt.cliente||'—'}) — ${razon}</li>`;
+          return `<li><strong>${folio}</strong> (${esc(vt.cliente||'—')}) — ${razon}</li>`;
         }).join('')
       + `</ul>` : '';
   const body = (validas.length
@@ -10384,8 +10416,8 @@ function verCotiz(id) {
   const ctInfo = [
     c.ctEmpresa&&c.ctEmpresa!=='No aplica'?`<strong>Empresa:</strong> ${c.ctEmpresa}`:'',
     c.ctCiudad&&c.ctCiudad!=='No aplica'?`<strong>Ciudad:</strong> ${c.ctCiudad}${c.ctEstado&&c.ctEstado!=='No aplica'?', '+c.ctEstado:''}` :'',
-    c.ctTelFijo&&c.ctTelFijo!=='No aplica'?`<strong>Tel.:</strong> ${esc(c.ctTelFijo)}`:'',
-    c.ctCelular&&c.ctCelular!=='No aplica'?`<strong>Cel.:</strong> ${esc(c.ctCelular)}`:'',
+    c.ctTelFijo&&c.ctTelFijo!=='No aplica'?`<strong>Tel.:</strong> ${esc(c.ctTelFijo)}<span data-cp="${esc(c.ctTelFijo)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;margin-left:4px;font-size:0.75rem;opacity:.7" title="Copiar teléfono">📋</span>`:'',
+    c.ctCelular&&c.ctCelular!=='No aplica'?`<strong>Cel.:</strong> ${esc(c.ctCelular)}<span data-cp="${esc(c.ctCelular)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;margin-left:4px;font-size:0.75rem;opacity:.7" title="Copiar celular">📋</span>`:'',
     c.ctRfc?`<strong>RFC:</strong> ${esc(c.ctRfc)}`:'',
     c.ctCorreo&&c.ctCorreo!=='No aplica'?`<strong>Correo:</strong> ${esc(c.ctCorreo)}`:'',
   ].filter(Boolean).join(' &nbsp;·&nbsp; ');
@@ -11608,11 +11640,12 @@ function _doPedidoPDF(vt, logoB64, logoW, logoH, fontB64) {
   y += 8;
 
   vt.items.forEach(item => {
-    const rh = 8;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
+    const descLines = doc.splitTextToSize(String(item.producto), cQty - M - 8); // v303
+    const rh = Math.max(8, descLines.length * 5 + 3); // v303: altura dinámica
     doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
     doc.line(M, y+rh, M+tableW, y+rh);
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
-    doc.text(String(item.producto).substring(0,50), M+4, y+5.5);
+    doc.text(descLines, M+4, y+5.5);
     doc.text(String(item.cantidad), cQty, y+5.5, {align:'right'});
     doc.text(`$${fmt(item.precio)}`, cPrice, y+5.5, {align:'right'});
     doc.setFont('helvetica','bold');
@@ -14652,7 +14685,7 @@ function _eliminarCobranzaArchivada(id) {
   if (!can(['admin'])) return;
   const c = db.cobranza.find(x => x.id === id);
   if (!c) return;
-  _confirm(`¿Eliminar definitivamente el registro de "${c.cliente}"? Esta acción no se puede deshacer.`, () => {
+  _confirm(`¿Eliminar definitivamente el registro de "${esc(c.cliente)}"? Esta acción no se puede deshacer.`, () => {
     _addTombstone('cobranza', id); // evita resurrección desde Firestore offline
     db.cobranza = db.cobranza.filter(x => x.id !== id);
     if (window._serverSnapshot?.cobranza?.[String(id)]) delete window._serverSnapshot.cobranza[String(id)];
@@ -17606,7 +17639,7 @@ function recibirConBarcode(codigoInicial) {
         <span style="font-size:1.4rem">📟</span>
         <div style="flex:1">
           <div style="font-size:0.7rem;font-weight:700;color:#4338ca;text-transform:uppercase;letter-spacing:.06em">Escáner de tableta — toca aquí y dispara</div>
-          <input id="rb-tablet" inputmode="none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          <input id="rb-tablet" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             placeholder="El código aparecerá aquí..."
             style="width:100%;border:none;background:transparent;font-size:1rem;color:#3730a3;font-weight:700;outline:none"
             oninput="rbTabletInput(this)" onkeydown="if(event.key==='Enter'){rbTabletInput(this,true);}" />
@@ -17658,7 +17691,7 @@ function rbReset() {
         <span style="font-size:1.4rem">📟</span>
         <div style="flex:1">
           <div style="font-size:0.7rem;font-weight:700;color:#4338ca;text-transform:uppercase;letter-spacing:.06em">Escáner de tableta — toca aquí y dispara</div>
-          <input id="rb-tablet" inputmode="none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          <input id="rb-tablet" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             placeholder="El código aparecerá aquí..."
             style="width:100%;border:none;background:transparent;font-size:1rem;color:#3730a3;font-weight:700;outline:none"
             oninput="rbTabletInput(this)" onkeydown="if(event.key==='Enter'){rbTabletInput(this,true);}" />
@@ -18891,9 +18924,9 @@ async function _gpShareBlob(blob, fname, msgEncoded, sinTexto, waUrl) {
 }
 function _gpWaOpciones(telFinal, msgEncoded, fnGetBlob, fname) {
   const waUrl = telFinal ? `https://wa.me/${telFinal}?text=${msgEncoded}` : `https://wa.me/?text=${msgEncoded}`;
-  showModal('📱 Enviar por WhatsApp', '<p style="color:#64748b;margin-bottom:4px">¿Qué deseas enviar al cliente?</p>', [
-    { label:'📄 PDF',           cls:'btn-primary',   action:()=>{ closeModal(); window._pdfSoloCliente=true; window._gpWaBlobCallback=(b,f)=>_gpShareBlob(b,f,msgEncoded,true,waUrl); fnGetBlob(); } },
-  ]);
+  window._pdfSoloCliente = true;
+  window._gpWaBlobCallback = (b, f) => _gpShareBlob(b, f, msgEncoded, true, waUrl);
+  fnGetBlob();
 }
 // ===================== WHATSAPP + PDF =====================
 function enviarWhatsApp(id) {
@@ -20875,6 +20908,10 @@ function openAgendaModal(id, prefill) {
         <input id="ag-tel" class="form-control" value="${esc(c?.telefono||prefill?.telefono||'')}" placeholder="opcional" />
       </div>
       <div class="form-group">
+        <label>Celular</label>
+        <input id="ag-cel" class="form-control" value="${esc(c?.celular||prefill?.celular||'')}" placeholder="opcional" />
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
         <label>Tipo *</label>
         <select id="ag-tipo" class="form-control" onchange="const ot=document.getElementById('ag-tipo-otro-wrap');if(ot)ot.style.display=this.value==='Otro'?'block':'none'">${tiposOpc}</select>
         <div id="ag-tipo-otro-wrap" style="margin-top:6px;display:${_tipoEsOtro?'block':'none'}">
@@ -20944,6 +20981,7 @@ function openAgendaModal(id, prefill) {
         const idx = agenda.findIndex(x => x.id === id);
         if (idx >= 0) agenda[idx] = { ...agenda[idx],
           cliente, telefono: document.getElementById('ag-tel').value.trim(),
+          celular: document.getElementById('ag-cel').value.trim(), // v302
           tipo: _tipoFinal,
           pedido: document.getElementById('ag-pedido').value.trim() || 'No aplica',
           fecha, hora: document.getElementById('ag-hora').value,
@@ -20952,6 +20990,7 @@ function openAgendaModal(id, prefill) {
       } else {
         agenda.push({ id: nextId++, cliente,
           telefono: document.getElementById('ag-tel').value.trim(),
+          celular: document.getElementById('ag-cel').value.trim(), // v302
           tipo: _tipoFinal,
           pedido: document.getElementById('ag-pedido').value.trim() || 'No aplica',
           fecha, hora: document.getElementById('ag-hora').value,
@@ -20960,9 +20999,13 @@ function openAgendaModal(id, prefill) {
           estado: 'Pendiente', creadoPor: session.nombre,
           creadoEn: new Date().toISOString() });
       }
+      // Actualizar estado local ANTES del write para evitar race con onSnapshot
+      db.agenda = agenda;
+      save('gp_agenda', db.agenda);
+      try { if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {}; window._ownWriteUntilByCol['agenda'] = Math.max(window._ownWriteUntilByCol['agenda']||0, Date.now()+30000); } catch(e) {}
       closeModal();
-      await fsWriteCollection('agenda', agenda);
       renderAgenda();
+      fsWriteCollection('agenda', agenda).catch(e => { console.error('[agenda] Error guardando:', e); });
     }},
     { label: 'Cancelar', cls: 'btn-secondary', action: closeModal }
   ]);
@@ -23915,14 +23958,14 @@ document.addEventListener('keydown', function(e) {
       if (!app || app.style.display === 'none') return;
       const ov = document.getElementById('modal-overlay');
       if (ov && ov.classList.contains('open')) closeModal();
-      if (typeof auth !== 'undefined' && auth) auth.signOut().catch(() => {});
       showModal('⏱️ Sesión expirada', `
         <div style="text-align:center;padding:16px 0">
           <div style="font-size:3rem;margin-bottom:14px">🔒</div>
           <p style="color:var(--text-light)">Tu sesión se cerró por 20 minutos de inactividad.</p>
         </div>`, [
-        { label: 'Entrar de nuevo', cls: 'btn-primary', action: () => { closeModal(); logout(); } }
-      ]);
+        { label: 'Continuar', cls: 'btn-primary', action: () => { closeModal(); } },
+        { label: 'Cerrar sesión', cls: 'btn-secondary btn-sm', action: () => { closeModal(); logout(); } }
+      ]); // v300
     }, TIMEOUT);
   }
   window._startIdleTimer = function() {
@@ -24176,7 +24219,7 @@ function logActividad(accion, detalle) {
               </div>
               ${p.descripcion ? `<div style="font-size:0.76rem;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.descripcion)}</div>` : ''}
               <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
-                <button onclick="(function(){var panel=document.getElementById('_rec-panel');if(panel)panel.remove();openPersonalRecModal('${p.id}');})()" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
+                <button onclick="window._recAbrirAgenda()" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
                 <button onclick="window._recDescartarPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Descartar</button>
               </div>
               <div style="display:flex;gap:4px;margin-top:5px">
@@ -24388,10 +24431,12 @@ function logActividad(accion, detalle) {
     if (typeof navigate === 'function') navigate('agenda');
   };
   window._recDescartarPers = function(persId) {
-    const updated = (db.recordatoriosPersonales||[]).map(p => p.id===persId ? {...p, completado:true} : p);
+    // Solo cierra el popup — NO marca como completado para que el recordatorio permanezca en la Agenda
+    const snoozeTs = 9999999999999;
+    const updated = (db.recordatoriosPersonales||[]).map(p => p.id===persId ? {...p, snoozeHasta:snoozeTs} : p);
     db.recordatoriosPersonales = updated;
     saveDb('recordatoriosPersonales');
-    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(persId)).update({completado:true}).catch(()=>{});
+    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(persId)).update({snoozeHasta:snoozeTs}).catch(()=>{});
     const el = document.querySelector('[data-pers-id="'+persId+'"]');
     if (el) el.remove();
     const panel = document.getElementById('_rec-panel');
