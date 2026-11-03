@@ -739,7 +739,7 @@
     <button class="btn btn-primary btn-full" onclick="doLogin()">Iniciar Sesión</button>
     <div id="login-error"></div>
     <!-- MODO DEV — solo visible para admin -->
-    <div id="modo-dev-wrap" style="display:none;margin-top:14px">
+    <div id="modo-dev-wrap" style="display:block;margin-top:14px">
       <div onclick="_toggleModoDev()" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff7ed;border:1.5px solid #f97316;border-radius:10px;padding:9px 13px;cursor:pointer;user-select:none">
         <div>
           <div style="font-size:0.82rem;font-weight:700;color:#9a3412">🔧 Modo Desarrollo</div>
@@ -958,20 +958,13 @@ function _toggleModoDev() {
 }
 
 function _initModoDev() {
-  // Mostrar toggle solo cuando se escribe el usuario admin
-  const inp = document.getElementById('login-user');
-  const wrap = document.getElementById('modo-dev-wrap');
-  if (!inp || !wrap) return;
-  inp.addEventListener('input', () => {
-    wrap.style.display = inp.value.trim().length >= 3 ? 'block' : 'none';
-  });
+  // Toggle siempre visible — disponible para todos los usuarios
   // Aplicar estado guardado al toggle visual
   if (_MODO_DEV) {
     const sw = document.getElementById('modo-dev-switch');
     const kn = document.getElementById('modo-dev-knob');
     if (sw) sw.style.background = '#f97316';
     if (kn) kn.style.transform = 'translateX(17px)';
-    // Mostrar el toggle activo (no pre-rellenar usuario para evitar confusión con secretaria/auxiliar)
   }
 }
 // Iniciar cuando el DOM esté listo
