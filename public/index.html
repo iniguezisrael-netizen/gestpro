@@ -1360,10 +1360,10 @@ async function fsWriteCollection(colName, arr) {
     const knownIds = _firestoreKnownIds[colName] || new Set();
     const toDelete = [...knownIds].filter(id => !newIds.has(id));
     const _noAutoTombstone = ['ventas','cotizaciones','reparaciones','clientes'];
-    if (toDelete.length) {
-      const _safeDel = _noAutoTombstone.includes(colName)
-        ? toDelete.filter(id => !!((_fsTombstones[colName]||{})[id]))
-        : toDelete;
+    const _safeDel = _noAutoTombstone.includes(colName)
+      ? toDelete.filter(id => !!((_fsTombstones[colName]||{})[id]))
+      : toDelete;
+    if (_safeDel.length) {
       _safeDel.forEach(id => _addTombstone(colName, id));
     }
     _firestoreKnownIds[colName] = new Set(newIds);
@@ -1414,7 +1414,7 @@ async function fsWriteCollection(colName, arr) {
       const isNew = !srvSnap[idStr] && !_knownIdsCol.has(idStr);
       return { op: isNew ? 'set' : 'update', ref: colRef.doc(idStr), data: { ...item, _updatedAt: Date.now() } };
     });
-    const deletes = toDelete.map(id => ({ op:'del', ref: colRef.doc(id) }));
+    const deletes = _safeDel.map(id => ({ op:'del', ref: colRef.doc(id) }));
     const allOps = [...writes, ...deletes];
 
     for (let i = 0; i < allOps.length; i += BATCH_MAX) {
