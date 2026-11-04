@@ -739,7 +739,7 @@
     <button class="btn btn-primary btn-full" onclick="doLogin()">Iniciar Sesión</button>
     <div id="login-error"></div>
     <!-- MODO DEV — solo visible para admin -->
-    <div id="modo-dev-wrap" style="display:block;margin-top:14px">
+    <div id="modo-dev-wrap" style="display:none;margin-top:14px">
       <div onclick="_toggleModoDev()" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff7ed;border:1.5px solid #f97316;border-radius:10px;padding:9px 13px;cursor:pointer;user-select:none">
         <div>
           <div style="font-size:0.82rem;font-weight:700;color:#9a3412">🔧 Modo Desarrollo</div>
@@ -958,13 +958,20 @@ function _toggleModoDev() {
 }
 
 function _initModoDev() {
-  // Toggle siempre visible — disponible para todos los usuarios
+  // Mostrar toggle solo cuando se escribe el usuario admin
+  const inp = document.getElementById('login-user');
+  const wrap = document.getElementById('modo-dev-wrap');
+  if (!inp || !wrap) return;
+  inp.addEventListener('input', () => {
+    wrap.style.display = inp.value.trim().length >= 3 ? 'block' : 'none';
+  });
   // Aplicar estado guardado al toggle visual
   if (_MODO_DEV) {
     const sw = document.getElementById('modo-dev-switch');
     const kn = document.getElementById('modo-dev-knob');
     if (sw) sw.style.background = '#f97316';
     if (kn) kn.style.transform = 'translateX(17px)';
+    // Mostrar el toggle activo (no pre-rellenar usuario para evitar confusión con secretaria/auxiliar)
   }
 }
 // Iniciar cuando el DOM esté listo
@@ -1359,13 +1366,7 @@ async function fsWriteCollection(colName, arr) {
     // IDs que estaban en Firestore pero ya no están → eliminar
     const knownIds = _firestoreKnownIds[colName] || new Set();
     const toDelete = [...knownIds].filter(id => !newIds.has(id));
-    const _noAutoTombstone = ['ventas','cotizaciones','reparaciones','clientes'];
-    const _safeDel = _noAutoTombstone.includes(colName)
-      ? toDelete.filter(id => !!((_fsTombstones[colName]||{})[id]))
-      : toDelete;
-    if (_safeDel.length) {
-      _safeDel.forEach(id => _addTombstone(colName, id));
-    }
+    if (toDelete.length) toDelete.forEach(id => _addTombstone(colName, id));
     _firestoreKnownIds[colName] = new Set(newIds);
     _saveKnownIds();
 
@@ -1414,7 +1415,7 @@ async function fsWriteCollection(colName, arr) {
       const isNew = !srvSnap[idStr] && !_knownIdsCol.has(idStr);
       return { op: isNew ? 'set' : 'update', ref: colRef.doc(idStr), data: { ...item, _updatedAt: Date.now() } };
     });
-    const deletes = _safeDel.map(id => ({ op:'del', ref: colRef.doc(id) }));
+    const deletes = toDelete.map(id => ({ op:'del', ref: colRef.doc(id) }));
     const allOps = [...writes, ...deletes];
 
     for (let i = 0; i < allOps.length; i += BATCH_MAX) {
@@ -1966,13 +1967,6 @@ async function _procesarColecciones(cols, results) {
           }
           return { ...x, baja: true, bajaFecha: _loc.bajaFecha, bajaMotivo: _loc.bajaMotivo, bajaUsuario: _loc.bajaUsuario };
         }
-        // Modo dev: conservar fotos/archivos locales si Firestore no los tiene (no se subieron)
-        if (_MODO_DEV) {
-          const _locDev = _localById[String(x.id)];
-          if (_locDev && Array.isArray(_locDev.fotos) && _locDev.fotos.length > (x.fotos||[]).length) {
-            return { ...x, fotos: _locDev.fotos };
-          }
-        }
         return x;
       });
       const serverIds = new Set(serverItemsMerged.map(x => x && x.id).filter(Boolean));
@@ -2129,11 +2123,12 @@ function _iniciarRespaldoAutomatico() {
     } catch(e) { console.error('[AutoBackup] Error:', e); }
   }
 
-  // Backup al abrir: captura localStorage antes de que Firestore sincronice
-  setTimeout(_hacerRespaldo, 2000);
-  // Respaldo periódico cada hora
-  _respaldoTimer = setInterval(_hacerRespaldo, INTERVALO);
-  console.log('[AutoBackup] Respaldo al abrir + cada hora activado');
+  // Primera vez: a los 5 minutos de cargar (no molestar al inicio)
+  setTimeout(() => {
+    _hacerRespaldo();
+    _respaldoTimer = setInterval(_hacerRespaldo, INTERVALO);
+  }, 5 * 60 * 1000);
+  console.log('[AutoBackup] Respaldo automático activado — cada hora');
 }
 
 // Listener en tiempo real — escucha cambios en documentos individuales {col}/{id}
@@ -5782,118 +5777,6 @@ function vSelHideSugsLater() {
 }
 window['vSelHideSugsLater'] = vSelHideSugsLater;
 
-// ── Click en sugerencia del picker de cotiz→pedido ──
-document.addEventListener('click', e => {
-  const sug = e.target.closest && e.target.closest('.pdsel-sug');
-  if (!sug) return;
-  const inp = document.getElementById('pdsel-item');
-  if (inp) inp.value = sug.getAttribute('data-nombre') || '';
-  pdSelItemChange();
-  const sugs = document.getElementById('pdsel-item-sugs');
-  if (sugs) sugs.style.display = 'none';
-});
-
-function pdSelHideSugsLater() {
-  setTimeout(() => {
-    const sugs = document.getElementById('pdsel-item-sugs');
-    if (sugs) sugs.style.display = 'none';
-  }, 180);
-}
-window['pdSelHideSugsLater'] = pdSelHideSugsLater;
-
-function _pdSelFindItem(tipo, nombre) {
-  const n = _normSearch(nombre||'');
-  if (!n) return null;
-  return (db[tipo]||[]).find(i => _normSearch((tipo==='consignacion'?i.producto:i.nombre)||'') === n) || null;
-}
-window['_pdSelFindItem'] = _pdSelFindItem;
-
-function pdSelRenderPicker() {
-  const tipo = document.getElementById('pdsel-tipo') ? document.getElementById('pdsel-tipo').value : '';
-  const cont = document.getElementById('pdsel-picker');
-  if (!cont) return;
-  if (!tipo) { cont.innerHTML = ''; return; }
-  const items = db[tipo]||[];
-  const disponibles = tipo === 'materia' ? items : items.filter(i => (i.cantidad||0) > 0 && i.estado !== 'Vendido' && i.estado !== 'Apartado');
-  cont.innerHTML = `
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
-      <div style="position:relative;flex:2;min-width:140px">
-        <input id="pdsel-item" autocomplete="new-password"
-          placeholder="${disponibles.length ? 'Escribe para buscar...' : (tipo==='materia'?'Escribe para buscar o agrega uno nuevo...':'Sin artículos disponibles')}"
-          style="width:100%;box-sizing:border-box;padding:8px;border:1.5px solid var(--border);border-radius:8px"
-          oninput="pdSelItemChange()" onfocus="pdSelItemChange()" onblur="pdSelHideSugsLater()" />
-        <div id="pdsel-item-sugs" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;max-width:min(480px,90vw);z-index:50;background:#fff;border:1.5px solid var(--border);border-radius:8px;margin-top:2px;max-height:160px;overflow-y:auto;box-shadow:0 4px 14px rgba(0,0,0,.15)"></div>
-      </div>
-      <input id="pdsel-qty" type="number" placeholder="Cant." min="1" value="1" style="width:70px;padding:8px;border:1.5px solid var(--border);border-radius:8px" />
-      <input id="pdsel-price" type="number" placeholder="Precio" min="0" step="0.01" style="width:100px;padding:8px;border:1.5px solid var(--border);border-radius:8px" />
-      <button class="btn btn-success btn-sm" onclick="pdSelAddItem()">+ Añadir</button>
-    </div>`;
-  pdSelItemChange();
-}
-window['pdSelRenderPicker'] = pdSelRenderPicker;
-
-function pdSelItemChange() {
-  const tipoEl = document.getElementById('pdsel-tipo');
-  const tipo = tipoEl ? tipoEl.value : '';
-  const txt = _normSearch((document.getElementById('pdsel-item')||{}).value||'');
-  const sugs = document.getElementById('pdsel-item-sugs');
-  if (sugs) {
-    const all = db[tipo]||[];
-    const pool = tipo === 'materia' ? all : all.filter(i => (i.cantidad||0) > 0 && i.estado !== 'Vendido' && i.estado !== 'Apartado');
-    const matches = txt ? pool.filter(i => {
-      const nom = _normSearch((tipo==='consignacion'?i.producto:i.nombre)||'');
-      if (nom.includes(txt)) return true;
-      if (tipo==='consignacion' && i.folio && _normSearch(i.folio).includes(txt)) return true;
-      return false;
-    }) : [];
-    if (!pool.length && tipo !== 'materia') {
-      sugs.innerHTML = `<div style="padding:8px 10px;color:#94a3b8;font-size:0.85rem">Sin artículos disponibles en inventario</div>`;
-      sugs.style.display = 'block';
-    } else if (!txt) {
-      sugs.style.display = 'none';
-    } else if (!matches.length) {
-      sugs.innerHTML = `<div style="padding:8px 10px;color:#94a3b8;font-size:0.85rem">Sin coincidencias</div>`;
-      sugs.style.display = 'block';
-    } else {
-      sugs.innerHTML = matches.slice(0,50).map(i => {
-        const nom = (tipo==='consignacion'?i.producto:i.nombre)||'';
-        const stk = i.cantidad||0;
-        const foto = i.fotos && i.fotos[0] ? `<img src="${i.fotos[0]}" style="width:38px;height:32px;object-fit:cover;border-radius:5px;margin-right:8px;flex-shrink:0;border:1px solid #e2e8f0" />` : '';
-        const folioTag = i.folio ? ` <span style="font-size:0.72rem;background:#f1f5f9;color:#475569;padding:1px 5px;border-radius:4px;margin-left:4px">${esc(i.folio)}</span>` : '';
-        const stkColor = tipo==='materia' ? (stk>0?'#94a3b8':'#dc2626') : '#94a3b8';
-        const stkTxt = tipo==='materia' ? `· stock: ${stk}` : `· ${stk} disponible${stk!==1?'s':''}`;
-        return `<div class="pdsel-sug" data-nombre="${esc(nom)}" data-precio="${i.precioPublico||0}" style="padding:7px 10px;cursor:pointer;font-size:0.9rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center" onmousedown="event.preventDefault()">${foto}<span>${esc(nom)}${folioTag} <span style="color:${stkColor};font-size:0.8rem">${stkTxt}</span>${i.unidad?' <span style="font-size:0.75rem;color:#64748b">'+esc(i.unidad)+'</span>':''}</span></div>`;
-      }).join('');
-      sugs.style.display = 'block';
-    }
-    const item = _pdSelFindItem(tipo, (document.getElementById('pdsel-item')||{}).value||'');
-    const priceInput = document.getElementById('pdsel-price');
-    if (item && priceInput && !priceInput.value) priceInput.value = round2(item.precioPublico||0);
-  }
-}
-window['pdSelItemChange'] = pdSelItemChange;
-
-function pdSelAddItem() {
-  const tipoEl = document.getElementById('pdsel-tipo');
-  const tipo = tipoEl ? tipoEl.value : '';
-  const nombre = ((document.getElementById('pdsel-item')||{}).value||'').trim();
-  if (!nombre) { _info('Escribe o selecciona un artículo'); return; }
-  const item = _pdSelFindItem(tipo, nombre);
-  if (!item && tipo !== 'materia') { _info('Selecciona un artículo de la lista de sugerencias'); return; }
-  const qty = +((document.getElementById('pdsel-qty')||{}).value||1) || 1;
-  const price = +((document.getElementById('pdsel-price')||{}).value||0) || 0;
-  pedidoItems.push({
-    producto: tipo === 'consignacion' ? (item ? item.producto : nombre) : (item ? item.nombre : nombre),
-    cantidad: qty, precio: price,
-    _tipo: tipo, _itemId: item ? item.id : null,
-    unidad: tipo==='materia' ? (item ? item.unidad||'' : '') : '',
-    _consigFolio: tipo === 'consignacion' ? (item ? item.folio||undefined : undefined) : undefined
-  });
-  updatePedidoItems();
-  pdSelRenderPicker();
-}
-window['pdSelAddItem'] = pdSelAddItem;
-
 function vSelAddItem() {
   const tipo = v('vsel-tipo');
   const nombre = v('vsel-item').trim();
@@ -7598,7 +7481,7 @@ function verVenta(id, folioParam) {
       <div><strong>Fecha:</strong> ${fechaLarga(vt.fecha)}</div>
       <div><strong>Registrado por:</strong> ${esc(vt.usuario||'-')}</div>
       <div><strong>Estado:</strong> <span class="badge ${vt.estado==='Pagada'||vt.estado==='Entregado'?'badge-green':vt.estado==='Listo para entrega'?'badge-orange':vt.estado==='Pendiente'||vt.estado==='En Proceso'?'badge-yellow':'badge-red'}">${vt.estado}</span></div>
-      ${(()=>{const _t=vt.ctTelFijo||vt.telefono||'';return _t&&_t!=='No aplica'?`<div><strong>Tel.:</strong> ${esc(_t)} <span data-cp="${esc(_t)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;font-size:0.75rem;opacity:.7" title="Copiar teléfono">📋</span></div>`:''})()}${(()=>{const _c=vt.ctCelular||vt.celular||'';return _c&&_c!=='No aplica'?`<div><strong>Cel.:</strong> ${esc(_c)} <span data-cp="${esc(_c)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;font-size:0.75rem;opacity:.7" title="Copiar celular">📋</span></div>`:''})()}
+      ${(vt.ctTelFijo||vt.telefono)&&(vt.ctTelFijo||vt.telefono)!=='No aplica'?`<div><strong>Tel.:</strong> ${esc(vt.ctTelFijo||vt.telefono||'—')}</div>`:''}${(vt.ctCelular||vt.celular)&&(vt.ctCelular||vt.celular)!=='No aplica'?`<div><strong>Cel.:</strong> ${esc(vt.ctCelular||vt.celular||'—')}</div>`:''}
       ${vt.cotizRef?`<div><strong>Cotización:</strong> COTS-${String(vt.cotizRef).padStart(5,'0')}</div>`:''}
       ${vt.cobranzaId?`<div><strong>Crédito:</strong> <span class="badge badge-yellow">🏦 Enviado a Cobranza</span></div>`:''}
       ${vt.usoInterno?`<div style="grid-column:1/-1"><span style="display:inline-block;background:#fef3c7;border:1.5px solid #f59e0b;color:#92400e;font-weight:700;padding:3px 10px;border-radius:6px;font-size:0.82rem">🏷️ Sin cobro — Uso interno / Exhibición</span></div>`:''}
@@ -7643,7 +7526,7 @@ function verVenta(id, folioParam) {
           <td style="padding:6px 8px">${fechaLarga(p.fecha)}</td>
           <td style="padding:6px 8px;color:#64748b">${p.hora||'-'}</td>
           <td style="padding:6px 8px;text-align:right;color:var(--success);font-weight:600">$${fmt(p.monto)}</td>
-          <td style="padding:6px 8px;color:#64748b">${esc(p.nota||'-')}</td>
+          <td style="padding:6px 8px;color:#64748b">${p.nota||'-'}</td>
           <td style="padding:6px 8px;color:#64748b">${p.recibidoPor||'-'}</td>
           <td style="padding:6px 8px;text-align:right;white-space:nowrap">
             <button onclick="generarReciboPago(${vt.id},${i})" style="background:none;border:none;cursor:pointer;color:#0ea5e9;font-size:0.85rem;margin-right:6px" title="Generar recibo de pago">🧾</button>
@@ -7775,7 +7658,7 @@ function _fijarPrecioVenta(id) {
       if (FIREBASE_ENABLED && firestore) {
         firestore.collection('ventas').doc(String(id)).update({ items: vt.items, total: _finalTotal, iva: vt.iva, ivaMode: _ivaMode, subtotal: _subtotal, ivaAmount: _ivaAmt, pendienteCotizar: false, anticipo: vt.anticipo, saldo: vt.saldo }).catch(()=>{});
       }
-      saveDb(['ventas','cobranza']); closeModal(); renderVentas();
+      saveDb(['ventas','cobranza']); closeModal();
       setTimeout(() => { verVenta(id, vt.folioPedido); _info('✓ Total actualizado correctamente.'); }, 150);
     }},
     { label:'Cancelar', cls:'btn-secondary', action: closeModal }
@@ -8409,7 +8292,7 @@ function eliminarPago(id, idx) {
   showModal('🔒 Autorización requerida', `
     <div style="padding:4px 0">
       <p style="font-size:0.9rem;color:#475569;margin-bottom:12px">
-        Solo un <strong>administrador</strong> puede cancelar un pago recibido ($${fmt(p.monto)} · ${esc(p.nota||'sin nota')}).<br>
+        Solo un <strong>administrador</strong> puede cancelar un pago recibido ($${fmt(p.monto)} · ${p.nota||'sin nota'}).<br>
         Solicita a un administrador que escriba aquí su usuario y contraseña para autorizar la cancelación.
       </p>
       <div class="form-group" style="margin-bottom:8px">
@@ -8742,7 +8625,7 @@ function archivarVentasSeleccionadas() {
           const folio = vt.folioPedido || ('#'+vt.id);
           const cobMonto = _cobSaldoMonto(vt.id);
           const razon = vt.archivado ? 'ya archivado' : cobMonto > 0 ? ('saldo en cobranza $'+fmt(cobMonto)) : vt.saldo > 0 ? ('saldo pendiente $'+vt.saldo.toLocaleString('es-MX')) : ('estado: '+vt.estado);
-          return `<li><strong>${folio}</strong> (${esc(vt.cliente||'—')}) — ${razon}</li>`;
+          return `<li><strong>${folio}</strong> (${vt.cliente||'—'}) — ${razon}</li>`;
         }).join('')
       + `</ul>` : '';
   const body = (validas.length
@@ -9925,18 +9808,6 @@ document.addEventListener('paste', e => {
         });
       }
     },
-    { previewId: 'fotos-preview-consig', handler: file => {
-        const token = _fotoSessionC;
-        comprimirImagen(file, dataUrl => {
-          if (_fotoSessionC !== token) return;
-          _fotosSubiendoC++; renderFotosPreviewC();
-          subirFotoAStorage(dataUrl, 'consignacion', url => {
-            if (_fotoSessionC !== token) return;
-            _fotosSubiendoC--; _tempFotosC.push(url); renderFotosPreviewC();
-          });
-        });
-      }
-    },
     { previewId: 'fotos-preview-ep', handler: file => {
         const token = _fotoSessionEp;
         comprimirImagen(file, dataUrl => {
@@ -10545,8 +10416,8 @@ function verCotiz(id) {
   const ctInfo = [
     c.ctEmpresa&&c.ctEmpresa!=='No aplica'?`<strong>Empresa:</strong> ${c.ctEmpresa}`:'',
     c.ctCiudad&&c.ctCiudad!=='No aplica'?`<strong>Ciudad:</strong> ${c.ctCiudad}${c.ctEstado&&c.ctEstado!=='No aplica'?', '+c.ctEstado:''}` :'',
-    c.ctTelFijo&&c.ctTelFijo!=='No aplica'?`<strong>Tel.:</strong> ${esc(c.ctTelFijo)}<span data-cp="${esc(c.ctTelFijo)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;margin-left:4px;font-size:0.75rem;opacity:.7" title="Copiar teléfono">📋</span>`:'',
-    c.ctCelular&&c.ctCelular!=='No aplica'?`<strong>Cel.:</strong> ${esc(c.ctCelular)}<span data-cp="${esc(c.ctCelular)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;margin-left:4px;font-size:0.75rem;opacity:.7" title="Copiar celular">📋</span>`:'',
+    c.ctTelFijo&&c.ctTelFijo!=='No aplica'?`<strong>Tel.:</strong> ${esc(c.ctTelFijo)}`:'',
+    c.ctCelular&&c.ctCelular!=='No aplica'?`<strong>Cel.:</strong> ${esc(c.ctCelular)}`:'',
     c.ctRfc?`<strong>RFC:</strong> ${esc(c.ctRfc)}`:'',
     c.ctCorreo&&c.ctCorreo!=='No aplica'?`<strong>Correo:</strong> ${esc(c.ctCorreo)}`:'',
   ].filter(Boolean).join(' &nbsp;·&nbsp; ');
@@ -10664,21 +10535,7 @@ function cotizToVenta(id) {
     <div class="form-group"><label>Observaciones</label><textarea id="pd-obs" rows="8" style="resize:vertical">${esc(c.observaciones||'')}</textarea></div>
 
     <hr style="margin:10px 0;border:none;border-top:1px solid var(--border)"/>
-    <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 14px;margin-bottom:10px">
-      <p style="font-size:0.8rem;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px">📦 Agregar Producto desde Inventario</p>
-      <div class="form-group" style="margin-bottom:8px">
-        <select id="pdsel-tipo" onchange="pdSelRenderPicker()" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;background:#fff;width:auto;min-width:220px">
-          <option value="">-- Selecciona origen --</option>
-          <option value="consignacion">🔄 Consignación</option>
-          <option value="productos">📦 Producto Terminado</option>
-          <option value="materia">🔩 Materia Prima</option>
-        </select>
-      </div>
-      <div id="pdsel-picker"></div>
-    </div>
-
-    <hr style="margin:10px 0;border:none;border-top:1px solid var(--border)"/>
-    <p style="font-size:0.8rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Detalle de Precios (Manual)</p>
+    <p style="font-size:0.8rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Conceptos del Pedido</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <input id="pd-prod" placeholder="Concepto" style="flex:2;min-width:100px;padding:7px;border:1.5px solid var(--border);border-radius:8px"/>
       <input id="pd-qty" type="number" placeholder="Cant." min="1" value="1" style="width:65px;padding:7px;border:1.5px solid var(--border);border-radius:8px"/>
@@ -10808,22 +10665,8 @@ function guardarPedido(c) {
     usuario: session.nombre
   };
   db.ventas.push(nuevoPedido);
-  // Marcar artículos de inventario vinculados al pedido como Apartado / descontar stock.
-  pedidoItems.forEach(i => {
-    if (i._itemId != null && i._tipo) {
-      const invItem = (db[i._tipo]||[]).find(x => x.id === i._itemId);
-      if (invItem) {
-        if (i._tipo === 'consignacion') {
-          invItem.estado = 'Apartado';
-          invItem.pedidoId = nuevoPedido.id;
-        } else if (i._tipo === 'productos' || i._tipo === 'materia') {
-          invItem.cantidad = Math.max(0, (invItem.cantidad||0) - i.cantidad);
-        }
-      }
-    }
-  });
   c.estado = 'Aprobada';
-  saveDb(['ventas','cotizaciones','cajas','consignacion','productos','materia']); closeModal();
+  saveDb(['ventas','cotizaciones','cajas']); closeModal();
   navigate('ventas');
   generarCopiasPedido(nuevoPedido);
   _info('✅ Pedido registrado correctamente.\n\nSe generaron las 3 copias en PDF: Administración, Cliente y Producción.');
@@ -14842,7 +14685,7 @@ function _eliminarCobranzaArchivada(id) {
   if (!can(['admin'])) return;
   const c = db.cobranza.find(x => x.id === id);
   if (!c) return;
-  _confirm(`¿Eliminar definitivamente el registro de "${esc(c.cliente)}"? Esta acción no se puede deshacer.`, () => {
+  _confirm(`¿Eliminar definitivamente el registro de "${c.cliente}"? Esta acción no se puede deshacer.`, () => {
     _addTombstone('cobranza', id); // evita resurrección desde Firestore offline
     db.cobranza = db.cobranza.filter(x => x.id !== id);
     if (window._serverSnapshot?.cobranza?.[String(id)]) delete window._serverSnapshot.cobranza[String(id)];
@@ -20112,11 +19955,12 @@ function _buildPDF(c, logoB64, logoW, logoH, fontB64, pdfWin, ventaOverride, aut
       doc.text('SUBTOTAL', cSub, y+5.5, {align:'right'});
       y += 8;
       c.items.forEach((item)=>{
-        const rh = 8;
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
+        const descLines = doc.splitTextToSize(String(item.producto), cQty - M - 8); // v305
+        const lineH = 5; const rh = Math.max(9, descLines.length * lineH + 4); // v305
         doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
         doc.line(M, y+rh, M+tableW, y+rh);
-        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
-        doc.text(String(item.producto).substring(0,50), M+4, y+5.5);
+        descLines.forEach((ln,i) => doc.text(ln, M+4, y+5.5+i*lineH));
         doc.text(String(item.cantidad), cQty, y+5.5, {align:'right'});
         doc.text(`$${fmt(item.precio)}`, cPrice, y+5.5, {align:'right'});
         doc.setFont('helvetica','bold');
@@ -20151,14 +19995,15 @@ function _buildPDF(c, logoB64, logoW, logoH, fontB64, pdfWin, ventaOverride, aut
       doc.text('CANT.', cQtyP, y+5.5, {align:'right'});
       y += 8;
       c.items.forEach((item)=>{
-        const rh = 8;
-        doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
-        doc.line(M, y+rh, M+tableW, y+rh);
         doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
-        doc.text(String(item.producto).substring(0,60), M+4, y+5.5);
+        const descLinesP = doc.splitTextToSize(String(item.producto), cQtyP - M - 8); // v305
+        const lineHP = 5; const rhP = Math.max(9, descLinesP.length * lineHP + 4); // v305
+        doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
+        doc.line(M, y+rhP, M+tableW, y+rhP);
+        descLinesP.forEach((ln,i) => doc.text(ln, M+4, y+5.5+i*lineHP));
         doc.setFont('helvetica','bold');
         doc.text(String(item.cantidad), cQtyP, y+5.5, {align:'right'});
-        y += rh;
+        y += rhP;
       });
     }
 
@@ -21156,13 +21001,9 @@ function openAgendaModal(id, prefill) {
           estado: 'Pendiente', creadoPor: session.nombre,
           creadoEn: new Date().toISOString() });
       }
-      // Actualizar estado local ANTES del write para evitar race con onSnapshot
-      db.agenda = agenda;
-      save('gp_agenda', db.agenda);
-      try { if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {}; window._ownWriteUntilByCol['agenda'] = Math.max(window._ownWriteUntilByCol['agenda']||0, Date.now()+30000); } catch(e) {}
       closeModal();
+      await fsWriteCollection('agenda', agenda);
       renderAgenda();
-      fsWriteCollection('agenda', agenda).catch(e => { console.error('[agenda] Error guardando:', e); });
     }},
     { label: 'Cancelar', cls: 'btn-secondary', action: closeModal }
   ]);
@@ -23017,10 +22858,10 @@ function openEntregaRapidaModal(ventaId, soloDevolucion) {
         📦 Recibir con código
       </button>
     </div>
-    <div style="margin-bottom:8px;cursor:pointer" onclick="document.getElementById('er-scan').focus()">
+    <div style="margin-bottom:8px">
       <label style="font-size:0.8rem;color:#64748b;display:block;margin-bottom:4px">Escanear o escribir código / nombre</label>
       <div style="display:flex;gap:6px">
-        <input type="text" id="er-scan" placeholder="Escanear aquí…" autocomplete="off" autofocus
+        <input type="text" id="er-scan" placeholder="Escanear aquí…" autocomplete="off" autofocus inputmode="none"
           style="flex:1;padding:10px 12px;border:2px solid var(--primary);border-radius:8px;font-size:1rem;background:var(--bg)"
           onkeydown="if(event.key==='Enter'){event.preventDefault();_erScanAdd();}"
           oninput="_erScanHint(this.value)">
@@ -24376,7 +24217,7 @@ function logActividad(accion, detalle) {
               </div>
               ${p.descripcion ? `<div style="font-size:0.76rem;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.descripcion)}</div>` : ''}
               <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
-                <button onclick="window._verRecPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
+                <button onclick="window._recAbrirAgenda()" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
                 <button onclick="window._recDescartarPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Descartar</button>
               </div>
               <div style="display:flex;gap:4px;margin-top:5px">
@@ -24588,77 +24429,14 @@ function logActividad(accion, detalle) {
     if (typeof navigate === 'function') navigate('agenda');
   };
   window._recDescartarPers = function(persId) {
-    // Solo cierra el popup — NO marca como completado para que el recordatorio permanezca en la Agenda
-    const snoozeTs = 9999999999999;
-    const updated = (db.recordatoriosPersonales||[]).map(p => p.id===persId ? {...p, snoozeHasta:snoozeTs} : p);
+    const updated = (db.recordatoriosPersonales||[]).map(p => p.id===persId ? {...p, completado:true} : p);
     db.recordatoriosPersonales = updated;
     saveDb('recordatoriosPersonales');
-    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(persId)).update({snoozeHasta:snoozeTs}).catch(()=>{});
+    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(persId)).update({completado:true}).catch(()=>{});
     const el = document.querySelector('[data-pers-id="'+persId+'"]');
     if (el) el.remove();
     const panel = document.getElementById('_rec-panel');
     if (panel && !panel.querySelector('.rec-item')) panel.remove();
-  };
-  window._posponerDesdeVista = function(persId) {
-    var sel = document.getElementById('_vrp-snooze');
-    if (!sel) return;
-    var sv = sel.value;
-    var ts;
-    if (sv === 'tomorrow') { var t=new Date(); t.setDate(t.getDate()+1); t.setHours(8,0,0,0); ts=t.getTime(); }
-    else { ts = Date.now() + parseInt(sv)*60000; }
-    var upd = (db.recordatoriosPersonales||[]).map(function(p){ return String(p.id)===String(persId) ? Object.assign({},p,{snoozeHasta:ts}) : p; });
-    db.recordatoriosPersonales = upd;
-    saveDb('recordatoriosPersonales');
-    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(persId)).update({snoozeHasta:ts}).catch(function(){});
-    var el = document.querySelector('[data-pers-id="'+persId+'"]');
-    if (el) el.remove();
-    var pnl = document.getElementById('_rec-panel');
-    if (pnl && !pnl.querySelector('.rec-item')) pnl.remove();
-    var mini = document.getElementById('_vrp-mini');
-    if (mini) mini.remove();
-  };
-  window._verRecPers = function(persId) {
-    var prev = document.getElementById('_vrp-mini');
-    if (prev) prev.remove();
-    var p = (db.recordatoriosPersonales||[]).find(function(x){ return String(x.id)===String(persId); });
-    if (!p) return;
-    var _hoy = new Date().toISOString().slice(0,10);
-    var _hm = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
-    var _venc = p.fecha && (p.fecha < _hoy || (p.fecha===_hoy && p.hora && p.hora <= _hm));
-    var snoozeOpts = [
-      {val:'5',label:'5 minutos'},{val:'15',label:'15 minutos'},{val:'30',label:'30 minutos'},
-      {val:'60',label:'1 hora'},{val:'120',label:'2 horas'},{val:'240',label:'4 horas'},
-      {val:'1440',label:'1 día'},{val:'2880',label:'2 días'},{val:'10080',label:'1 semana'},
-      {val:'tomorrow',label:'Mañana (8:00 am)'}
-    ];
-    var optsHtml = snoozeOpts.map(function(o){ return '<option value="'+o.val+'">'+o.label+'</option>'; }).join('');
-    var mini = document.createElement('div');
-    mini.id = '_vrp-mini';
-    mini.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10050;width:290px;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.22);padding:16px;font-family:inherit';
-    mini.innerHTML =
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">' +
-        '<div style="font-weight:700;font-size:0.92rem;color:#1e293b;flex:1;padding-right:8px;line-height:1.3">' + esc(p.titulo||'Recordatorio') + '</div>' +
-        '<button onclick="document.getElementById(\'_vrp-mini\').remove()" style="border:none;background:none;font-size:1.1rem;cursor:pointer;color:#94a3b8;line-height:1;padding:0;flex-shrink:0">✕</button>' +
-      '</div>' +
-      '<div style="font-size:0.78rem;color:#64748b;margin-bottom:10px">' +
-        (p.fecha||'Sin fecha') + (p.hora ? ' · '+p.hora : '') +
-        (_venc ? '<span style="color:#ef4444;font-weight:600;margin-left:6px">Vencido</span>' : '') +
-      '</div>' +
-      (p.descripcion ? '<div style="background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:0.83rem;color:#334155;margin-bottom:12px">' + esc(p.descripcion) + '</div>' : '') +
-      '<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">' +
-        '<select id="_vrp-snooze" style="flex:1;padding:6px 7px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.78rem;background:white;color:#1e293b">' + optsHtml + '</select>' +
-        '<button onclick="window._posponerDesdeVista(\'' + persId + '\')" style="padding:6px 12px;background:#1d4ed8;color:white;border:none;border-radius:7px;font-size:0.78rem;cursor:pointer;font-weight:600;white-space:nowrap">⏰ Posponer</button>' +
-      '</div>' +
-      '<div style="display:flex;gap:6px">' +
-        '<button onclick="document.getElementById(\'_vrp-mini\').remove();setTimeout(function(){openPersonalRecModal(\'' + persId + '\')},80)" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:7px;font-size:0.78rem;cursor:pointer;background:white;color:#1e293b">✏️ Editar</button>' +
-        '<button onclick="document.getElementById(\'_vrp-mini\').remove();window._recDescartarPers(\'' + persId + '\')" style="flex:1;padding:6px 8px;border:none;border-radius:7px;font-size:0.78rem;cursor:pointer;background:#fee2e2;color:#dc2626;font-weight:600">Descartar</button>' +
-      '</div>';
-    document.body.appendChild(mini);
-    function _vrpClose(e) {
-      var m = document.getElementById('_vrp-mini');
-      if (m && !m.contains(e.target)) { m.remove(); document.removeEventListener('mousedown', _vrpClose); }
-    }
-    setTimeout(function(){ document.addEventListener('mousedown', _vrpClose); }, 100);
   };
   window._recPosponerPers = function(btn) {
     const persId = btn.dataset.persId;
