@@ -5782,6 +5782,118 @@ function vSelHideSugsLater() {
 }
 window['vSelHideSugsLater'] = vSelHideSugsLater;
 
+// ── Click en sugerencia del picker de cotiz→pedido ──
+document.addEventListener('click', e => {
+  const sug = e.target.closest && e.target.closest('.pdsel-sug');
+  if (!sug) return;
+  const inp = document.getElementById('pdsel-item');
+  if (inp) inp.value = sug.getAttribute('data-nombre') || '';
+  pdSelItemChange();
+  const sugs = document.getElementById('pdsel-item-sugs');
+  if (sugs) sugs.style.display = 'none';
+});
+
+function pdSelHideSugsLater() {
+  setTimeout(() => {
+    const sugs = document.getElementById('pdsel-item-sugs');
+    if (sugs) sugs.style.display = 'none';
+  }, 180);
+}
+window['pdSelHideSugsLater'] = pdSelHideSugsLater;
+
+function _pdSelFindItem(tipo, nombre) {
+  const n = _normSearch(nombre||'');
+  if (!n) return null;
+  return (db[tipo]||[]).find(i => _normSearch((tipo==='consignacion'?i.producto:i.nombre)||'') === n) || null;
+}
+window['_pdSelFindItem'] = _pdSelFindItem;
+
+function pdSelRenderPicker() {
+  const tipo = document.getElementById('pdsel-tipo') ? document.getElementById('pdsel-tipo').value : '';
+  const cont = document.getElementById('pdsel-picker');
+  if (!cont) return;
+  if (!tipo) { cont.innerHTML = ''; return; }
+  const items = db[tipo]||[];
+  const disponibles = tipo === 'materia' ? items : items.filter(i => (i.cantidad||0) > 0 && i.estado !== 'Vendido' && i.estado !== 'Apartado');
+  cont.innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
+      <div style="position:relative;flex:2;min-width:140px">
+        <input id="pdsel-item" autocomplete="new-password"
+          placeholder="${disponibles.length ? 'Escribe para buscar...' : (tipo==='materia'?'Escribe para buscar o agrega uno nuevo...':'Sin artículos disponibles')}"
+          style="width:100%;box-sizing:border-box;padding:8px;border:1.5px solid var(--border);border-radius:8px"
+          oninput="pdSelItemChange()" onfocus="pdSelItemChange()" onblur="pdSelHideSugsLater()" />
+        <div id="pdsel-item-sugs" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;max-width:min(480px,90vw);z-index:50;background:#fff;border:1.5px solid var(--border);border-radius:8px;margin-top:2px;max-height:160px;overflow-y:auto;box-shadow:0 4px 14px rgba(0,0,0,.15)"></div>
+      </div>
+      <input id="pdsel-qty" type="number" placeholder="Cant." min="1" value="1" style="width:70px;padding:8px;border:1.5px solid var(--border);border-radius:8px" />
+      <input id="pdsel-price" type="number" placeholder="Precio" min="0" step="0.01" style="width:100px;padding:8px;border:1.5px solid var(--border);border-radius:8px" />
+      <button class="btn btn-success btn-sm" onclick="pdSelAddItem()">+ Añadir</button>
+    </div>`;
+  pdSelItemChange();
+}
+window['pdSelRenderPicker'] = pdSelRenderPicker;
+
+function pdSelItemChange() {
+  const tipoEl = document.getElementById('pdsel-tipo');
+  const tipo = tipoEl ? tipoEl.value : '';
+  const txt = _normSearch((document.getElementById('pdsel-item')||{}).value||'');
+  const sugs = document.getElementById('pdsel-item-sugs');
+  if (sugs) {
+    const all = db[tipo]||[];
+    const pool = tipo === 'materia' ? all : all.filter(i => (i.cantidad||0) > 0 && i.estado !== 'Vendido' && i.estado !== 'Apartado');
+    const matches = txt ? pool.filter(i => {
+      const nom = _normSearch((tipo==='consignacion'?i.producto:i.nombre)||'');
+      if (nom.includes(txt)) return true;
+      if (tipo==='consignacion' && i.folio && _normSearch(i.folio).includes(txt)) return true;
+      return false;
+    }) : [];
+    if (!pool.length && tipo !== 'materia') {
+      sugs.innerHTML = `<div style="padding:8px 10px;color:#94a3b8;font-size:0.85rem">Sin artículos disponibles en inventario</div>`;
+      sugs.style.display = 'block';
+    } else if (!txt) {
+      sugs.style.display = 'none';
+    } else if (!matches.length) {
+      sugs.innerHTML = `<div style="padding:8px 10px;color:#94a3b8;font-size:0.85rem">Sin coincidencias</div>`;
+      sugs.style.display = 'block';
+    } else {
+      sugs.innerHTML = matches.slice(0,50).map(i => {
+        const nom = (tipo==='consignacion'?i.producto:i.nombre)||'';
+        const stk = i.cantidad||0;
+        const foto = i.fotos && i.fotos[0] ? `<img src="${i.fotos[0]}" style="width:38px;height:32px;object-fit:cover;border-radius:5px;margin-right:8px;flex-shrink:0;border:1px solid #e2e8f0" />` : '';
+        const folioTag = i.folio ? ` <span style="font-size:0.72rem;background:#f1f5f9;color:#475569;padding:1px 5px;border-radius:4px;margin-left:4px">${esc(i.folio)}</span>` : '';
+        const stkColor = tipo==='materia' ? (stk>0?'#94a3b8':'#dc2626') : '#94a3b8';
+        const stkTxt = tipo==='materia' ? `· stock: ${stk}` : `· ${stk} disponible${stk!==1?'s':''}`;
+        return `<div class="pdsel-sug" data-nombre="${esc(nom)}" data-precio="${i.precioPublico||0}" style="padding:7px 10px;cursor:pointer;font-size:0.9rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center" onmousedown="event.preventDefault()">${foto}<span>${esc(nom)}${folioTag} <span style="color:${stkColor};font-size:0.8rem">${stkTxt}</span>${i.unidad?' <span style="font-size:0.75rem;color:#64748b">'+esc(i.unidad)+'</span>':''}</span></div>`;
+      }).join('');
+      sugs.style.display = 'block';
+    }
+    const item = _pdSelFindItem(tipo, (document.getElementById('pdsel-item')||{}).value||'');
+    const priceInput = document.getElementById('pdsel-price');
+    if (item && priceInput && !priceInput.value) priceInput.value = round2(item.precioPublico||0);
+  }
+}
+window['pdSelItemChange'] = pdSelItemChange;
+
+function pdSelAddItem() {
+  const tipoEl = document.getElementById('pdsel-tipo');
+  const tipo = tipoEl ? tipoEl.value : '';
+  const nombre = ((document.getElementById('pdsel-item')||{}).value||'').trim();
+  if (!nombre) { _info('Escribe o selecciona un artículo'); return; }
+  const item = _pdSelFindItem(tipo, nombre);
+  if (!item && tipo !== 'materia') { _info('Selecciona un artículo de la lista de sugerencias'); return; }
+  const qty = +((document.getElementById('pdsel-qty')||{}).value||1) || 1;
+  const price = +((document.getElementById('pdsel-price')||{}).value||0) || 0;
+  pedidoItems.push({
+    producto: tipo === 'consignacion' ? (item ? item.producto : nombre) : (item ? item.nombre : nombre),
+    cantidad: qty, precio: price,
+    _tipo: tipo, _itemId: item ? item.id : null,
+    unidad: tipo==='materia' ? (item ? item.unidad||'' : '') : '',
+    _consigFolio: tipo === 'consignacion' ? (item ? item.folio||undefined : undefined) : undefined
+  });
+  updatePedidoItems();
+  pdSelRenderPicker();
+}
+window['pdSelAddItem'] = pdSelAddItem;
+
 function vSelAddItem() {
   const tipo = v('vsel-tipo');
   const nombre = v('vsel-item').trim();
@@ -10552,7 +10664,21 @@ function cotizToVenta(id) {
     <div class="form-group"><label>Observaciones</label><textarea id="pd-obs" rows="8" style="resize:vertical">${esc(c.observaciones||'')}</textarea></div>
 
     <hr style="margin:10px 0;border:none;border-top:1px solid var(--border)"/>
-    <p style="font-size:0.8rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Conceptos del Pedido</p>
+    <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <p style="font-size:0.8rem;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px">📦 Agregar Producto desde Inventario</p>
+      <div class="form-group" style="margin-bottom:8px">
+        <select id="pdsel-tipo" onchange="pdSelRenderPicker()" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;background:#fff;width:auto;min-width:220px">
+          <option value="">-- Selecciona origen --</option>
+          <option value="consignacion">🔄 Consignación</option>
+          <option value="productos">📦 Producto Terminado</option>
+          <option value="materia">🔩 Materia Prima</option>
+        </select>
+      </div>
+      <div id="pdsel-picker"></div>
+    </div>
+
+    <hr style="margin:10px 0;border:none;border-top:1px solid var(--border)"/>
+    <p style="font-size:0.8rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Detalle de Precios (Manual)</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <input id="pd-prod" placeholder="Concepto" style="flex:2;min-width:100px;padding:7px;border:1.5px solid var(--border);border-radius:8px"/>
       <input id="pd-qty" type="number" placeholder="Cant." min="1" value="1" style="width:65px;padding:7px;border:1.5px solid var(--border);border-radius:8px"/>
@@ -10682,8 +10808,22 @@ function guardarPedido(c) {
     usuario: session.nombre
   };
   db.ventas.push(nuevoPedido);
+  // Marcar artículos de inventario vinculados al pedido como Apartado / descontar stock.
+  pedidoItems.forEach(i => {
+    if (i._itemId != null && i._tipo) {
+      const invItem = (db[i._tipo]||[]).find(x => x.id === i._itemId);
+      if (invItem) {
+        if (i._tipo === 'consignacion') {
+          invItem.estado = 'Apartado';
+          invItem.pedidoId = nuevoPedido.id;
+        } else if (i._tipo === 'productos' || i._tipo === 'materia') {
+          invItem.cantidad = Math.max(0, (invItem.cantidad||0) - i.cantidad);
+        }
+      }
+    }
+  });
   c.estado = 'Aprobada';
-  saveDb(['ventas','cotizaciones','cajas']); closeModal();
+  saveDb(['ventas','cotizaciones','cajas','consignacion','productos','materia']); closeModal();
   navigate('ventas');
   generarCopiasPedido(nuevoPedido);
   _info('✅ Pedido registrado correctamente.\n\nSe generaron las 3 copias en PDF: Administración, Cliente y Producción.');
