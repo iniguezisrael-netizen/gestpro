@@ -1966,6 +1966,13 @@ async function _procesarColecciones(cols, results) {
           }
           return { ...x, baja: true, bajaFecha: _loc.bajaFecha, bajaMotivo: _loc.bajaMotivo, bajaUsuario: _loc.bajaUsuario };
         }
+        // Modo dev: conservar fotos/archivos locales si Firestore no los tiene (no se subieron)
+        if (_MODO_DEV) {
+          const _locDev = _localById[String(x.id)];
+          if (_locDev && Array.isArray(_locDev.fotos) && _locDev.fotos.length > (x.fotos||[]).length) {
+            return { ...x, fotos: _locDev.fotos };
+          }
+        }
         return x;
       });
       const serverIds = new Set(serverItemsMerged.map(x => x && x.id).filter(Boolean));
