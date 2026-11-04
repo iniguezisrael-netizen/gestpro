@@ -2122,12 +2122,11 @@ function _iniciarRespaldoAutomatico() {
     } catch(e) { console.error('[AutoBackup] Error:', e); }
   }
 
-  // Primera vez: a los 5 minutos de cargar (no molestar al inicio)
-  setTimeout(() => {
-    _hacerRespaldo();
-    _respaldoTimer = setInterval(_hacerRespaldo, INTERVALO);
-  }, 5 * 60 * 1000);
-  console.log('[AutoBackup] Respaldo automático activado — cada hora');
+  // Backup al abrir: captura localStorage antes de que Firestore sincronice
+  setTimeout(_hacerRespaldo, 2000);
+  // Respaldo periódico cada hora
+  _respaldoTimer = setInterval(_hacerRespaldo, INTERVALO);
+  console.log('[AutoBackup] Respaldo al abrir + cada hora activado');
 }
 
 // Listener en tiempo real — escucha cambios en documentos individuales {col}/{id}
