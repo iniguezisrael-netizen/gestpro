@@ -5433,6 +5433,14 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
     );
     return;
   }
+  // Bloquear entrega si el precio aún está pendiente de cotizar
+  if (nuevoEstado === 'Entregado' && vt.pendienteCotizar) {
+    vt.estado = estadoAnterior;
+    showModal('⚠️ Precio pendiente de cotizar', `<p style="margin:0;line-height:1.6">No se puede marcar como <strong>Entregado</strong> porque el precio aún está <strong>pendiente de cotizar</strong>.<br><br>Usa <strong>✏️ Fijar total</strong> en el detalle del pedido para asignar el precio antes de entregar.</p>`, [
+      { label:'Entendido', cls:'btn-secondary', action: closeModal }
+    ]);
+    return;
+  }
   // Validación al marcar Entregado: debe estar pagado o tener crédito autorizado
   if (nuevoEstado === 'Entregado' && !vtCreditoAutorizado(vt)) {
     const _saldoEnt = vt.saldo != null ? vt.saldo : Math.max(0, (vt.total||0) - (vt.anticipo||0));
@@ -7651,6 +7659,27 @@ function _fijarPrecioVenta(id) {
         _cob.total = _finalTotal;
         if (window._serverSnapshot?.cobranza?.[String(_cob.id)]) window._serverSnapshot.cobranza[String(_cob.id)].total = _finalTotal;
         if (FIREBASE_ENABLED && firestore) firestore.collection('cobranza').doc(String(_cob.id)).update({ total: _finalTotal }).catch(()=>{});
+      } else if (vt.estado === 'Entregado' && vt.saldo > 0.01) {
+        // La venta ya estaba Entregada sin precio fijado — crear entrada en cobranza ahora
+        const _cobId = sid();
+        const _creditoDias = vtCreditoAutorizado(vt) ? '15 dias' : '';
+        db.cobranza = db.cobranza || [];
+        const _nuevaCob = {
+          id: _cobId, cliente: vt.cliente,
+          encargado: vt.usuario || session.nombre, tel: '',
+          pedido: vt.folioPedido || ('PED-' + String(vt.id).padStart(5,'0')),
+          folioPedido: vt.folioPedido || '', ventaId: vt.id,
+          fecha: today(), total: _finalTotal, credito: _creditoDias,
+          estado: 'Pendiente', recFecha: '', recNota: '', recHecho: false,
+          abonos: vt.anticipo > 0 ? [{ monto: vt.anticipo, fecha: today(), nota: 'Anticipo del pedido' }] : [],
+        };
+        db.cobranza.push(_nuevaCob);
+        vt.cobranzaId = _cobId;
+        if (window._serverSnapshot?.cobranza) window._serverSnapshot.cobranza[String(_cobId)] = _nuevaCob;
+        if (FIREBASE_ENABLED && firestore) {
+          firestore.collection('cobranza').doc(String(_cobId)).set(_nuevaCob).catch(()=>{});
+          firestore.collection('ventas').doc(String(id)).update({ cobranzaId: _cobId }).catch(()=>{});
+        }
       }
       if (window._serverSnapshot?.ventas?.[String(id)]) {
         Object.assign(window._serverSnapshot.ventas[String(id)], { items: vt.items, total: _finalTotal, iva: vt.iva, ivaMode: _ivaMode, subtotal: _subtotal, ivaAmount: _ivaAmt, pendienteCotizar: false, anticipo: vt.anticipo, saldo: vt.saldo });
