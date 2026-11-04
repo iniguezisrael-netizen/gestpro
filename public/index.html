@@ -1359,7 +1359,13 @@ async function fsWriteCollection(colName, arr) {
     // IDs que estaban en Firestore pero ya no están → eliminar
     const knownIds = _firestoreKnownIds[colName] || new Set();
     const toDelete = [...knownIds].filter(id => !newIds.has(id));
-    if (toDelete.length) toDelete.forEach(id => _addTombstone(colName, id));
+    const _noAutoTombstone = ['ventas','cotizaciones','reparaciones','clientes'];
+    if (toDelete.length) {
+      const _safeDel = _noAutoTombstone.includes(colName)
+        ? toDelete.filter(id => !!((_fsTombstones[colName]||{})[id]))
+        : toDelete;
+      _safeDel.forEach(id => _addTombstone(colName, id));
+    }
     _firestoreKnownIds[colName] = new Set(newIds);
     _saveKnownIds();
 
