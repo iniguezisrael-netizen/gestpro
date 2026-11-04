@@ -9806,6 +9806,18 @@ document.addEventListener('paste', e => {
         });
       }
     },
+    { previewId: 'fotos-preview-consig', handler: file => {
+        const token = _fotoSessionC;
+        comprimirImagen(file, dataUrl => {
+          if (_fotoSessionC !== token) return;
+          _fotosSubiendoC++; renderFotosPreviewC();
+          subirFotoAStorage(dataUrl, 'consignacion', url => {
+            if (_fotoSessionC !== token) return;
+            _fotosSubiendoC--; _tempFotosC.push(url); renderFotosPreviewC();
+          });
+        });
+      }
+    },
     { previewId: 'fotos-preview-ep', handler: file => {
         const token = _fotoSessionEp;
         comprimirImagen(file, dataUrl => {
