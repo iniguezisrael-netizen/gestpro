@@ -20844,8 +20844,33 @@ function _prCleanup() {
 function openPersonalRecModal(id, defaultFecha) {
   const p = id ? (db.recordatoriosPersonales||[]).find(x => x.id === id) : null;
   const hoy = new Date().toISOString().slice(0,10);
+  const _persBannerHtml = (window._recAbrirPersId && window._recAbrirPersId === id) ? (() => {
+    window._recAbrirPersId = null;
+    return `<div id="_rec-pers-banner" style="background:#eff6ff;border:1.5px solid #93c5fd;border-radius:10px;padding:10px 14px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:1.1rem">🔔</span>
+      <span style="font-weight:600;font-size:0.85rem;color:#1e40af;flex:1">Recordatorio activo</span>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <select id="_rec-pers-snooze" onchange="const inp=document.getElementById('_rec-pers-manual-wrap');if(inp)inp.style.display=this.value==='manual'?'flex':'none'" style="font-size:0.78rem;padding:4px 6px;border:1px solid #93c5fd;border-radius:6px;background:white;color:#1e293b">
+          <option value="5">5 minutos</option>
+          <option value="15">15 minutos</option>
+          <option value="30" selected>30 minutos</option>
+          <option value="60">1 hora</option>
+          <option value="120">2 horas</option>
+          <option value="240">4 horas</option>
+          <option value="10080">1 semana</option>
+          <option value="20160">2 semanas</option>
+          <option value="tomorrow">Mañana 8am</option>
+          <option value="manual">Fecha manual...</option>
+        </select>
+        <div id="_rec-pers-manual-wrap" style="display:none;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px"><input type="date" id="_rec-pers-manual-date" style="font-size:0.78rem;padding:4px 6px;border:1px solid #93c5fd;border-radius:6px"><input type="time" id="_rec-pers-manual-time" value="08:00" style="display:none;font-size:0.78rem;padding:4px 6px;border:1px solid #93c5fd;border-radius:6px"><label style="font-size:0.76rem;color:#475569;cursor:pointer;display:flex;align-items:center;gap:4px"><input type="checkbox" id="_rec-pers-allday" checked onchange="var ti=document.getElementById('_rec-pers-manual-time');if(ti)ti.style.display=this.checked?'none':'inline-block'">Todo el día</label></div>
+        <button onclick="window._recPosponerPersModal('${id}')" style="font-size:0.78rem;padding:5px 12px;background:#1d4ed8;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;white-space:nowrap">⏰ Posponer</button>
+        <button onclick="marcarPersonalHecho('${id}');closeModal()" style="font-size:0.78rem;padding:5px 12px;background:white;color:#64748b;border:1.5px solid #cbd5e1;border-radius:6px;cursor:pointer;white-space:nowrap">✅ Marcar hecho</button>
+      </div>
+    </div>`;
+  })() : '';
   showModal(p ? 'Editar Recordatorio Personal' : 'Nuevo Recordatorio Personal', `
     <div style="display:flex;flex-direction:column;gap:12px">
+      ${_persBannerHtml}
       <div class="form-group">
         <label>Título *</label>
         <input id="pr-titulo" class="form-control" value="${esc(p?.titulo||'')}" placeholder="¿Qué necesitas hacer?" autocomplete="off" />
@@ -24616,6 +24641,7 @@ function logActividad(accion, detalle) {
     }
     const panel = document.getElementById('_rec-panel');
     if (panel && !panel.querySelector('.rec-item')) panel.remove();
+    window._recAbrirPersId = persId || null;
     if (typeof openPersonalRecModal === 'function') openPersonalRecModal(persId);
   };
   window._recDescartarPers = function(persId) {
@@ -24696,6 +24722,33 @@ function logActividad(accion, detalle) {
   };
 
   // Marcar como hecho desde el modal de cotización
+  window._recPosponerPersModal = function(id) {
+    const selVal = document.getElementById('_rec-pers-snooze')?.value;
+    const p = db && (db.recordatoriosPersonales||[]).find(x => String(x.id) === String(id));
+    if (!p || !selVal) return;
+    if (selVal === 'tomorrow') {
+      const tom = new Date(); tom.setDate(tom.getDate()+1); tom.setHours(8,0,0,0);
+      p.snoozeHasta = tom.getTime();
+    } else if (selVal === 'manual') {
+      const dv = document.getElementById('_rec-pers-manual-date')?.value;
+      if (!dv) { _info('Selecciona una fecha'); return; }
+      const allDay = document.getElementById('_rec-pers-allday')?.checked !== false;
+      const tv = document.getElementById('_rec-pers-manual-time')?.value || '08:00';
+      const timeStr = allDay ? '08:00:00' : (tv.length === 5 ? tv + ':00' : tv);
+      const d = new Date(dv + 'T' + timeStr);
+      if (isNaN(d.getTime())) { _info('Fecha inválida'); return; }
+      p.snoozeHasta = d.getTime();
+    } else {
+      p.snoozeHasta = Date.now() + parseInt(selVal) * 60000;
+    }
+    saveDb('recordatoriosPersonales');
+    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(p.id))
+      .update({ snoozeHasta: p.snoozeHasta }).catch(() => {});
+    const banner = document.getElementById('_rec-pers-banner');
+    if (banner) banner.innerHTML = `<span style="color:#1d4ed8;font-size:0.83rem">⏰ Recordatorio pospuesto.</span>`;
+    setTimeout(() => closeModal(), 600);
+  };
+
   window._recDescartarModal = function(id) {
     const cot = db && findById(db.cotizaciones, id);
     if (!cot) return;
