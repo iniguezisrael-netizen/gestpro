@@ -7822,7 +7822,7 @@ function _fijarPrecioVenta(id) {
       if (FIREBASE_ENABLED && firestore) {
         firestore.collection('ventas').doc(String(id)).update({ items: vt.items, total: _finalTotal, iva: vt.iva, ivaMode: _ivaMode, subtotal: _subtotal, ivaAmount: _ivaAmt, pendienteCotizar: false, anticipo: vt.anticipo, saldo: vt.saldo }).catch(()=>{});
       }
-      saveDb(['ventas','cobranza']); closeModal();
+      saveDb(['ventas','cobranza']); closeModal(); renderVentas();
       setTimeout(() => { verVenta(id, vt.folioPedido); _info('✓ Total actualizado correctamente.'); }, 150);
     }},
     { label:'Cancelar', cls:'btn-secondary', action: closeModal }
