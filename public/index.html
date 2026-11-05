@@ -5461,7 +5461,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
           { label:'🏦 Autorizar crédito', cls:'btn-outline', action:()=>{ closeModal(); otorgarCredito(vt.id); }},
           { label:'💰 Registrar pago', cls:'btn-success', action:()=>{ closeModal(); _abonarParaEntregar(vt.id); }},
           { label:'Cancelar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); }}
-        ]);
+        ], { onClose: () => renderVentas() });
         return;
       } else {
         vt.estado = estadoAnterior;
@@ -5469,7 +5469,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
           { label:'🏦 Solicitar crédito', cls:'btn-outline', action:()=>{ closeModal(); otorgarCredito(vt.id); }},
           { label:'💰 Registrar pago', cls:'btn-success', action:()=>{ closeModal(); _abonarParaEntregar(vt.id); }},
           { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
-        ]);
+        ], { onClose: () => renderVentas() });
         return;
       }
     }
@@ -17622,6 +17622,7 @@ function showModal(title, body, buttons, opts) {
   });
   const box = document.getElementById('modal-box');
   box.classList.toggle('modal-wide', !!(opts && opts.wide));
+  _modalOnCloseHook = (opts && opts.onClose) || null;
   document.getElementById('modal-overlay').classList.add('open');
   // Scroll lock: overflow hidden (preserva coordenadas para selección de texto)
   document.body.style.overflow = 'hidden';
@@ -17630,6 +17631,8 @@ function showModal(title, body, buttons, opts) {
 // Flag: true cuando el modal activo tiene datos que se perderían al cerrar sin guardar.
 // Setearlo a true en los modales de edición/creación (openConsigModal, openVentaModal, etc.)
 let _modalConfirmClose = false;
+// Hook opcional: función que se llama al cerrar el modal (via closeModal)
+let _modalOnCloseHook = null;
 // Rastreo de qué colección e ítem se está editando en el modal activo (para toast inteligente)
 let _modalEditingCol = null;
 let _modalEditingId  = null;
@@ -17685,6 +17688,7 @@ function closeModal() {
   if (typeof rbDetenerGlobalScanner === 'function') rbDetenerGlobalScanner();
   if (typeof _mbGlobalKeyHandler === 'function') document.removeEventListener('keydown', _mbGlobalKeyHandler);
   setTimeout(function(){ if (typeof window._gsRefocusIfActive === 'function') window._gsRefocusIfActive(); }, 150);
+  if (_modalOnCloseHook) { const _hookFn = _modalOnCloseHook; _modalOnCloseHook = null; _hookFn(); }
 }
 
 // Cierre con confirmación — usar en ✕ y clic en fondo para modales con formulario
