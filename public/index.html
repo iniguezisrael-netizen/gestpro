@@ -8001,9 +8001,21 @@ function otorgarCredito(id) {
         <label>Número de pedido o factura</label>
         <input id="oc-pedido" value="${esc(folio)}" placeholder="Ej. F-1024 / PED-203" />
       </div>
-      <div class="form-group" style="margin-bottom:${requierePass?'8px':'0'}">
+      <div class="form-group" style="margin-bottom:8px">
         <label>Tiempo del crédito</label>
         <input id="oc-credito" placeholder="Ej. 30 días, 2 quincenas, contado..." />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:${requierePass?'8px':'0'}">
+        <div class="form-group" style="margin-bottom:0">
+          <label>Días de plazo</label>
+          <input id="oc-dias" type="number" min="1" max="365" placeholder="Ej. 30" />
+        </div>
+        <div class="form-group" style="margin-bottom:0;display:flex;align-items:flex-end;padding-bottom:6px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal">
+            <input id="oc-unica" type="checkbox" style="width:16px;height:16px;cursor:pointer" />
+            Por única ocasión
+          </label>
+        </div>
       </div>
       ${requierePass ? `
       <p style="font-size:0.85rem;color:#475569;margin:10px 0 8px">
@@ -8213,6 +8225,8 @@ function _aplicarCredito(id) {
   const saldo = vt.saldo != null ? vt.saldo : Math.max(0, vt.total - (vt.anticipo||0));
   const yaPagado = Math.max(0, vt.total - saldo);
   const credito = document.getElementById('oc-credito')?.value.trim() || '';
+  const diasCredito = parseInt(document.getElementById('oc-dias')?.value || '', 10) || null;
+  const unicaOcasion = document.getElementById('oc-unica')?.checked || false;
   const encargado = document.getElementById('oc-encargado')?.value.trim() || '';
   const tel = document.getElementById('oc-tel')?.value.trim() || '';
   const folioDefault = vt.folioPedido || 'PED-' + String(vt.id).padStart(5,'0');
@@ -8230,6 +8244,8 @@ function _aplicarCredito(id) {
     fecha: today(),
     total: vt.total,
     credito,
+    ...(diasCredito ? { diasCredito } : {}),
+    ...(unicaOcasion ? { unicaOcasion: true } : {}),
     estado: 'Pendiente',
     recFecha: '',
     recNota: '',
@@ -8239,9 +8255,11 @@ function _aplicarCredito(id) {
   });
   vt.cobranzaId = cobId;
   vt.estado = 'Entregado';
-  autorizarCreditoCliente(_vtNombreCredito(vt));
-  save('gp_clientesCredito', db.clientesCredito);
-  fsWriteCollection('clientesCredito', db.clientesCredito).catch(e => console.warn('[credito] Error Firestore:', e));
+  if (!unicaOcasion) {
+    autorizarCreditoCliente(_vtNombreCredito(vt));
+    save('gp_clientesCredito', db.clientesCredito);
+    fsWriteCollection('clientesCredito', db.clientesCredito).catch(e => console.warn('[credito] Error Firestore:', e));
+  }
   saveDb(['ventas','cobranza']); closeModal(); renderVentas();
   _info('✅ Crédito otorgado. El pedido ' + pedido + ' se marcó como Entregado y se envió a Cobranza.');
 }
