@@ -9487,7 +9487,8 @@ function _saldoCajaActual(caja) {
   const _foliosMovs = new Set(movs.filter(m=>m.tipo==='entrada').map(m=>{ const r=(m.concepto||'').match(/(?:Venta|Anticipo\s+pedido)\s+#?(.+?)\s*—/); return r?r[1].trim():null; }).filter(Boolean));
   const ventasCaja = (db.ventas||[]).filter(v =>
     v.cajaSesion === caja.id &&
-    !_idsMovs.has(v.id) && !(v.folioPedido && _foliosMovs.has(v.folioPedido))
+    !_idsMovs.has(v.id) && !(v.folioPedido && _foliosMovs.has(v.folioPedido)) &&
+    !((v.pagos||[]).length>0 && !(v.pagos||[]).some(p=>p.recibidoPor===caja.usuario))
   );
   const totalVentas = ventasCaja.reduce((s,v)=>s+_ventaEfectivoCaja(v),0);
   return (caja.fondo||0) + entradas + totalVentas - salidas;
@@ -12541,7 +12542,8 @@ function renderCaja() {
   const ventasCaja = db.ventas.filter(v =>
     v.cajaSesion === caja.id &&
     !_idsEnMovs.has(v.id) && !(v.folioPedido && _foliosEnMovs.has(v.folioPedido)) &&
-    _ventaEfectivoCaja(v) > 0
+    _ventaEfectivoCaja(v) > 0 &&
+    !((v.pagos||[]).length>0 && !(v.pagos||[]).some(p=>p.recibidoPor===caja.usuario))
   );
   const totalVentas = ventasCaja.reduce((s,v)=>s+_ventaEfectivoCaja(v),0);
   const saldoActual = caja.fondo + entradas + totalVentas - salidas;
@@ -13050,7 +13052,8 @@ function cerrarCaja() {
   const _fmCj = new Set(movs.filter(m=>m.tipo==='entrada').map(m=>{ const r=(m.concepto||'').match(/(?:Venta|Anticipo\s+pedido)\s+#?(.+?)\s*—/); return r?r[1].trim():null; }).filter(Boolean));
   const ventasCaja = db.ventas.filter(v=>
     v.cajaSesion===caja.id&&
-    !_imCj.has(v.id)&&!(v.folioPedido&&_fmCj.has(v.folioPedido))
+    !_imCj.has(v.id)&&!(v.folioPedido&&_fmCj.has(v.folioPedido))&&
+    !((v.pagos||[]).length>0&&!(v.pagos||[]).some(p=>p.recibidoPor===caja.usuario))
   );
   const totalVentas = ventasCaja.reduce((s,v)=>s+_ventaEfectivoCaja(v),0);
   const saldoEsperado = caja.fondo + entradas + totalVentas - salidas;
@@ -13300,7 +13303,8 @@ function renderHistorialCajaTabla() {
     const idsEnMovs = new Set(movs.filter(m => m.ventaId).map(m => m.ventaId));
     const ventasFiltradas = ventasCaja.filter(v =>
       !idsEnMovs.has(v.id) && !(v.folioPedido && foliosEnMovs.has(v.folioPedido)) &&
-      _ventaEfectivoCaja(v) > 0
+      _ventaEfectivoCaja(v) > 0 &&
+      !((v.pagos||[]).length>0 && !(v.pagos||[]).some(p=>p.recibidoPor===c.usuario))
     );
 
     // Calcular rango del período seleccionado
