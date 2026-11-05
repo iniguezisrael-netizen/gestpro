@@ -1188,7 +1188,7 @@ async function fsWriteCollection(colName, arr) {
         tx.set(docRef, { items: merged, updatedAt: Date.now(), writerId: _mySessionId });
         finalItems = merged;
       });
-      try { db[colName] = JSON.parse(JSON.stringify(finalItems)); save('gp_' + colName, db[colName]); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
+      try { db[colName] = JSON.parse(JSON.stringify(finalItems)); save('gp_' + colName, db[colName]); _touchColTs(colName); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
       return;
     }
 
@@ -1317,7 +1317,7 @@ async function fsWriteCollection(colName, arr) {
       const finalClean = clean.map(item =>
         item.id != null && txResults[String(item.id)] ? txResults[String(item.id)] : item
       );
-      try { db[colName] = JSON.parse(JSON.stringify(finalClean)); save('gp_' + colName, db[colName]); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
+      try { db[colName] = JSON.parse(JSON.stringify(finalClean)); save('gp_' + colName, db[colName]); _touchColTs(colName); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
       // Actualizar snapshot con los valores confirmados por el servidor
       window._serverSnapshot = window._serverSnapshot || {};
       window._serverSnapshot[colName] = window._serverSnapshot[colName] || {};
@@ -1429,7 +1429,7 @@ async function fsWriteCollection(colName, arr) {
     }
 
     if (colName !== 'facturas') {
-      try { db[colName] = JSON.parse(JSON.stringify(clean)); save('gp_' + colName, db[colName]); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
+      try { db[colName] = JSON.parse(JSON.stringify(clean)); save('gp_' + colName, db[colName]); _touchColTs(colName); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
     }
     // Actualizar _serverSnapshot con lo que acabamos de escribir, para que el próximo
     // save calcule correctamente qué docs cambiaron (sin esperar al onSnapshot).
@@ -1681,6 +1681,13 @@ function load(key, def) {
 function save(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
 }
+function _touchColTs(colName) {
+  try { localStorage.setItem('gp_ts_' + colName, Date.now()); } catch(_) {}
+}
+function _isFreshCol(colName, maxAgeMs) {
+  try { const ts = +localStorage.getItem('gp_ts_' + colName); return !!(ts && Date.now() - ts < maxAgeMs); } catch(_) { return false; }
+}
+const _colListenerDeferred = new Set(); // colecciones esperando su listener real (TTL)
 
 let db = {
   users: [],
@@ -2146,6 +2153,21 @@ function _startSingleCollectionListener(colName) {
   _listenersStarted.add(colName);
   _syncInitialized[colName] = false;
 
+  // ── TTL: si datos locales frescos (≤ 15 min), retrasar listener 60 s ─────
+  const _LS_FRESH_MS = 15 * 60 * 1000;
+  if (!FS_ARRAY_COLS.includes(colName) && !FS_STATIC_COLS.includes(colName) &&
+      !_colListenerDeferred.has(colName) &&
+      _isFreshCol(colName, _LS_FRESH_MS) && (db[colName] || []).length > 0) {
+    _syncInitialized[colName] = true;
+    _colListenerDeferred.add(colName);
+    setTimeout(() => {
+      _colListenerDeferred.delete(colName);
+      _listenersStarted.delete(colName);
+      _startSingleCollectionListener(colName);
+    }, 60 * 1000);
+    return;
+  }
+
   // ── Colecciones estáticas: una sola lectura, sin listener permanente ────────
   if (FS_STATIC_COLS.includes(colName)) {
     firestore.collection(colName).get({ source: 'cache' }).then(snap => {
@@ -2180,6 +2202,7 @@ function _startSingleCollectionListener(colName) {
       const remote = snap.data();
       db[colName] = remote.items || [];
       save('gp_' + colName, db[colName]);
+      _touchColTs(colName);
       const maxRemoteId = Math.max(0, ...db[colName].map(x => (typeof x.id === 'number' ? x.id : 0)));
       if (maxRemoteId >= nextId) { nextId = maxRemoteId + 1; save('gp_nextid', nextId); }
       clearTimeout(_syncRenderTimer);
@@ -2266,6 +2289,7 @@ function _startSingleCollectionListener(colName) {
         _firestoreKnownIds[colName] = new Set(merged.map(x => String(x.id)));
         _saveKnownIds();
         save('gp_' + colName, db[colName]);
+        _touchColTs(colName);
         // Guardar snapshot del servidor para calcular deltas al guardar inventario
         window._serverSnapshot = window._serverSnapshot || {};
         window._serverSnapshot[colName] = {};
@@ -2360,6 +2384,7 @@ function _startSingleCollectionListener(colName) {
         const maxRemoteId = Math.max(0, ...(db[colName] || []).map(x => (typeof x.id === 'number' ? x.id : 0)));
         if (maxRemoteId >= nextId) { nextId = maxRemoteId + 1; save('gp_nextid', nextId); }
         save('gp_' + colName, db[colName]);
+        _touchColTs(colName);
       }
       clearTimeout(_syncRenderTimer);
       _syncRenderTimer = setTimeout(() => { if (currentPage) renderPage(currentPage); }, _RENDER_DEBOUNCE);
