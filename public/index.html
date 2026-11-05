@@ -5437,7 +5437,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
   if (nuevoEstado === 'Entregado' && (vt.pendienteCotizar || (vt.items||[]).some(i=>i.pendienteCotizar))) {
     vt.estado = estadoAnterior;
     showModal('⚠️ Precio pendiente de cotizar', `<p style="margin:0;line-height:1.6">No se puede marcar como <strong>Entregado</strong> porque el precio aún está <strong>pendiente de cotizar</strong>.<br><br>Usa <strong>✏️ Fijar total</strong> en el detalle del pedido para asignar el precio antes de entregar.</p>`, [
-      { label:'Entendido', cls:'btn-secondary', action: closeModal }
+      { label:'Entendido', cls:'btn-secondary', action: () => { closeModal(); renderVentas(); } }
     ]);
     return;
   }
@@ -6491,6 +6491,8 @@ function guardarEditPedido(id) {
   // Si no hay items en el editor, conservar los originales del pedido
   if (!ventaItems.length) ventaItems = JSON.parse(JSON.stringify(vt.items || []));
   const anticipo = document.getElementById('ep-anticipo')?.value !== '' ? +document.getElementById('ep-anticipo').value : vt.anticipo;
+  // Limpiar pendienteCotizar en items que ya tienen precio definido
+  ventaItems.forEach(i => { if (i.pendienteCotizar && i.precio > 0) i.pendienteCotizar = false; });
   const subtotalEp = ventaItems.filter(i=>!i.pendienteCotizar).reduce((s,i)=>s+i.cantidad*i.precio,0);
   const ivaElEp = document.querySelector('input[name="ep-iva"]:checked');
   const ivaModeEp = ivaElEp ? ivaElEp.value : (vt.ivaMode || 'neto');
