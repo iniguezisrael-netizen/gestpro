@@ -5459,6 +5459,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
             renderVentas();
           }},
           { label:'🏦 Autorizar crédito', cls:'btn-outline', action:()=>{ closeModal(); otorgarCredito(vt.id); }},
+          { label:'💰 Registrar pago', cls:'btn-success', action:()=>{ closeModal(); _abonarParaEntregar(vt.id); }},
           { label:'Cancelar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); }}
         ]);
         return;
@@ -5466,6 +5467,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
         vt.estado = estadoAnterior;
         showModal('⚠️ Se requiere pago o crédito', `<p style="margin:0 0 12px">Este pedido tiene un saldo pendiente de <strong style="color:#dc2626">$${fmt(_saldoEnt)}</strong>.<br><br>Para marcarlo como <strong>Entregado</strong> debe estar totalmente pagado o tener crédito autorizado por el administrador.</p>`, [
           { label:'🏦 Solicitar crédito', cls:'btn-outline', action:()=>{ closeModal(); otorgarCredito(vt.id); }},
+          { label:'💰 Registrar pago', cls:'btn-success', action:()=>{ closeModal(); _abonarParaEntregar(vt.id); }},
           { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
         ]);
         return;
@@ -5526,6 +5528,137 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
   renderVentas();
 }
 window['_cambiarEstadoVtInline'] = _cambiarEstadoVtInline;
+// -- Registrar pago directo desde modal de saldo pendiente --
+function _abonarParaEntregar(ventaId) {
+  const vt = (db.ventas||[]).find(x => String(x.id) === String(ventaId));
+  if (!vt) return;
+  const saldo = vt.saldo != null ? vt.saldo : Math.max(0, (vt.total||0) - (vt.anticipo||0));
+  if (saldo <= 0.01) { _info('Esta venta no tiene saldo pendiente.'); return; }
+  const esAdmin = session.rol === 'admin';
+  showModal('💰 Registrar Pago — ' + esc(vt.cliente||''), `
+    <div style="display:flex;flex-direction:column;gap:12px;padding:4px 0">
+      <div class="form-group">
+        <label>Monto del pago ($)</label>
+        <input id="apt-monto" type="number" min="0.01" max="${saldo}" step="0.01" value="${saldo}"
+          style="font-size:1.1rem;font-weight:600" />
+        <small style="color:#64748b">Saldo pendiente: <strong style="color:#dc2626">$${fmt(saldo)}</strong></small>
+      </div>
+      <div class="form-group">
+        <label>Fecha</label>
+        <input id="apt-fecha" type="date" value="${esc(today())}" ${esAdmin ? '' : 'readonly disabled style="background:#f1f5f9;color:#64748b"'} />
+        ${esAdmin ? '' : '<small style="color:#94a3b8">Solo el administrador puede cambiar la fecha.</small>'}
+      </div>
+      <div class="form-group">
+        <label>Forma de pago</label>
+        <select id="apt-forma" onchange="
+          const esEf=this.value==='efectivo';
+          document.getElementById('apt-forma-hint').style.display=esEf?'':'none';
+          document.getElementById('apt-vuelto-bloque').style.display=esEf?'':'none';
+        ">${_optionsFormaPago('efectivo')}</select>
+        <small id="apt-forma-hint" style="color:#94a3b8">Solo el efectivo se refleja en tu caja chica.</small>
+      </div>
+      <div id="apt-vuelto-bloque" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px">
+        <div class="form-group" style="margin:0">
+          <label style="color:#15803d">💵 Efectivo recibido ($)</label>
+          <input id="apt-recibido" type="number" min="0" step="0.01" placeholder="0.00"
+            style="font-size:1.05rem;font-weight:600"
+            oninput="(function(){
+              const m=parseFloat(document.getElementById('apt-monto').value)||0;
+              const r=parseFloat(document.getElementById('apt-recibido').value)||0;
+              const row=document.getElementById('apt-vuelto-row');
+              if(r>0&&m>0){const vv=r-m;row.style.display='flex';const el=document.getElementById('apt-vuelto-val');el.textContent=(vv<0?'-':'')+'$'+Math.abs(vv).toFixed(2);el.style.color=vv<0?'#dc2626':'#15803d';}else{row.style.display='none';}
+            })()" />
+        </div>
+        <div id="apt-vuelto-row" style="display:none;align-items:center;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 12px">
+          <span style="font-size:13px;color:#374151;font-weight:500">Cambio a devolver</span>
+          <span id="apt-vuelto-val" style="font-size:20px;font-weight:600;color:#15803d">$0.00</span>
+        </div>
+      </div>
+      <div class="form-group"><label>Nota (opcional)</label>
+        <input id="apt-nota" type="text" placeholder="Ej. núm. de transferencia, referencia..." /></div>
+      <div class="form-group"><label>Recibido por</label>
+        <input type="text" value="${esc(session.nombre||'')}" readonly disabled style="background:#f1f5f9;color:#64748b" /></div>
+    </div>
+  \`, [
+    { label:'💰 Registrar pago', cls:'btn-primary', action:()=>_confirmarAbonoParaEntregar(ventaId) },
+    { label:'Cancelar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
+  ]);
+}
+
+function _confirmarAbonoParaEntregar(ventaId) {
+  const vt = (db.ventas||[]).find(x => String(x.id) === String(ventaId));
+  if (!vt) return;
+  const saldoActual = vt.saldo != null ? vt.saldo : Math.max(0, (vt.total||0) - (vt.anticipo||0));
+  const monto = parseFloat(document.getElementById('apt-monto')?.value) || 0;
+  if (!monto || monto <= 0) { _info('Ingresa un monto válido'); return; }
+  if (monto > saldoActual + 0.01) { _info('El pago no puede ser mayor al saldo pendiente ($' + fmt(saldoActual) + ')'); return; }
+  const formaPago = document.getElementById('apt-forma')?.value || 'efectivo';
+  const fecha = session.rol === 'admin' ? (document.getElementById('apt-fecha')?.value || today()) : today();
+  const hora  = new Date().toTimeString().slice(0,5);
+  const nota  = document.getElementById('apt-nota')?.value?.trim() || '';
+  let caja = null;
+  if ((session.rol === 'secretaria' || session.rol === 'auxiliar') && formaPago === 'efectivo') {
+    caja = cajaActivaOCrear();
+  }
+  vt.pagos = vt.pagos || [];
+  const cajaMovId = caja ? sid() : null;
+  vt.pagos.push({ monto, fecha, hora, nota, recibidoPor: session.nombre, formaPago, cajaMovId, cajaUsuario: cajaMovId ? session.nombre : null });
+  vt.anticipo = round2((vt.anticipo || 0) + monto);
+  vt.saldo    = Math.max(0, round2((vt.total || 0) - vt.anticipo));
+  const pagoCompleto = vt.saldo <= 0.01;
+  if (pagoCompleto) {
+    vt.saldo  = 0;
+    // Marcar como Pagada (no Entregado) — el usuario puede marcar Entregado por separado
+    if (vt.estado !== 'Entregado') vt.estado = 'Pagada';
+    (db.consignacion||[]).filter(ci => String(ci.ventaId) === String(vt.id))
+      .forEach(ci => { ci.estado = 'Vendido'; });
+  }
+  if (vt.cobranzaId) {
+    const _cob = (db.cobranza||[]).find(c => String(c.id) === String(vt.cobranzaId));
+    if (_cob) {
+      _cob.abonos = _cob.abonos || [];
+      _cob.abonos.push({ monto, fecha, hora, usuario: session.nombre, rol: session.rol, formaPago, ...(nota ? { nota } : {}) });
+      if (pagoCompleto) _cob.estado = 'Pagado';
+      if (window._serverSnapshot?.cobranza?.[String(_cob.id)]) {
+        window._serverSnapshot.cobranza[String(_cob.id)].abonos = _cob.abonos;
+        window._serverSnapshot.cobranza[String(_cob.id)].estado = _cob.estado;
+      }
+      if (FIREBASE_ENABLED && firestore) {
+        firestore.collection('cobranza').doc(String(_cob.id))
+          .update({ abonos: _cob.abonos, estado: _cob.estado })
+          .catch(e => console.error('[cob sync]', e));
+      }
+    }
+  }
+  if (caja) {
+    _cajaMovAdd(caja, { id: sid(), tipo: 'entrada',
+      concepto: 'Pago — ' + (vt.folioPedido || ('#'+vt.id)) + ' · ' + vt.cliente,
+      monto, hora, usuario: session.nombre });
+  }
+  if (window._serverSnapshot?.ventas?.[String(vt.id)]) {
+    window._serverSnapshot.ventas[String(vt.id)].pagos    = vt.pagos;
+    window._serverSnapshot.ventas[String(vt.id)].anticipo = vt.anticipo;
+    window._serverSnapshot.ventas[String(vt.id)].saldo    = vt.saldo;
+    window._serverSnapshot.ventas[String(vt.id)].estado   = vt.estado;
+  }
+  if (FIREBASE_ENABLED && firestore) {
+    firestore.collection('ventas').doc(String(vt.id))
+      .update({ pagos: vt.pagos, anticipo: vt.anticipo, saldo: vt.saldo, estado: vt.estado })
+      .catch(e => console.error('[venta sync]', e));
+  }
+  saveDb(['ventas','cobranza','consignacion',...(caja?['cajas']:[])]);
+  closeModal();
+  if (pagoCompleto) {
+    showToast('✅ Pago completo — ' + (vt.folioPedido||('#'+vt.id)) + ' marcado como Pagada');
+  } else {
+    showToast('💰 Abono $' + fmt(monto) + ' registrado — saldo: $' + fmt(vt.saldo));
+  }
+  renderVentas();
+}
+window['_abonarParaEntregar'] = _abonarParaEntregar;
+window['_confirmarAbonoParaEntregar'] = _confirmarAbonoParaEntregar;
+
+
 
 let ventaItems = [];
 let _tempFotosVt = [];
