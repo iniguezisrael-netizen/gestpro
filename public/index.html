@@ -889,6 +889,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js" integrity="sha384-96KlrabK9X4T/tq4duY+/4JE60jZAiSs4QVJFwmY30ETT24x2+89B7qmq7O4IETX" crossorigin="anonymous" data-cfasync="false"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js" crossorigin="anonymous" data-cfasync="false"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js" integrity="sha384-LF74FIj8PQKxRVken52qSHntBSVEC6b05H04maSVJibifVGmWz9Ajc23WjrRVSCX" crossorigin="anonymous" data-cfasync="false"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js" crossorigin="anonymous" data-cfasync="false"></script>
 <!-- Storage y Functions: se cargan en background, no bloquean el login -->
 <script data-cfasync="false">
 (function() {
@@ -923,6 +924,7 @@ const FIREBASE_CONFIG = {
 
 // Inicializar Firebase
 let firestore = null;
+let rtdb = null;
 let storage = null;
 let auth = null;
 let functions = null;
@@ -1026,6 +1028,7 @@ if (FIREBASE_ENABLED) {
     }
     // ──────────────────────────────────────────────────────────────────────
     firestore = firebase.firestore();
+    try { rtdb = firebase.database(); } catch(e) { console.warn('RTDB init error:', e); }
     // Persistencia offline: Firestore guarda las escrituras localmente y las envía
     // automáticamente cuando regresa la conexión. synchronizeTabs:true permite
     // que múltiples pestañas compartan el mismo caché offline.
@@ -1544,6 +1547,8 @@ async function fsDeleteFromCollection(colName, id) {
       await firestore.collection(colName).doc(String(id)).delete();
       if (_firestoreKnownIds[colName]) _firestoreKnownIds[colName].delete(String(id));
     }
+    // Dual-write: borrar también de RTDB
+    _rtdbDeleteFromCollection(colName, id).catch(() => {});
   } catch(e) { console.error('fsDeleteFromCollection error:', colName, e); }
 }
 
@@ -1650,6 +1655,7 @@ function reintentarSync() {
   setSyncStatus('syncing');
   if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {};
   cols.forEach(c => { window._ownWriteUntilByCol[c] = Date.now() + 8000; });
+  if (RTDB_DUAL_WRITE && rtdb) cols.forEach(c => _rtdbWriteCollection(c, db[c]).catch(() => {}));
   Promise.all(cols.map(c => fsWriteCollection(c, db[c])))
     .then(() => {
       cols.forEach(c => { window._ownWriteUntilByCol[c] = Math.max(window._ownWriteUntilByCol[c] || 0, Date.now() + 1000); });
@@ -1688,6 +1694,56 @@ function _isFreshCol(colName, maxAgeMs) {
   try { const ts = +localStorage.getItem('gp_ts_' + colName); return !!(ts && Date.now() - ts < maxAgeMs); } catch(_) { return false; }
 }
 const _colListenerDeferred = new Set(); // colecciones esperando su listener real (TTL)
+
+// ── RTDB Dual-Write ────────────────────────────────────────────────────────
+// Escribe en RTDB en paralelo con Firestore (fire-and-forget).
+// Firestore sigue siendo la fuente de verdad hasta completar la migración.
+const RTDB_DUAL_WRITE = true;
+
+async function _rtdbWriteCollection(colName, arr) {
+  if (!rtdb || !RTDB_DUAL_WRITE) return;
+  try {
+    const clean = arr || [];
+    if (FS_ARRAY_COLS.includes(colName)) {
+      await rtdb.ref('db/' + colName + '/data').set({ items: clean, updatedAt: Date.now() });
+    } else {
+      const dataObj = {};
+      clean.forEach(item => {
+        if (item != null && item.id != null) dataObj[String(item.id)] = item;
+      });
+      // null limpia entradas que ya no existen
+      await rtdb.ref('db/' + colName).set(dataObj);
+    }
+  } catch(e) { console.warn('[rtdb-write]', colName, e); }
+}
+
+async function _rtdbDeleteFromCollection(colName, id) {
+  if (!rtdb || !RTDB_DUAL_WRITE) return;
+  try {
+    if (FS_ARRAY_COLS.includes(colName)) {
+      // Array cols se reescriben completas en el siguiente fsWriteCollection
+      return;
+    }
+    await rtdb.ref('db/' + colName + '/' + String(id)).remove();
+  } catch(e) { console.warn('[rtdb-delete]', colName, id, e); }
+}
+
+// Migrar datos actuales (db[]) a RTDB — correr desde consola del browser: _migrarArtdb()
+// No afecta Firestore ni la app. Es solo escritura inicial a RTDB.
+async function _migrarArtdb() {
+  if (!rtdb) { console.error('[rtdb-migrate] rtdb no inicializado'); return; }
+  const cols = Object.keys(db).filter(c => c !== 'users');
+  console.log('[rtdb-migrate] Iniciando migración de', cols.length, 'colecciones...');
+  let ok = 0, err = 0;
+  for (const col of cols) {
+    try {
+      await _rtdbWriteCollection(col, db[col] || []);
+      console.log('[rtdb-migrate] ✓', col, (db[col] || []).length, 'registros');
+      ok++;
+    } catch(e) { console.error('[rtdb-migrate] ✗', col, e); err++; }
+  }
+  console.log('[rtdb-migrate] Listo:', ok, 'OK,', err, 'errores.');
+}
 
 let db = {
   users: [],
@@ -1819,6 +1875,8 @@ function saveDb(colChanged) {
     const _syncTimeout = setTimeout(() => {
       if (!isOffline) { _timeoutFired = true; setSyncStatus('ok'); }
     }, 20000);
+    // Dual-write a RTDB en paralelo (fire-and-forget — no bloquea Firestore)
+    if (RTDB_DUAL_WRITE && rtdb) cols.forEach(c => _rtdbWriteCollection(c, db[c]).catch(() => {}));
     Promise.all(cols.map(c => fsWriteCollection(c, db[c])))
       .then(() => {
         clearTimeout(_syncTimeout);
