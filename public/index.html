@@ -4584,7 +4584,7 @@ function _consigRowsHTML() {
       <td><strong>${esc(c.producto)}</strong></td>
       <td>${c.categoria ? `<span style="font-size:0.78rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600">${esc(c.categoria)}</span>` : '<span style="color:#cbd5e1;font-size:0.75rem">—</span>'}</td>
       <td><strong style="color:var(--primary)">$${fmt(c.precioPublico||0)}</strong></td>
-      ${isAdmin ? `<td class="consig-td-valor" data-val="${c.valor||0}" style="cursor:pointer;${!window._consigValorVisible?'color:#94a3b8;letter-spacing:2px':''}" onclick="_toggleConsigValor()" title="Click para ver/ocultar">${window._consigValorVisible ? '<strong>$'+fmt(c.valor||0)+'</strong>' : '••••'}</td>` : ''}
+      ${isAdmin ? `<td class="consig-td-valor" data-val="${c.valor||0}" style="cursor:pointer;${!window._consigValorVisible?'display:none':''}" onclick="_toggleConsigValor()" title="Click para ver/ocultar">${window._consigValorVisible ? '<strong>$'+fmt(c.valor||0)+'</strong>' : ''}</td>` : ''}
       <td>${badge}</td>
       ${canAdd ? `<td><button class="btn btn-outline btn-sm" onclick="verDetalleConsig(${c.id})" title="Ver detalle">⋯</button></td>` : ''}
     </tr>`;
@@ -4616,7 +4616,9 @@ function _consigRowsHTML() {
       <th>Folio</th><th>Foto</th><th>Producto</th>
       <th style="cursor:pointer;white-space:nowrap;user-select:none" onclick="_showConsigDD('cat',this)"><span style="${_catActive?'color:var(--primary);font-weight:700':''}">${esc(_catLbl)} ▾</span></th>
       <th>P. Público</th>
-      ${isAdmin ? `<th style="cursor:pointer;white-space:nowrap;user-select:none" onclick="_toggleConsigValor()" title="Mostrar/ocultar precio que dejó el cliente"><span id="consig-pdejo-lbl">P. Dejó 🔒</span></th>` : ''}
+      ${isAdmin ? (window._consigValorVisible
+          ? `<th id="consig-th-valor" style="cursor:pointer;white-space:nowrap;user-select:none" onclick="_toggleConsigValor()" title="Ocultar precio que dejó el cliente">P. Dejó 👁</th>`
+          : `<th id="consig-th-valor" style="cursor:pointer;white-space:nowrap;user-select:none;width:28px;padding:8px 4px;text-align:center;font-size:0.9rem" onclick="_toggleConsigValor()" title="Mostrar precio que dejó el cliente">🔒</th>`) : ''}
       <th style="cursor:pointer;white-space:nowrap;user-select:none" onclick="_showConsigDD('est',this)"><span style="${_estActive?'color:var(--primary);font-weight:700':''}">${esc(_estLbl)} ▾</span></th>
       ${canAdd ? '<th>Acc.</th>' : ''}
     </tr>
@@ -5035,20 +5037,33 @@ window['_apartadosProd'] = _apartadosProd;
 function _toggleConsigValor() {
   window._consigValorVisible = !window._consigValorVisible;
   const visible = window._consigValorVisible;
-  // Actualizar celdas sin re-render completo
+  // Actualizar celdas: display:none cuando oculto (igual que materia prima)
   document.querySelectorAll('.consig-td-valor').forEach(td => {
     if (visible) {
+      td.style.display = '';
       td.innerHTML = '<strong>$' + fmt(+(td.dataset.val||0)) + '</strong>';
-      td.style.color = '';
-      td.style.letterSpacing = '';
     } else {
-      td.textContent = '••••';
-      td.style.color = '#94a3b8';
-      td.style.letterSpacing = '2px';
+      td.style.display = 'none';
+      td.innerHTML = '';
     }
   });
-  const lbl = document.getElementById('consig-pdejo-lbl');
-  if (lbl) lbl.textContent = 'P. Dejó ' + (visible ? '👁' : '🔒');
+  // Actualizar header: colapsa a 🔒 (igual que materia prima)
+  const th = document.getElementById('consig-th-valor');
+  if (th) {
+    if (visible) {
+      th.textContent = 'P. Dejó 👁';
+      th.style.width = '';
+      th.style.padding = '';
+      th.style.fontSize = '';
+      th.style.textAlign = '';
+    } else {
+      th.textContent = '🔒';
+      th.style.width = '28px';
+      th.style.padding = '8px 4px';
+      th.style.fontSize = '0.9rem';
+      th.style.textAlign = 'center';
+    }
+  }
 }
 window['_toggleConsigValor'] = _toggleConsigValor;
 
