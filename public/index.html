@@ -5466,7 +5466,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
         vt.estado = estadoAnterior;
         showModal('⚠️ Se requiere pago o crédito', `<p style="margin:0 0 12px">Este pedido tiene un saldo pendiente de <strong style="color:#dc2626">$${fmt(_saldoEnt)}</strong>.<br><br>Para marcarlo como <strong>Entregado</strong> debe estar totalmente pagado o tener crédito autorizado por el administrador.</p>`, [
           { label:'🏦 Solicitar crédito', cls:'btn-outline', action:()=>{ closeModal(); otorgarCredito(vt.id); }},
-          { label:'Cerrar', cls:'btn-secondary', action:closeModal }
+          { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
         ]);
         return;
       }
@@ -8406,7 +8406,7 @@ function generarReciboPago(vtId, pagoIdx, folio) {
 
   showModal('🧾 Recibo de pago', html, [
     { label:'🖨️ Imprimir', cls:'btn-primary', action:()=>_imprimirReciboPagoHTML() },
-    { label:'Cerrar', cls:'btn-secondary', action:closeModal }
+    { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
   ]);
 }
 window['generarReciboPago'] = generarReciboPago;
@@ -14301,7 +14301,7 @@ function verFactura(id) {
     f.tieneXml?{ label:'📥 XML', cls:'btn-secondary', style:'background:#15803d;color:#fff;border-color:#15803d', action:()=>descargarXml(id) }:null,
     can(['admin','secretaria'])?{ label:'🗑️ Eliminar', cls:'btn-danger', action:()=>delFactura(id) }:null,
     (!f.cancelada && can(['admin','secretaria']))?{ label:'🚫 Cancelar factura', cls:'btn-danger', style:'background:#b91c1c;border-color:#b91c1c', action:()=>{ closeModal(); cancelarFactura(id); } }:null,
-    { label:'Cerrar', cls:'btn-secondary', action:closeModal }
+    { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
   ].filter(Boolean));
 }
 
@@ -17021,7 +17021,7 @@ function verCatalogoMateriales() {
         </tr>`).join('')}</tbody>
       </table>
     </div>`}
-  `, [{ label:'Cerrar', cls:'btn-secondary', action:closeModal }]);
+  `, [{ label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }]);
 }
 window['verCatalogoMateriales'] = verCatalogoMateriales;
 
@@ -17688,7 +17688,7 @@ function recibirConBarcode(codigoInicial) {
       </div>
     </div>
     <div id="rb-resultado"></div>
-  `, [{ label:'Cerrar', cls:'btn-secondary', action:closeModal }]);
+  `, [{ label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }]);
   setTimeout(()=>{
     const t=document.getElementById('rb-tablet'); if(t) t.focus();
     if(codigoInicial){
@@ -18733,7 +18733,7 @@ function _mostrarQRItem(tipo, id) {
     <pre style="font-size:0.72rem;background:var(--bg);border-radius:8px;padding:8px;margin-top:10px;white-space:pre-wrap;color:#334155">${esc(info)}</pre>
   `, [
     { label:'🖨️ Imprimir etiqueta', cls:'btn-primary', action: imprimirEtiquetaQR },
-    { label:'Cerrar', cls:'btn-secondary', action:closeModal }
+    { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
   ]);
   setTimeout(() => {
     const cont = document.getElementById('qr-canvas-area');
@@ -21192,7 +21192,7 @@ function verCita(id) {
     ...(isAdmin ? [
       { label:'🗑️ Eliminar definitivamente', cls:'btn-danger', style:'background:#7f1d1d;border-color:#7f1d1d', action:()=>{ closeModal(); setTimeout(()=>eliminarCita(id),150); } }
     ] : []),
-    { label:'Cerrar', cls:'btn-secondary', action:closeModal }
+    { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
   ]);
 }
 
