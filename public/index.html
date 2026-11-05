@@ -5579,7 +5579,7 @@ function _abonarParaEntregar(ventaId) {
       <div class="form-group"><label>Recibido por</label>
         <input type="text" value="${esc(session.nombre||'')}" readonly disabled style="background:#f1f5f9;color:#64748b" /></div>
     </div>
-  \`, [
+  `, [
     { label:'💰 Registrar pago', cls:'btn-primary', action:()=>_confirmarAbonoParaEntregar(ventaId) },
     { label:'Cancelar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
   ]);
