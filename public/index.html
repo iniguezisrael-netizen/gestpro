@@ -24616,7 +24616,7 @@ function logActividad(accion, detalle) {
     }
     const panel = document.getElementById('_rec-panel');
     if (panel && !panel.querySelector('.rec-item')) panel.remove();
-    if (typeof navigate === 'function') navigate('agenda');
+    if (typeof openPersonalRecModal === 'function') openPersonalRecModal(persId);
   };
   window._recDescartarPers = function(persId) {
     const updated = (db.recordatoriosPersonales||[]).map(p => p.id===persId ? {...p, completado:true} : p);
