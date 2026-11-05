@@ -1,0 +1,34 @@
+#!/bin/bash
+# GestPro pre-commit hook — verifica patrones prohibidos
+
+ERRORS=0
+
+# 1. er-scan no debe tener inputmode="none"
+if grep -n 'id="er-scan"' public/index.html | grep -q 'inputmode="none"'; then
+  echo "❌ ERROR: inputmode=\"none\" detectado en #er-scan — bloquea escáner MUNBYN"
+  echo "   Ver CLAUDE.md sección #er-scan"
+  ERRORS=1
+fi
+
+# 2. div contenedor de er-scan debe tener onclick
+if ! grep -q "onclick=\"document.getElementById('er-scan').focus()\"" public/index.html; then
+  echo "❌ ERROR: falta onclick en div contenedor de #er-scan — tap en tableta no funcionará"
+  echo "   Ver CLAUDE.md sección #er-scan"
+  ERRORS=1
+fi
+
+# 3. sw.js debe haberse modificado si index.html cambió
+if git diff --cached --name-only | grep -q 'public/index.html'; then
+  if ! git diff --cached --name-only | grep -q 'public/sw.js'; then
+    echo "⚠️  ADVERTENCIA: index.html modificado pero sw.js no — ¿olvidaste bumppear la versión del SW?"
+  fi
+fi
+
+if [ $ERRORS -ne 0 ]; then
+  echo ""
+  echo "Commit bloqueado. Corrige los errores antes de continuar."
+  exit 1
+fi
+
+echo "✅ Pre-commit OK"
+exit 0
