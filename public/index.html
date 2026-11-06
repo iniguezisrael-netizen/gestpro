@@ -24481,13 +24481,15 @@ function logActividad(accion, detalle) {
           </div>`;
         }).join('')}
         ${_popupPersV.map(p => {
-          const dotCls = 'vencido';
+          const _phoy = typeof today==='function' ? today() : new Date().toISOString().slice(0,10);
+          const _pvenc = p.fecha < _phoy;
+          const dotCls = _pvenc ? 'vencido' : 'hoy';
           return `<div class="rec-item" data-pers-id="${p.id}">
             <div class="rec-dot ${dotCls}"></div>
             <div style="flex:1;min-width:0">
               <div style="font-weight:600;font-size:0.83rem;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📌 ${esc(p.titulo||'Sin título')}</div>
               <div style="font-size:0.72rem;color:#64748b;margin-top:1px">
-                ${p.hora ? p.hora+' · ' : ''}<span style="color:#ef4444;font-size:0.72rem">Vencido</span>
+                ${p.hora ? p.hora+' · ' : ''}<span style="color:${_pvenc?'#ef4444':'#f59e0b'};font-size:0.72rem">${_pvenc?'Vencido':'Hoy'}</span>
               </div>
               ${p.descripcion ? `<div style="font-size:0.76rem;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.descripcion)}</div>` : ''}
               <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">

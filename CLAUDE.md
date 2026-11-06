@@ -43,3 +43,16 @@ git update-ref refs/heads/main $COMMIT
 git push origin main
 ```
 Los archivos `.lock` que deja git son normales — restricción de permisos del VM.
+
+## Recordatorios personales — NUNCA hardcodear "Vencido"
+En `_mostrarPopupRecordatorios`, el bloque `_popupPersV.map(p => {` debe
+distinguir fecha pasada vs hoy. NUNCA poner `const dotCls = 'vencido'` fijo:
+```js
+// CORRECTO:
+const _phoy = typeof today==='function' ? today() : new Date().toISOString().slice(0,10);
+const _pvenc = p.fecha < _phoy;
+const dotCls = _pvenc ? 'vencido' : 'hoy';
+// label: _pvenc ? 'Vencido' : 'Hoy'
+```
+Recordatorios del día actual deben mostrar "Hoy" (amarillo), solo los de fecha
+anterior muestran "Vencido" (rojo).
