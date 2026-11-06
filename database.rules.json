@@ -1,0 +1,13 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "db": {
+      ".read": "auth != null",
+      "$collection": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
+}

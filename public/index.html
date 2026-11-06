@@ -1728,17 +1728,30 @@ async function _rtdbDeleteFromCollection(colName, id) {
   } catch(e) { console.warn('[rtdb-delete]', colName, id, e); }
 }
 
-// Migrar datos actuales (db[]) a RTDB — correr desde consola del browser: _migrarArtdb()
+// Migrar datos desde Firestore a RTDB — correr desde consola del browser: await _migrarArtdb()
+// Lee DIRECTAMENTE de Firestore para garantizar las 29 colecciones sin depender de db[] o visitas previas.
 // No afecta Firestore ni la app. Es solo escritura inicial a RTDB.
 async function _migrarArtdb() {
   if (!rtdb) { console.error('[rtdb-migrate] rtdb no inicializado'); return; }
-  const cols = Object.keys(db).filter(c => c !== 'users');
-  console.log('[rtdb-migrate] Iniciando migración de', cols.length, 'colecciones...');
+  if (!firestore) { console.error('[rtdb-migrate] firestore requerido para migración completa'); return; }
+  console.log('[rtdb-migrate] Iniciando migración completa de', FS_COLLECTIONS.length, 'colecciones desde Firestore...');
   let ok = 0, err = 0;
-  for (const col of cols) {
+  for (const col of FS_COLLECTIONS) {
     try {
-      await _rtdbWriteCollection(col, db[col] || []);
-      console.log('[rtdb-migrate] ✓', col, (db[col] || []).length, 'registros');
+      let datos = [];
+      if (FS_ARRAY_COLS.includes(col)) {
+        // Array-col: un solo documento con id 'data' que contiene campo items[]
+        const snap = await firestore.collection(col).doc('data').get();
+        datos = snap.exists ? (snap.data().items || []) : [];
+      } else {
+        // Colección normal: cada documento es un item, el doc.id es el item.id
+        const snap = await firestore.collection(col).get();
+        datos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      }
+      await _rtdbWriteCollection(col, datos);
+      // Actualizar db[] si la clave ya existe, para consistencia en sesión
+      if (Object.prototype.hasOwnProperty.call(db, col)) db[col] = datos;
+      console.log('[rtdb-migrate] ✓', col, datos.length, 'registros');
       ok++;
     } catch(e) { console.error('[rtdb-migrate] ✗', col, e); err++; }
   }
@@ -2105,6 +2118,45 @@ async function loadFromFirebase() {
   try {
     // Primero cargar tombstones remotos para que el filtrado sea correcto en todos los dispositivos
     await _loadTombstonesFirestore();
+
+    // ── RTDB: carga inicial sin lecturas Firestore ───────────────────────────
+    // Lee todas las colecciones de RTDB en una sola operación (sin costo por lectura).
+    // Si RTDB tiene datos suficientes → retorna aquí y omite las lecturas de Firestore.
+    // Si falla o está vacío → continúa con el flujo original de Firestore.
+    if (RTDB_DUAL_WRITE) {
+      try {
+        const _rSnap = await firebase.database().ref('db').once('value');
+        const _rAll  = _rSnap.val();
+        if (_rAll) {
+          const _rCols = [], _rData = [];
+          FS_COLLECTIONS.forEach(col => {
+            const raw = _rAll[col];
+            if (raw && typeof raw === 'object') {
+              const items = Object.values(raw).filter(x => x && x.id != null);
+              if (items.length) { _rCols.push(col); _rData.push(items); }
+            }
+          });
+          if (_rCols.length >= 10) {
+            await _procesarColecciones(_rCols, _rData);
+            _appReady = true;
+            setSyncStatus('ok');
+            setTimeout(() => _migrarVentasSinCaja(), 800);
+            if (currentPage) renderPage(currentPage);
+            if (session && session.rol === 'admin') _iniciarRespaldoAutomatico();
+            setTimeout(() => window._checkRecordatorios && window._checkRecordatorios(), 1500);
+            const _rNextId = await fsReadNextId();
+            if (_rNextId !== null && _rNextId > nextId) { nextId = _rNextId; save('gp_nextid', nextId); }
+            _refillIdPool().catch(() => {});
+            const _rFotos = _COLS_CON_FOTOS.some(col => (db[col]||[]).some(it => (it.fotos||[]).some(f => f && f.startsWith('data:'))));
+            if (_rFotos) await sincronizarFotosPendientes();
+            console.log('[RTDB] ' + _rCols.length + ' cols cargadas ✓ — 0 lecturas Firestore');
+            return;
+          }
+        }
+      } catch(_rErr) { console.warn('[RTDB] Fallback a Firestore:', _rErr.message); }
+    }
+    // ── Fallback: carga original desde Firestore ─────────────────────────────
+
     const rol = session && session.rol;
     const priority = (_FS_PRIORITY[rol] || []).filter(c => FS_COLLECTIONS.includes(c));
     const rest = priority.length ? FS_COLLECTIONS.filter(c => !priority.includes(c)) : [];
@@ -10673,6 +10725,8 @@ function saveCotiz(id) {
         window._serverSnapshot.cotizaciones = window._serverSnapshot.cotizaciones || {};
         window._serverSnapshot.cotizaciones[String(obj.id)] = JSON.parse(JSON.stringify(_objToSave));
         save('gp_cotizaciones', db.cotizaciones);
+        // RTDB dual-write — esta función bypasea saveDb(), así que lo hacemos aquí manualmente
+        _rtdbWriteCollection('cotizaciones', db.cotizaciones).catch(() => {});
         setSyncStatus('ok');
         _programarRespaldo();
       })
@@ -12432,6 +12486,8 @@ function _cajaMovAdd(caja, mov) {
   } else if (FIREBASE_ENABLED) {
     _hasPendingSync = true; _markPendingSync('cajas');
   }
+  // RTDB dual-write directo — no depende de que el caller llame saveDb('cajas')
+  if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection('cajas', db.cajas).catch(() => {});
 }
 
 function _cajaMovRemove(caja, movId) {
@@ -15642,6 +15698,8 @@ function marcarVehiculoRec(id, campo) {
   if (window._serverSnapshot?.vehiculos?.[String(id)]) {
     window._serverSnapshot.vehiculos[String(id)][campo] = true;
   }
+  // RTDB dual-write — antes del write de Firestore para no depender del catch
+  if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection('vehiculos', db.vehiculos).catch(() => {});
   // Escribir SOLO ese campo en Firestore — sin tocar vencimiento, poliza ni ningún otro campo
   if (FIREBASE_ENABLED && firestore) {
     if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {};
