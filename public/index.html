@@ -232,7 +232,8 @@
 
   /* TABLE */
   .table-wrap { overflow-x: auto; }
-  .tbl-inv-sticky thead th { position: sticky; top: 50px; z-index: 30; background: var(--bg); box-shadow: 0 1px 0 var(--border); }
+  .tbl-inv-sticky-wrap { max-height: calc(100vh - 190px); overflow-y: auto; }
+  .tbl-inv-sticky thead th { position: sticky; top: 0; z-index: 30; background: var(--bg); box-shadow: 0 1px 0 var(--border); }
   table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
   th { background: var(--bg); padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-light); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
   td { padding: 10px 12px; border-top: 1px solid var(--border); color: var(--text); transition: background 0.12s; }
@@ -3934,7 +3935,7 @@ function renderInventario(tipo, _tab, _skipSync) {
         <input type="text" placeholder="Buscar..." oninput="_invSearch(this,'${tipo}')" style="flex:1;min-width:140px" />
 
       </div>
-      <div class="table-wrap"><table id="tbl-${tipo}" class="tbl-inv-sticky">
+      <div class="table-wrap tbl-inv-sticky-wrap"><table id="tbl-${tipo}" class="tbl-inv-sticky">
         <thead><tr>
           <th>Foto</th>
           <th>Nombre</th>
