@@ -5682,10 +5682,7 @@ function _confirmarAbonoParaEntregar(ventaId) {
       _cob.abonos = _cob.abonos || [];
       _cob.abonos.push({ monto, fecha, hora, usuario: session.nombre, rol: session.rol, formaPago, ...(nota ? { nota } : {}) });
       if (pagoCompleto) _cob.estado = 'Pagado';
-      if (window._serverSnapshot?.cobranza?.[String(_cob.id)]) {
-        window._serverSnapshot.cobranza[String(_cob.id)].abonos = _cob.abonos;
-        window._serverSnapshot.cobranza[String(_cob.id)].estado = _cob.estado;
-      }
+      if (window._serverSnapshot?.cobranza) delete window._serverSnapshot.cobranza[String(_cob.id)];
       if (FIREBASE_ENABLED && firestore) {
         firestore.collection('cobranza').doc(String(_cob.id))
           .update({ abonos: _cob.abonos, estado: _cob.estado })
@@ -5698,12 +5695,7 @@ function _confirmarAbonoParaEntregar(ventaId) {
       concepto: 'Pago — ' + (vt.folioPedido || ('#'+vt.id)) + ' · ' + vt.cliente,
       monto, hora, usuario: session.nombre });
   }
-  if (window._serverSnapshot?.ventas?.[String(vt.id)]) {
-    window._serverSnapshot.ventas[String(vt.id)].pagos    = vt.pagos;
-    window._serverSnapshot.ventas[String(vt.id)].anticipo = vt.anticipo;
-    window._serverSnapshot.ventas[String(vt.id)].saldo    = vt.saldo;
-    window._serverSnapshot.ventas[String(vt.id)].estado   = vt.estado;
-  }
+  if (window._serverSnapshot?.ventas) delete window._serverSnapshot.ventas[String(vt.id)];
   if (FIREBASE_ENABLED && firestore) {
     firestore.collection('ventas').doc(String(vt.id))
       .update({ pagos: vt.pagos, anticipo: vt.anticipo, saldo: vt.saldo, estado: vt.estado })
@@ -7855,7 +7847,7 @@ function _fijarPrecioVenta(id) {
       const _cob = (db.cobranza||[]).find(c => c.id === vt.cobranzaId || String(c.ventaId) === String(vt.id));
       if (_cob) {
         _cob.total = _finalTotal;
-        if (window._serverSnapshot?.cobranza?.[String(_cob.id)]) window._serverSnapshot.cobranza[String(_cob.id)].total = _finalTotal;
+        if (window._serverSnapshot?.cobranza) delete window._serverSnapshot.cobranza[String(_cob.id)];
         if (FIREBASE_ENABLED && firestore) firestore.collection('cobranza').doc(String(_cob.id)).update({ total: _finalTotal }).catch(()=>{});
       } else if (vt.estado === 'Entregado' && vt.saldo > 0.01) {
         // La venta ya estaba Entregada sin precio fijado — crear entrada en cobranza ahora
@@ -7873,15 +7865,13 @@ function _fijarPrecioVenta(id) {
         };
         db.cobranza.push(_nuevaCob);
         vt.cobranzaId = _cobId;
-        if (window._serverSnapshot?.cobranza) window._serverSnapshot.cobranza[String(_cobId)] = _nuevaCob;
+        // serverSnapshot NO pre-populado: fsWriteCollection detectará doc nuevo y lo escribirá vía batch
         if (FIREBASE_ENABLED && firestore) {
           firestore.collection('cobranza').doc(String(_cobId)).set(_nuevaCob).catch(()=>{});
           firestore.collection('ventas').doc(String(id)).update({ cobranzaId: _cobId }).catch(()=>{});
         }
       }
-      if (window._serverSnapshot?.ventas?.[String(id)]) {
-        Object.assign(window._serverSnapshot.ventas[String(id)], { items: vt.items, total: _finalTotal, iva: vt.iva, ivaMode: _ivaMode, subtotal: _subtotal, ivaAmount: _ivaAmt, pendienteCotizar: false, anticipo: vt.anticipo, saldo: vt.saldo });
-      }
+      if (window._serverSnapshot?.ventas) delete window._serverSnapshot.ventas[String(id)];
       if (FIREBASE_ENABLED && firestore) {
         firestore.collection('ventas').doc(String(id)).update({ items: vt.items, total: _finalTotal, iva: vt.iva, ivaMode: _ivaMode, subtotal: _subtotal, ivaAmount: _ivaAmt, pendienteCotizar: false, anticipo: vt.anticipo, saldo: vt.saldo }).catch(()=>{});
       }
