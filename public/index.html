@@ -1109,6 +1109,9 @@ function _saveKnownIds() {
 async function fsWriteCollection(colName, arr) {
   if (!firestore) return;
   const clean = JSON.parse(JSON.stringify(arr == null ? [] : arr));
+  // Dual-write a RTDB (fire-and-forget) — igual que saveDb. Garantiza que llamadas
+  // directas a fsWriteCollection también actualicen RTDB (fuente primaria en loadFromFirebase).
+  if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection(colName, clean).catch(() => {});
 
   try {
     // ── Formato array: colecciones grandes (materia, catalogoMateriales) ──────
