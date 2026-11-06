@@ -59,7 +59,7 @@ Incrementar en cada deploy que requiera invalidar caché de usuarios.
 ### Ventas con total=$0 (CORREGIDO — 2026-11-06)
 - Ventas afectadas encontradas: NV 13350004, NV 269, NV 300, NV test_write
 - Fix aplicado: `pendienteCotizar=true` vía REST API PATCH en cada documento individual
-- NV 195 no apareció en Firestore como afectada (puede estar en RTDB o ya corregida)
+- NV 195 no existía en Firestore (solo en RTDB) — corregida vía PATCH a RTDB: /ventas/195/pendienteCotizar=true
 - Script: `fix-ventas-cero.js` (disponible en esta sesión)
 
 ## Pendientes de sesiones anteriores
