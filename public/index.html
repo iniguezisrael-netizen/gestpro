@@ -216,8 +216,6 @@
   .dark-mode .rec-mcell.other-month { background:#090f1a; }
   .dark-mode .rec-search-bar { background:#0f172a; }
   .dark-mode .rec-search-bar input { color:#e2e8f0; }
-  @keyframes agendaSpin { to { transform: rotate(360deg); } }
-  @keyframes agendaFadeOut { to { opacity: 0; height: 0; margin: 0; padding: 0; border: none; overflow: hidden; } }
   /* ─────────────────────────────────────────────────────────── */
 
   /* STATS */
@@ -234,8 +232,6 @@
 
   /* TABLE */
   .table-wrap { overflow-x: auto; }
-  .tbl-inv-sticky-wrap { max-height: calc(100vh - 190px); overflow-y: auto; }
-  .tbl-inv-sticky thead th { position: sticky; top: 0; z-index: 30; background: var(--bg); box-shadow: 0 1px 0 var(--border); }
   table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
   th { background: var(--bg); padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-light); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
   td { padding: 10px 12px; border-top: 1px solid var(--border); color: var(--text); transition: background 0.12s; }
@@ -742,14 +738,30 @@
     </div>
     <button class="btn btn-primary btn-full" onclick="doLogin()">Iniciar Sesión</button>
     <div id="login-error"></div>
-    <p style="text-align:center;margin-top:10px"><a href="#" style="font-size:0.82rem;color:#64748b" onclick="event.preventDefault();recuperarPassword()">¿Olvidaste tu contraseña?</a></p>
+    <!-- MODO DEV — solo visible para admin -->
+    <div id="modo-dev-wrap" style="display:block;margin-top:14px">
+      <div onclick="_toggleModoDev()" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff7ed;border:1.5px solid #f97316;border-radius:10px;padding:9px 13px;cursor:pointer;user-select:none">
+        <div>
+          <div style="font-size:0.82rem;font-weight:700;color:#9a3412">🔧 Modo Desarrollo</div>
+          <div style="font-size:0.72rem;color:#c2410c">Sin Firebase — usa datos del último sync</div>
+        </div>
+        <div id="modo-dev-switch" style="flex-shrink:0;width:38px;height:21px;background:#cbd5e1;border-radius:99px;position:relative;transition:background .2s">
+          <div id="modo-dev-knob" style="position:absolute;top:3px;left:3px;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s"></div>
+        </div>
+      </div>
     </div>
+    <p style="text-align:center;margin-top:10px"><a href="#" style="font-size:0.82rem;color:#64748b" onclick="event.preventDefault();recuperarPassword()">¿Olvidaste tu contraseña?</a></p>
 
   </div>
 </div>
 
 <!-- APP -->
-<div id="app">  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+<div id="app">
+<!-- Banner Modo Desarrollo -->
+<div id="modo-dev-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#f97316;color:#fff;text-align:center;padding:6px 12px;font-size:0.8rem;font-weight:700;letter-spacing:0.03em;cursor:pointer" title="Haz clic para apagar el Modo Desarrollo" onclick="_apgarModoDev()">
+  🔧 MODO DESARROLLO ACTIVO — sin Firebase &nbsp;·&nbsp; Clic aquí para apagar
+</div>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
   <div class="layout">
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
@@ -877,7 +889,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js" integrity="sha384-96KlrabK9X4T/tq4duY+/4JE60jZAiSs4QVJFwmY30ETT24x2+89B7qmq7O4IETX" crossorigin="anonymous" data-cfasync="false"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js" crossorigin="anonymous" data-cfasync="false"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js" integrity="sha384-LF74FIj8PQKxRVken52qSHntBSVEC6b05H04maSVJibifVGmWz9Ajc23WjrRVSCX" crossorigin="anonymous" data-cfasync="false"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js" crossorigin="anonymous" data-cfasync="false"></script>
 <!-- Storage y Functions: se cargan en background, no bloquean el login -->
 <script data-cfasync="false">
 (function() {
@@ -912,13 +923,52 @@ const FIREBASE_CONFIG = {
 
 // Inicializar Firebase
 let firestore = null;
-let rtdb = null;
 let storage = null;
 let auth = null;
 let functions = null;
 const EMAIL_DOMAIN = '@camperslacuesta.app';
 // El admin usa un correo real (para poder recuperar su contraseña); los demás usuarios usan el dominio falso interno.
 const ADMIN_USERNAME = 'admin';
+
+// ── MODO DESARROLLO — sin Firebase ─────────────────────────────────────────
+// Actívalo en el login para hacer pruebas sin generar lecturas en Firestore.
+const _MODO_DEV_KEY = 'gp_modo_dev';
+let _MODO_DEV = false;
+try { _MODO_DEV = localStorage.getItem(_MODO_DEV_KEY) === '1'; } catch(e) {}
+
+function _apgarModoDev() {
+  _MODO_DEV = false;
+  try { localStorage.setItem(_MODO_DEV_KEY, '0'); } catch(e) {}
+  location.reload();
+}
+
+function _toggleModoDev() {
+  _MODO_DEV = !_MODO_DEV;
+  try { localStorage.setItem(_MODO_DEV_KEY, _MODO_DEV ? '1' : '0'); } catch(e) {}
+  // Al activar dev mode: cancelar listeners activos para evitar sobrescrituras de Firestore
+  if (_MODO_DEV) {
+    _syncUnsubscribers.forEach(u => u());
+    _syncUnsubscribers = [];
+    _listenersStarted.clear();
+  }
+  const sw = document.getElementById('modo-dev-switch');
+  const kn = document.getElementById('modo-dev-knob');
+  if (sw) sw.style.background = _MODO_DEV ? '#f97316' : '#cbd5e1';
+  if (kn) kn.style.transform = _MODO_DEV ? 'translateX(17px)' : 'translateX(0)';
+}
+
+function _initModoDev() {
+  // Toggle siempre visible — disponible para todos los usuarios
+  // Aplicar estado guardado al toggle visual
+  if (_MODO_DEV) {
+    const sw = document.getElementById('modo-dev-switch');
+    const kn = document.getElementById('modo-dev-knob');
+    if (sw) sw.style.background = '#f97316';
+    if (kn) kn.style.transform = 'translateX(17px)';
+  }
+}
+// Iniciar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', _initModoDev);
 // ────────────────────────────────────────────────────────────────────────────
 let _adminRealEmail = '';
 function getLoginEmail(loginUser) {
@@ -969,7 +1019,6 @@ if (FIREBASE_ENABLED) {
     }
     // ──────────────────────────────────────────────────────────────────────
     firestore = firebase.firestore();
-    try { rtdb = firebase.database(); } catch(e) { console.warn('RTDB init error:', e); }
     // Persistencia offline: Firestore guarda las escrituras localmente y las envía
     // automáticamente cuando regresa la conexión. synchronizeTabs:true permite
     // que múltiples pestañas compartan el mismo caché offline.
@@ -1111,9 +1160,6 @@ function _saveKnownIds() {
 async function fsWriteCollection(colName, arr) {
   if (!firestore) return;
   const clean = JSON.parse(JSON.stringify(arr == null ? [] : arr));
-  // Dual-write a RTDB (fire-and-forget) — igual que saveDb. Garantiza que llamadas
-  // directas a fsWriteCollection también actualicen RTDB (fuente primaria en loadFromFirebase).
-  if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection(colName, clean).catch(() => {});
 
   try {
     // ── Formato array: colecciones grandes (materia, catalogoMateriales) ──────
@@ -1135,7 +1181,7 @@ async function fsWriteCollection(colName, arr) {
         tx.set(docRef, { items: merged, updatedAt: Date.now(), writerId: _mySessionId });
         finalItems = merged;
       });
-      try { db[colName] = JSON.parse(JSON.stringify(finalItems)); save('gp_' + colName, db[colName]); _touchColTs(colName); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
+      try { db[colName] = JSON.parse(JSON.stringify(finalItems)); save('gp_' + colName, db[colName]); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
       return;
     }
 
@@ -1264,7 +1310,7 @@ async function fsWriteCollection(colName, arr) {
       const finalClean = clean.map(item =>
         item.id != null && txResults[String(item.id)] ? txResults[String(item.id)] : item
       );
-      try { db[colName] = JSON.parse(JSON.stringify(finalClean)); save('gp_' + colName, db[colName]); _touchColTs(colName); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
+      try { db[colName] = JSON.parse(JSON.stringify(finalClean)); save('gp_' + colName, db[colName]); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
       // Actualizar snapshot con los valores confirmados por el servidor
       window._serverSnapshot = window._serverSnapshot || {};
       window._serverSnapshot[colName] = window._serverSnapshot[colName] || {};
@@ -1313,7 +1359,13 @@ async function fsWriteCollection(colName, arr) {
     // IDs que estaban en Firestore pero ya no están → eliminar
     const knownIds = _firestoreKnownIds[colName] || new Set();
     const toDelete = [...knownIds].filter(id => !newIds.has(id));
-    if (toDelete.length) toDelete.forEach(id => _addTombstone(colName, id));
+    const _noAutoTombstone = ['ventas','cotizaciones','reparaciones','clientes'];
+    const _safeDel = _noAutoTombstone.includes(colName)
+      ? toDelete.filter(id => !!((_fsTombstones[colName]||{})[id]))
+      : toDelete;
+    if (_safeDel.length) {
+      _safeDel.forEach(id => _addTombstone(colName, id));
+    }
     _firestoreKnownIds[colName] = new Set(newIds);
     _saveKnownIds();
 
@@ -1362,7 +1414,7 @@ async function fsWriteCollection(colName, arr) {
       const isNew = !srvSnap[idStr] && !_knownIdsCol.has(idStr);
       return { op: isNew ? 'set' : 'update', ref: colRef.doc(idStr), data: { ...item, _updatedAt: Date.now() } };
     });
-    const deletes = toDelete.map(id => ({ op:'del', ref: colRef.doc(id) }));
+    const deletes = _safeDel.map(id => ({ op:'del', ref: colRef.doc(id) }));
     const allOps = [...writes, ...deletes];
 
     for (let i = 0; i < allOps.length; i += BATCH_MAX) {
@@ -1376,7 +1428,7 @@ async function fsWriteCollection(colName, arr) {
     }
 
     if (colName !== 'facturas') {
-      try { db[colName] = JSON.parse(JSON.stringify(clean)); save('gp_' + colName, db[colName]); _touchColTs(colName); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
+      try { db[colName] = JSON.parse(JSON.stringify(clean)); save('gp_' + colName, db[colName]); } catch(e) { console.error('[sync] Error guardando ' + colName + ' en local:', e); }
     }
     // Actualizar _serverSnapshot con lo que acabamos de escribir, para que el próximo
     // save calcule correctamente qué docs cambiaron (sin esperar al onSnapshot).
@@ -1489,8 +1541,6 @@ async function fsDeleteFromCollection(colName, id) {
       await firestore.collection(colName).doc(String(id)).delete();
       if (_firestoreKnownIds[colName]) _firestoreKnownIds[colName].delete(String(id));
     }
-    // Dual-write: borrar también de RTDB
-    _rtdbDeleteFromCollection(colName, id).catch(() => {});
   } catch(e) { console.error('fsDeleteFromCollection error:', colName, e); }
 }
 
@@ -1597,7 +1647,6 @@ function reintentarSync() {
   setSyncStatus('syncing');
   if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {};
   cols.forEach(c => { window._ownWriteUntilByCol[c] = Date.now() + 8000; });
-  if (RTDB_DUAL_WRITE && rtdb) cols.forEach(c => _rtdbWriteCollection(c, db[c]).catch(() => {}));
   Promise.all(cols.map(c => fsWriteCollection(c, db[c])))
     .then(() => {
       cols.forEach(c => { window._ownWriteUntilByCol[c] = Math.max(window._ownWriteUntilByCol[c] || 0, Date.now() + 1000); });
@@ -1628,82 +1677,6 @@ function load(key, def) {
 }
 function save(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
-}
-function _touchColTs(colName) {
-  try { localStorage.setItem('gp_ts_' + colName, Date.now()); } catch(_) {}
-}
-function _isFreshCol(colName, maxAgeMs) {
-  try { const ts = +localStorage.getItem('gp_ts_' + colName); return !!(ts && Date.now() - ts < maxAgeMs); } catch(_) { return false; }
-}
-const _colListenerDeferred = new Set(); // colecciones esperando su listener real (TTL)
-
-// ── RTDB Dual-Write ────────────────────────────────────────────────────────
-// Escribe en RTDB en paralelo con Firestore (fire-and-forget).
-// Firestore sigue siendo la fuente de verdad hasta completar la migración.
-const RTDB_DUAL_WRITE = true;
-
-async function _rtdbWriteCollection(colName, arr) {
-  if (!rtdb || !RTDB_DUAL_WRITE) return;
-  try {
-    // Limpiar fotos base64 antes de escribir a RTDB — son temporales y pesan mucho.
-    // Las fotos ya sincronizadas a Storage (https://) se conservan.
-    const clean = (arr || []).map(item => {
-      if (!item || !item.fotos) return item;
-      const fotasOk = item.fotos.filter(f => f && !f.startsWith('data:'));
-      return fotasOk.length === item.fotos.length ? item : { ...item, fotos: fotasOk };
-    });
-    if (FS_ARRAY_COLS.includes(colName)) {
-      await rtdb.ref('db/' + colName + '/data').set({ items: clean, updatedAt: Date.now() });
-    } else {
-      const dataObj = {};
-      clean.forEach(item => {
-        if (item != null && item.id != null) dataObj[String(item.id)] = item;
-      });
-      // null limpia entradas que ya no existen
-      await rtdb.ref('db/' + colName).set(dataObj);
-    }
-  } catch(e) { console.warn('[rtdb-write]', colName, e); }
-}
-
-async function _rtdbDeleteFromCollection(colName, id) {
-  if (!rtdb || !RTDB_DUAL_WRITE) return;
-  try {
-    if (FS_ARRAY_COLS.includes(colName)) {
-      // Array cols se reescriben completas en el siguiente fsWriteCollection
-      return;
-    }
-    await rtdb.ref('db/' + colName + '/' + String(id)).remove();
-  } catch(e) { console.warn('[rtdb-delete]', colName, id, e); }
-}
-
-// Migrar datos desde Firestore a RTDB — correr desde consola del browser: await _migrarArtdb()
-// Lee DIRECTAMENTE de Firestore para garantizar las 29 colecciones sin depender de db[] o visitas previas.
-// No afecta Firestore ni la app. Es solo escritura inicial a RTDB.
-async function _migrarArtdb() {
-  if (!rtdb) { console.error('[rtdb-migrate] rtdb no inicializado'); return; }
-  if (!firestore) { console.error('[rtdb-migrate] firestore requerido para migración completa'); return; }
-  console.log('[rtdb-migrate] Iniciando migración completa de', FS_COLLECTIONS.length, 'colecciones desde Firestore...');
-  let ok = 0, err = 0;
-  for (const col of FS_COLLECTIONS) {
-    try {
-      let datos = [];
-      if (FS_ARRAY_COLS.includes(col)) {
-        // Array-col: un solo documento con id 'data' que contiene campo items[]
-        const snap = await firestore.collection(col).doc('data').get();
-        datos = snap.exists ? (snap.data().items || []) : [];
-      } else {
-        // Colección normal: cada documento es un item, el doc.id es el item.id
-        const snap = await firestore.collection(col).get();
-        datos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      }
-      await _rtdbWriteCollection(col, datos);
-      // Actualizar db[] si la clave ya existe, para consistencia en sesión
-      if (Object.prototype.hasOwnProperty.call(db, col)) db[col] = datos;
-      console.log('[rtdb-migrate] ✓', col, datos.length, 'registros');
-      ok++;
-    } catch(e) { console.error('[rtdb-migrate] ✗', col, e); err++; }
-  }
-  console.log('[rtdb-migrate] Listo:', ok, 'OK,', err, 'errores.');
 }
 
 let db = {
@@ -1803,6 +1776,13 @@ function saveDb(colChanged) {
     if (key) save(key, db[c] != null ? db[c] : []);
   });
   // Firestore (nube)
+  if (_MODO_DEV) {
+    // En dev mode solo proteger snapshots, sin escribir a Firestore
+    if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {};
+    const _devCols = colChanged ? (Array.isArray(colChanged) ? colChanged : [colChanged]) : Object.keys(_LS_KEYS);
+    _devCols.forEach(c => { window._ownWriteUntilByCol[c] = Date.now() + 5000; });
+    return;
+  }
   if (FIREBASE_ENABLED && firestore) {
     const isOffline = !navigator.onLine;
     // Proteger datos locales durante la escritura (online o offline).
@@ -1829,8 +1809,6 @@ function saveDb(colChanged) {
     const _syncTimeout = setTimeout(() => {
       if (!isOffline) { _timeoutFired = true; setSyncStatus('ok'); }
     }, 20000);
-    // Dual-write a RTDB en paralelo (fire-and-forget — no bloquea Firestore)
-    if (RTDB_DUAL_WRITE && rtdb) cols.forEach(c => _rtdbWriteCollection(c, db[c]).catch(() => {}));
     Promise.all(cols.map(c => fsWriteCollection(c, db[c])))
       .then(() => {
         clearTimeout(_syncTimeout);
@@ -1988,6 +1966,13 @@ async function _procesarColecciones(cols, results) {
           }
           return { ...x, baja: true, bajaFecha: _loc.bajaFecha, bajaMotivo: _loc.bajaMotivo, bajaUsuario: _loc.bajaUsuario };
         }
+        // Modo dev: conservar fotos/archivos locales si Firestore no los tiene (no se subieron)
+        if (_MODO_DEV) {
+          const _locDev = _localById[String(x.id)];
+          if (_locDev && Array.isArray(_locDev.fotos) && _locDev.fotos.length > (x.fotos||[]).length) {
+            return { ...x, fotos: _locDev.fotos };
+          }
+        }
         return x;
       });
       const serverIds = new Set(serverItemsMerged.map(x => x && x.id).filter(Boolean));
@@ -2034,76 +2019,31 @@ async function _loadTombstonesFirestore() {
     });
     if (changed) try { localStorage.setItem(_FS_TOMBSTONES_KEY, JSON.stringify(_fsTombstones)); } catch(e) {}
   } catch(e) { console.warn('[tombstone] carga desde FS error:', e); }
-  // Merge adicional desde RTDB (para cuando el listener de RTDB reemplaza al de Firestore)
-  if (rtdb) {
-    try {
-      const _rtSnap = await rtdb.ref('_meta/tombstones').once('value');
-      const _rtData = _rtSnap.val();
-      if (_rtData) {
-        let _rtChanged = false;
-        Object.keys(_rtData).forEach(col => {
-          const colData = _rtData[col];
-          if (!colData || typeof colData !== 'object') return;
-          if (!_fsTombstones[col]) _fsTombstones[col] = {};
-          Object.keys(colData).forEach(id => {
-            if (!_fsTombstones[col][id]) {
-              _fsTombstones[col][id] = typeof colData[id] === 'number' ? colData[id] : Date.now();
-              _rtChanged = true;
-            }
-          });
-        });
-        if (_rtChanged) try { localStorage.setItem(_FS_TOMBSTONES_KEY, JSON.stringify(_fsTombstones)); } catch(e) {}
-      }
-    } catch(_rtErr) { console.warn('[tombstone] RTDB merge error:', _rtErr.message); }
-  }
 }
 
 // Cargar todos los datos desde Firestore al iniciar sesión
 async function loadFromFirebase() {
+  if (_MODO_DEV) {
+    // Modo Desarrollo: cargar desde caché offline de Firestore (IndexedDB, 0 lecturas de red)
+    setSyncStatus('syncing');
+    try {
+      const _devCols = FS_COLLECTIONS.filter(c => !['facturas'].includes(c));
+      const _devRes = await Promise.allSettled(_devCols.map(c => fsReadCollection(c)));
+      const _devLoaded = [], _devData = [];
+      _devRes.forEach((r, i) => { if (r.status === 'fulfilled' && r.value !== null) { _devLoaded.push(_devCols[i]); _devData.push(r.value); } });
+      if (_devLoaded.length) await _procesarColecciones(_devLoaded, _devData);
+    } catch(e) { console.warn('[DEV] Error cargando caché:', e); }
+    setSyncStatus('ok');
+    _appReady = true;
+    setTimeout(() => { if (currentPage) renderPage(currentPage); }, 200);
+    setTimeout(() => window._checkRecordatorios && window._checkRecordatorios(), 1500);
+    return;
+  }
   if (!FIREBASE_ENABLED || !firestore) return;
   setSyncStatus('syncing');
   try {
     // Primero cargar tombstones remotos para que el filtrado sea correcto en todos los dispositivos
     await _loadTombstonesFirestore();
-
-    // ── RTDB: carga inicial sin lecturas Firestore ───────────────────────────
-    // Lee todas las colecciones de RTDB en una sola operación (sin costo por lectura).
-    // Si RTDB tiene datos suficientes → retorna aquí y omite las lecturas de Firestore.
-    // Si falla o está vacío → continúa con el flujo original de Firestore.
-    if (RTDB_DUAL_WRITE) {
-      try {
-        const _rSnap = await firebase.database().ref('db').once('value');
-        const _rAll  = _rSnap.val();
-        if (_rAll) {
-          const _rCols = [], _rData = [];
-          FS_COLLECTIONS.forEach(col => {
-            const raw = _rAll[col];
-            if (raw && typeof raw === 'object') {
-              const items = Object.values(raw).filter(x => x && x.id != null);
-              if (items.length) { _rCols.push(col); _rData.push(items); }
-            }
-          });
-          if (_rCols.length >= 10) {
-            await _procesarColecciones(_rCols, _rData);
-            _appReady = true;
-            setSyncStatus('ok');
-            setTimeout(() => _migrarVentasSinCaja(), 800);
-            if (currentPage) renderPage(currentPage);
-            if (session && session.rol === 'admin') _iniciarRespaldoAutomatico();
-            setTimeout(() => window._checkRecordatorios && window._checkRecordatorios(), 1500);
-            const _rNextId = await fsReadNextId();
-            if (_rNextId !== null && _rNextId > nextId) { nextId = _rNextId; save('gp_nextid', nextId); }
-            _refillIdPool().catch(() => {});
-            const _rFotos = _COLS_CON_FOTOS.some(col => (db[col]||[]).some(it => (it.fotos||[]).some(f => f && f.startsWith('data:'))));
-            if (_rFotos) await sincronizarFotosPendientes();
-            console.log('[RTDB] ' + _rCols.length + ' cols cargadas ✓ — 0 lecturas Firestore');
-            return;
-          }
-        }
-      } catch(_rErr) { console.warn('[RTDB] Fallback a Firestore:', _rErr.message); }
-    }
-    // ── Fallback: carga original desde Firestore ─────────────────────────────
-
     const rol = session && session.rol;
     const priority = (_FS_PRIORITY[rol] || []).filter(c => FS_COLLECTIONS.includes(c));
     const rest = priority.length ? FS_COLLECTIONS.filter(c => !priority.includes(c)) : [];
@@ -2189,12 +2129,11 @@ function _iniciarRespaldoAutomatico() {
     } catch(e) { console.error('[AutoBackup] Error:', e); }
   }
 
-  // Primera vez: a los 5 minutos de cargar (no molestar al inicio)
-  setTimeout(() => {
-    _hacerRespaldo();
-    _respaldoTimer = setInterval(_hacerRespaldo, INTERVALO);
-  }, 5 * 60 * 1000);
-  console.log('[AutoBackup] Respaldo automático activado — cada hora');
+  // Backup al abrir: captura localStorage antes de que Firestore sincronice
+  setTimeout(_hacerRespaldo, 2000);
+  // Respaldo periódico cada hora
+  _respaldoTimer = setInterval(_hacerRespaldo, INTERVALO);
+  console.log('[AutoBackup] Respaldo al abrir + cada hora activado');
 }
 
 // Listener en tiempo real — escucha cambios en documentos individuales {col}/{id}
@@ -2202,27 +2141,107 @@ function _iniciarRespaldoAutomatico() {
 const _syncInitialized = {}; // colName → bool (primer snapshot ya procesado)
 let _syncRenderTimer = null; // debounce para no re-renderizar en cada doc individual
 
+// ── RTDB listener — reemplaza Firestore onSnapshot para ahorrar lecturas ──────
+// Escucha db/{col} en RTDB (que espeja Firestore vía RTDB_DUAL_WRITE).
+// Preserva items offline (no en RTDB aún), fotos data: locales y recHecho sticky.
+// Devuelve función de limpieza () => ref.off('value', handler).
+function _startRTDBListenerForCol(colName) {
+  if (!rtdb || !RTDB_DUAL_WRITE) return null;
+  const _isArray = FS_ARRAY_COLS.includes(colName);
+  const ref = _isArray ? rtdb.ref('db/' + colName + '/data') : rtdb.ref('db/' + colName);
+  const handler = snap => {
+    const raw = snap.val();
+    if (raw == null) return; // RTDB vacío — no tocar db local
+    // Guard de escritura propia (8 s)
+    if (Date.now() < (window._ownWriteUntilByCol?.[colName] || window._ownWriteUntil || 0)) return;
+    // Parsear formato RTDB → array
+    let items;
+    if (_isArray) {
+      items = (raw.items || []).filter(x => x && x.id != null);
+    } else {
+      items = Object.values(raw).filter(x => x && typeof x === 'object' && x.id != null);
+    }
+    // Tombstones: filtrar eliminados
+    const colTombstones = _fsTombstones[colName] || {};
+    items = items.filter(x => !colTombstones[String(x.id)]);
+    // Cotizaciones: corte a 12 meses (igual que el listener de Firestore)
+    if (colName === 'cotizaciones') {
+      const _czCut = (()=>{ const d=new Date(); d.setFullYear(d.getFullYear()-1); return d.toISOString().slice(0,10); })();
+      items = items.filter(x => !x.fecha || x.fecha >= _czCut);
+    }
+    // Items solo en local (offline aún no sincronizados a RTDB)
+    const srvIds = new Set(items.map(x => String(x.id)));
+    const localOnly = (db[colName] || []).filter(x =>
+      x.id != null && !srvIds.has(String(x.id)) && !colTombstones[String(x.id)]
+    );
+    // Merge: preservar fotos data: locales, recHecho sticky, estados de reporte
+    const localById = {};
+    (db[colName] || []).forEach(x => { if (x.id != null) localById[String(x.id)] = x; });
+    const mergedItems = items.map(srvItem => {
+      const loc = localById[String(srvItem.id)];
+      if (!loc) return srvItem;
+      let r = srvItem;
+      // Fotos data: locales (aún no subidas a Storage)
+      if (loc.fotos && loc.fotos.length) {
+        const localData = loc.fotos.filter(f => f && f.startsWith('data:'));
+        if (localData.length) r = { ...r, fotos: [...(r.fotos || []), ...localData] };
+      }
+      // recHecho sticky
+      if (loc.recHecho === true && !r.recHecho) {
+        r = { ...r, recHecho: true };
+        if ((loc.recSnoozeHasta || 0) > (r.recSnoozeHasta || 0)) r = { ...r, recSnoozeHasta: loc.recSnoozeHasta };
+      }
+      // Estados de reporte
+      if (loc.items && loc.items.some(i => i.estado) && r.items && r.items.length && !r.items.some(i => i.estado)) {
+        r = { ...r, items: loc.items };
+      }
+      return r;
+    });
+    const finalItems = localOnly.length ? [...mergedItems, ...localOnly] : mergedItems;
+    // Sincronizar items offline al servidor
+    if (localOnly.length) {
+      setTimeout(() => {
+        window._serverSnapshot = window._serverSnapshot || {};
+        window._serverSnapshot[colName] = window._serverSnapshot[colName] || {};
+        localOnly.forEach(x => { delete window._serverSnapshot[colName][String(x.id)]; });
+        saveDb([colName]);
+        if (typeof showToast === 'function') showToast(`✅ ${localOnly.length} registro(s) offline sincronizado(s)`);
+      }, 800);
+    }
+    // _serverSnapshot para cálculos delta de inventario en saveDb
+    window._serverSnapshot = window._serverSnapshot || {};
+    window._serverSnapshot[colName] = {};
+    items.forEach(item => { if (item.id != null) { try { window._serverSnapshot[colName][String(item.id)] = JSON.parse(JSON.stringify(item)); } catch(e) {} } });
+    // Guardar en db y localStorage
+    try { db[colName] = JSON.parse(JSON.stringify(finalItems)); save('gp_' + colName, db[colName]); _touchColTs(colName); } catch(e) { console.error('[rtdb-listener] Error guardando', colName, e); }
+    // Actualizar _firestoreKnownIds (usado para deltas en saveDb)
+    _firestoreKnownIds[colName] = new Set(finalItems.map(x => String(x.id)));
+    _saveKnownIds();
+    // nextId
+    const _maxId = Math.max(0, ...finalItems.map(x => typeof x.id === 'number' ? x.id : 0));
+    if (_maxId >= nextId) { nextId = _maxId + 1; save('gp_nextid', nextId); }
+    // Re-render
+    clearTimeout(_syncRenderTimer);
+    _syncRenderTimer = setTimeout(() => { if (currentPage) renderPage(currentPage); }, _RENDER_DEBOUNCE);
+    if (colName === 'cotizaciones') { clearTimeout(window._recCheckTimer); window._recCheckTimer = setTimeout(() => window._checkRecordatorios && window._checkRecordatorios(), (_RENDER_DEBOUNCE||400)+200); }
+    // Toast si otra sesión modificó el item que tienes abierto
+    const _mo = document.getElementById('modal-overlay')?.classList.contains('open');
+    if (_mo && _modalEditingCol === colName && _modalEditingId && items.some(x => String(x.id) === String(_modalEditingId))) {
+      _mostrarToastSync();
+    }
+    _syncInitialized[colName] = true;
+  };
+  ref.on('value', handler, err => console.warn('[rtdb-listener]', colName, err));
+  return () => ref.off('value', handler);
+}
+
 // ── Lazy loading: inicia el listener de UNA colección ──────────────────────
 function _startSingleCollectionListener(colName) {
+  if (_MODO_DEV) return; // Modo Desarrollo: sin listeners
   if (_listenersStarted.has(colName)) return; // ya activo
   if (!FIREBASE_ENABLED || !firestore) return;
   _listenersStarted.add(colName);
   _syncInitialized[colName] = false;
-
-  // ── TTL: si datos locales frescos (≤ 15 min), retrasar listener 60 s ─────
-  const _LS_FRESH_MS = 15 * 60 * 1000;
-  if (!FS_ARRAY_COLS.includes(colName) && !FS_STATIC_COLS.includes(colName) &&
-      !_colListenerDeferred.has(colName) &&
-      _isFreshCol(colName, _LS_FRESH_MS) && (db[colName] || []).length > 0) {
-    _syncInitialized[colName] = true;
-    _colListenerDeferred.add(colName);
-    setTimeout(() => {
-      _colListenerDeferred.delete(colName);
-      _listenersStarted.delete(colName);
-      _startSingleCollectionListener(colName);
-    }, 60 * 1000);
-    return;
-  }
 
   // ── Colecciones estáticas: una sola lectura, sin listener permanente ────────
   if (FS_STATIC_COLS.includes(colName)) {
@@ -2246,6 +2265,13 @@ function _startSingleCollectionListener(colName) {
     return; // sin listener permanente, sin unsub que registrar
   }
 
+  // ── RTDB listener (preferido sobre Firestore para reducir lecturas) ─────────
+  if (rtdb && RTDB_DUAL_WRITE) {
+    const _rtdbUnsub = _startRTDBListenerForCol(colName);
+    if (_rtdbUnsub) { _syncUnsubscribers.push(_rtdbUnsub); return; }
+  }
+
+  if (!firestore) return; // fallback: sin Firestore disponible, no continuar
   let unsub;
 
   if (FS_ARRAY_COLS.includes(colName)) {
@@ -2258,7 +2284,6 @@ function _startSingleCollectionListener(colName) {
       const remote = snap.data();
       db[colName] = remote.items || [];
       save('gp_' + colName, db[colName]);
-      _touchColTs(colName);
       const maxRemoteId = Math.max(0, ...db[colName].map(x => (typeof x.id === 'number' ? x.id : 0)));
       if (maxRemoteId >= nextId) { nextId = maxRemoteId + 1; save('gp_nextid', nextId); }
       clearTimeout(_syncRenderTimer);
@@ -2345,7 +2370,6 @@ function _startSingleCollectionListener(colName) {
         _firestoreKnownIds[colName] = new Set(merged.map(x => String(x.id)));
         _saveKnownIds();
         save('gp_' + colName, db[colName]);
-        _touchColTs(colName);
         // Guardar snapshot del servidor para calcular deltas al guardar inventario
         window._serverSnapshot = window._serverSnapshot || {};
         window._serverSnapshot[colName] = {};
@@ -2440,7 +2464,6 @@ function _startSingleCollectionListener(colName) {
         const maxRemoteId = Math.max(0, ...(db[colName] || []).map(x => (typeof x.id === 'number' ? x.id : 0)));
         if (maxRemoteId >= nextId) { nextId = maxRemoteId + 1; save('gp_nextid', nextId); }
         save('gp_' + colName, db[colName]);
-        _touchColTs(colName);
       }
       clearTimeout(_syncRenderTimer);
       _syncRenderTimer = setTimeout(() => { if (currentPage) renderPage(currentPage); }, _RENDER_DEBOUNCE);
@@ -2656,6 +2679,8 @@ async function doLogin() {
   }
 
   document.getElementById('login-screen').style.display = 'none';
+    // Mostrar banner si modo dev está activo
+    if (_MODO_DEV) { const b = document.getElementById('modo-dev-banner'); if (b) b.style.display = 'block'; };
   btn.disabled = false; btn.textContent = 'Entrar'; btn.classList.remove('btn-loading');
   // Si hay ?codigo= en URL y rol permitido → mostrar ficha interna QR
   if (window._mostrarFichaQR && ['admin','secretaria','auxiliar'].includes(session.rol) &&
@@ -3121,18 +3146,18 @@ function _prewarmPDFAssets() {
   // Pre-cargar jsPDF en background
   if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
     const s = document.createElement('script');
-    s.src = '/jspdf.umd.min.js';
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
     s.async = true;
     document.head.appendChild(s);
   }
   // Pre-cargar fuentes Poppins en background (evita espera de red al abrir PDF)
   const _ttfToB64 = buf => { const b=new Uint8Array(buf); let s=''; for(let i=0;i<b.byteLength;i++) s+=String.fromCharCode(b[i]); return btoa(s); };
   if (!window._poppinsBoldB64) {
-    fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Bold.ttf')
+    fetch('https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Bold.ttf')
       .then(r=>r.arrayBuffer()).then(buf=>{ window._poppinsBoldB64=_ttfToB64(buf); }).catch(()=>{});
   }
   if (!window._poppinsBlackB64) {
-    fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Black.ttf')
+    fetch('https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Black.ttf')
       .then(r=>r.arrayBuffer()).then(buf=>{ window._poppinsBlackB64=_ttfToB64(buf); }).catch(()=>{});
   }
   // Si ya tenemos el logo cacheado, no hacer nada más
@@ -3219,7 +3244,7 @@ function renderPage(page) {
   else if (page === 'facturas') { renderFacturas(); _sincronizarFacturas(); }
   else if (page === 'vehiculos') renderVehiculos();
   else if (page === 'produccion') renderProduccion();
-  else if (page === 'agenda') { window._agendaNavTs = Date.now(); renderAgenda(); }
+  else if (page === 'agenda') renderAgenda();
   else if (page === 'compras') renderCompras();
   else if (page === 'clientes') renderClientes();
   else if (page === 'herramientas') renderHerramientas();
@@ -3968,8 +3993,8 @@ function renderInventario(tipo, _tab, _skipSync) {
         <input type="text" placeholder="Buscar..." oninput="_invSearch(this,'${tipo}')" style="flex:1;min-width:140px" />
 
       </div>
-      <div class="table-wrap tbl-inv-sticky-wrap"><table id="tbl-${tipo}" class="tbl-inv-sticky">
-        <thead><tr>
+      <div class="table-wrap"><table id="tbl-${tipo}">
+        <tr>
           <th>Foto</th>
           <th>Nombre</th>
           ${tipo === 'materia' ? '<th>Código</th>' : ''}
@@ -3982,7 +4007,7 @@ function renderInventario(tipo, _tab, _skipSync) {
           ${!isAlmacenista ? '<th>P. Público</th>' : ''}
           ${tipo !== 'materia' && !isVendedor ? '<th style="cursor:pointer;user-select:none;white-space:nowrap" onclick="_filtrarProdEstadoClick(this,\'tbl-'+tipo+'\' )" title="Filtrar por estado" data-filter="">Estado <span style="font-size:10px;opacity:.7">▾</span></th>' : ''}
           <th>Acciones</th>
-        </tr></thead><tbody>
+        </tr>
         ${_pgInvTotal ? _pgInvPaged.map((i, _pgIdx) => {
           const foto = (i.fotos && i.fotos[0])
             ? `<img class="foto-thumb" src="${i.fotos[0]}" loading="lazy" onclick="openLightboxItem(${i.id},'${tipo}')" title="Ver fotos" />`
@@ -4018,7 +4043,7 @@ function renderInventario(tipo, _tab, _skipSync) {
             </td>
           </tr>`;
         }).join('') : `<tr><td colspan="12" class="td-empty">Sin registros. ${canEdit?'Agrega el primero.':''}</td></tr>`}
-      </tbody></table></div>
+      </table></div>
     ${(tipo==='materia'||tipo==='productos') ? `<div id="inv-pg-${tipo}">${_invPgControls(tipo, window._invPgPage[tipo]||0, _pgInvTotal, Math.ceil(_pgInvTotal/50))}</div>` : _pgHTML(_pgInvKey, _pgInvTotal, `renderInventario('${tipo}')`)}
     </div>`;
   // Partial update on search: only replace table rows + pagination, keep card structure stable
@@ -4404,12 +4429,6 @@ function _addTombstone(colName, id) {
   try { localStorage.setItem(_FS_TOMBSTONES_KEY, JSON.stringify(_fsTombstones)); } catch(e) {}
   // Persistir en Firestore para que otros dispositivos también lo respeten
   _saveTombstoneFirestore(colName, id);
-  // Persistir en RTDB para que el futuro listener de RTDB lo respete también
-  if (rtdb && RTDB_DUAL_WRITE) {
-    rtdb.ref('_meta/tombstones/' + colName + '/' + String(id))
-      .set(Date.now())
-      .catch(e => console.warn('[tombstone] RTDB error:', e));
-  }
 }
 function _saveTombstoneFirestore(colName, id) {
   if (typeof FIREBASE_ENABLED === 'undefined' || !FIREBASE_ENABLED || !firestore) return;
@@ -4671,7 +4690,7 @@ function _consigRowsHTML() {
       <td><strong>${esc(c.producto)}</strong></td>
       <td>${c.categoria ? `<span style="font-size:0.78rem;padding:2px 8px;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600">${esc(c.categoria)}</span>` : '<span style="color:#cbd5e1;font-size:0.75rem">—</span>'}</td>
       <td><strong style="color:var(--primary)">$${fmt(c.precioPublico||0)}</strong></td>
-      ${isAdmin ? `<td class="consig-td-valor" data-val="${c.valor||0}" style="cursor:pointer;${!window._consigValorVisible?'display:none':''}" onclick="_toggleConsigValor()" title="Click para ver/ocultar">${window._consigValorVisible ? '<strong>$'+fmt(c.valor||0)+'</strong>' : ''}</td>` : ''}
+      ${isAdmin ? `<td class="consig-td-valor" data-val="${c.valor||0}" style="cursor:pointer;${!window._consigValorVisible?'color:#94a3b8;letter-spacing:2px':''}" onclick="_toggleConsigValor()" title="Click para ver/ocultar">${window._consigValorVisible ? '<strong>$'+fmt(c.valor||0)+'</strong>' : '••••'}</td>` : ''}
       <td>${badge}</td>
       ${canAdd ? `<td><button class="btn btn-outline btn-sm" onclick="verDetalleConsig(${c.id})" title="Ver detalle">⋯</button></td>` : ''}
     </tr>`;
@@ -4703,9 +4722,7 @@ function _consigRowsHTML() {
       <th>Folio</th><th>Foto</th><th>Producto</th>
       <th style="cursor:pointer;white-space:nowrap;user-select:none" onclick="_showConsigDD('cat',this)"><span style="${_catActive?'color:var(--primary);font-weight:700':''}">${esc(_catLbl)} ▾</span></th>
       <th>P. Público</th>
-      ${isAdmin ? (window._consigValorVisible
-          ? `<th id="consig-th-valor" style="cursor:pointer;white-space:nowrap;user-select:none" onclick="_toggleConsigValor()" title="Ocultar precio que dejó el cliente">P. Dejó 👁</th>`
-          : `<th id="consig-th-valor" style="cursor:pointer;white-space:nowrap;user-select:none;width:28px;padding:8px 4px;text-align:center;font-size:0.9rem" onclick="_toggleConsigValor()" title="Mostrar precio que dejó el cliente">🔒</th>`) : ''}
+      ${isAdmin ? `<th style="cursor:pointer;white-space:nowrap;user-select:none" onclick="_toggleConsigValor()" title="Mostrar/ocultar precio que dejó el cliente"><span id="consig-pdejo-lbl">P. Dejó 🔒</span></th>` : ''}
       <th style="cursor:pointer;white-space:nowrap;user-select:none" onclick="_showConsigDD('est',this)"><span style="${_estActive?'color:var(--primary);font-weight:700':''}">${esc(_estLbl)} ▾</span></th>
       ${canAdd ? '<th>Acc.</th>' : ''}
     </tr>
@@ -5124,33 +5141,20 @@ window['_apartadosProd'] = _apartadosProd;
 function _toggleConsigValor() {
   window._consigValorVisible = !window._consigValorVisible;
   const visible = window._consigValorVisible;
-  // Actualizar celdas: display:none cuando oculto (igual que materia prima)
+  // Actualizar celdas sin re-render completo
   document.querySelectorAll('.consig-td-valor').forEach(td => {
     if (visible) {
-      td.style.display = '';
       td.innerHTML = '<strong>$' + fmt(+(td.dataset.val||0)) + '</strong>';
+      td.style.color = '';
+      td.style.letterSpacing = '';
     } else {
-      td.style.display = 'none';
-      td.innerHTML = '';
+      td.textContent = '••••';
+      td.style.color = '#94a3b8';
+      td.style.letterSpacing = '2px';
     }
   });
-  // Actualizar header: colapsa a 🔒 (igual que materia prima)
-  const th = document.getElementById('consig-th-valor');
-  if (th) {
-    if (visible) {
-      th.textContent = 'P. Dejó 👁';
-      th.style.width = '';
-      th.style.padding = '';
-      th.style.fontSize = '';
-      th.style.textAlign = '';
-    } else {
-      th.textContent = '🔒';
-      th.style.width = '28px';
-      th.style.padding = '8px 4px';
-      th.style.fontSize = '0.9rem';
-      th.style.textAlign = 'center';
-    }
-  }
+  const lbl = document.getElementById('consig-pdejo-lbl');
+  if (lbl) lbl.textContent = 'P. Dejó ' + (visible ? '👁' : '🔒');
 }
 window['_toggleConsigValor'] = _toggleConsigValor;
 
@@ -5536,10 +5540,10 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
     return;
   }
   // Bloquear entrega si el precio aún está pendiente de cotizar
-  if (nuevoEstado === 'Entregado' && (vt.pendienteCotizar || (vt.items||[]).some(i=>i.pendienteCotizar))) {
+  if (nuevoEstado === 'Entregado' && vt.pendienteCotizar) {
     vt.estado = estadoAnterior;
-    showModal('⚠️ Precio pendiente de cotizar', `<p style="margin:0;line-height:1.6">No se puede marcar como <strong>Entregado</strong> porque el precio aún está <strong>pendiente de cotizar</strong>.<br><br>Usa <strong>✏️ Fijar total</strong> en el detalle del pedido para asignar el precio antes de entregar.</p>`, [
-      { label:'Entendido', cls:'btn-secondary', action: () => { closeModal(); renderVentas(); } }
+    showModal('⚠️ Precio pendiente de cotizar', `<p style="margin:0;line-height:1.6">No se puede marcar como <strong>Entregado</strong> porque el precio aún está pendiente de cotizar.<br><br>Usa <strong>✏️ Fijar total</strong> para asignar el precio antes de entregar.</p>`, [
+      { label: 'Entendido', cls: 'btn-secondary', action: closeModal }
     ]);
     return;
   }
@@ -5561,17 +5565,15 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
             renderVentas();
           }},
           { label:'🏦 Autorizar crédito', cls:'btn-outline', action:()=>{ closeModal(); otorgarCredito(vt.id); }},
-          { label:'💰 Registrar pago', cls:'btn-success', action:()=>{ closeModal(); _abonarParaEntregar(vt.id); }},
           { label:'Cancelar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); }}
-        ], { onClose: () => renderVentas() });
+        ]);
         return;
       } else {
         vt.estado = estadoAnterior;
         showModal('⚠️ Se requiere pago o crédito', `<p style="margin:0 0 12px">Este pedido tiene un saldo pendiente de <strong style="color:#dc2626">$${fmt(_saldoEnt)}</strong>.<br><br>Para marcarlo como <strong>Entregado</strong> debe estar totalmente pagado o tener crédito autorizado por el administrador.</p>`, [
           { label:'🏦 Solicitar crédito', cls:'btn-outline', action:()=>{ closeModal(); otorgarCredito(vt.id); }},
-          { label:'💰 Registrar pago', cls:'btn-success', action:()=>{ closeModal(); _abonarParaEntregar(vt.id); }},
-          { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
-        ], { onClose: () => renderVentas() });
+          { label:'Cerrar', cls:'btn-secondary', action:closeModal }
+        ]);
         return;
       }
     }
@@ -5630,129 +5632,6 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
   renderVentas();
 }
 window['_cambiarEstadoVtInline'] = _cambiarEstadoVtInline;
-// -- Registrar pago directo desde modal de saldo pendiente --
-function _abonarParaEntregar(ventaId) {
-  const vt = (db.ventas||[]).find(x => String(x.id) === String(ventaId));
-  if (!vt) return;
-  const saldo = vt.saldo != null ? vt.saldo : Math.max(0, (vt.total||0) - (vt.anticipo||0));
-  if (saldo <= 0.01) { _info('Esta venta no tiene saldo pendiente.'); return; }
-  const esAdmin = session.rol === 'admin';
-  showModal('💰 Registrar Pago — ' + esc(vt.cliente||''), `
-    <div style="display:flex;flex-direction:column;gap:12px;padding:4px 0">
-      <div class="form-group">
-        <label>Monto del pago ($)</label>
-        <input id="apt-monto" type="number" min="0.01" max="${saldo}" step="0.01" value="${saldo}"
-          style="font-size:1.1rem;font-weight:600" />
-        <small style="color:#64748b">Saldo pendiente: <strong style="color:#dc2626">$${fmt(saldo)}</strong></small>
-      </div>
-      <div class="form-group">
-        <label>Fecha</label>
-        <input id="apt-fecha" type="date" value="${esc(today())}" ${esAdmin ? '' : 'readonly disabled style="background:#f1f5f9;color:#64748b"'} />
-        ${esAdmin ? '' : '<small style="color:#94a3b8">Solo el administrador puede cambiar la fecha.</small>'}
-      </div>
-      <div class="form-group">
-        <label>Forma de pago</label>
-        <select id="apt-forma" onchange="
-          const esEf=this.value==='efectivo';
-          document.getElementById('apt-forma-hint').style.display=esEf?'':'none';
-          document.getElementById('apt-vuelto-bloque').style.display=esEf?'':'none';
-        ">${_optionsFormaPago('efectivo')}</select>
-        <small id="apt-forma-hint" style="color:#94a3b8">Solo el efectivo se refleja en tu caja chica.</small>
-      </div>
-      <div id="apt-vuelto-bloque" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px">
-        <div class="form-group" style="margin:0">
-          <label style="color:#15803d">💵 Efectivo recibido ($)</label>
-          <input id="apt-recibido" type="number" min="0" step="0.01" placeholder="0.00"
-            style="font-size:1.05rem;font-weight:600"
-            oninput="(function(){
-              const m=parseFloat(document.getElementById('apt-monto').value)||0;
-              const r=parseFloat(document.getElementById('apt-recibido').value)||0;
-              const row=document.getElementById('apt-vuelto-row');
-              if(r>0&&m>0){const vv=r-m;row.style.display='flex';const el=document.getElementById('apt-vuelto-val');el.textContent=(vv<0?'-':'')+'$'+Math.abs(vv).toFixed(2);el.style.color=vv<0?'#dc2626':'#15803d';}else{row.style.display='none';}
-            })()" />
-        </div>
-        <div id="apt-vuelto-row" style="display:none;align-items:center;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 12px">
-          <span style="font-size:13px;color:#374151;font-weight:500">Cambio a devolver</span>
-          <span id="apt-vuelto-val" style="font-size:20px;font-weight:600;color:#15803d">$0.00</span>
-        </div>
-      </div>
-      <div class="form-group"><label>Nota (opcional)</label>
-        <input id="apt-nota" type="text" placeholder="Ej. núm. de transferencia, referencia..." /></div>
-      <div class="form-group"><label>Recibido por</label>
-        <input type="text" value="${esc(session.nombre||'')}" readonly disabled style="background:#f1f5f9;color:#64748b" /></div>
-    </div>
-  `, [
-    { label:'💰 Registrar pago', cls:'btn-primary', action:()=>_confirmarAbonoParaEntregar(ventaId) },
-    { label:'Cancelar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
-  ]);
-}
-
-function _confirmarAbonoParaEntregar(ventaId) {
-  const vt = (db.ventas||[]).find(x => String(x.id) === String(ventaId));
-  if (!vt) return;
-  const saldoActual = vt.saldo != null ? vt.saldo : Math.max(0, (vt.total||0) - (vt.anticipo||0));
-  const monto = parseFloat(document.getElementById('apt-monto')?.value) || 0;
-  if (!monto || monto <= 0) { _info('Ingresa un monto válido'); return; }
-  if (monto > saldoActual + 0.01) { _info('El pago no puede ser mayor al saldo pendiente ($' + fmt(saldoActual) + ')'); return; }
-  const formaPago = document.getElementById('apt-forma')?.value || 'efectivo';
-  const fecha = session.rol === 'admin' ? (document.getElementById('apt-fecha')?.value || today()) : today();
-  const hora  = new Date().toTimeString().slice(0,5);
-  const nota  = document.getElementById('apt-nota')?.value?.trim() || '';
-  let caja = null;
-  if ((session.rol === 'secretaria' || session.rol === 'auxiliar') && formaPago === 'efectivo') {
-    caja = cajaActivaOCrear();
-  }
-  vt.pagos = vt.pagos || [];
-  const cajaMovId = caja ? sid() : null;
-  vt.pagos.push({ monto, fecha, hora, nota, recibidoPor: session.nombre, formaPago, cajaMovId, cajaUsuario: cajaMovId ? session.nombre : null });
-  vt.anticipo = round2((vt.anticipo || 0) + monto);
-  vt.saldo    = Math.max(0, round2((vt.total || 0) - vt.anticipo));
-  const pagoCompleto = vt.saldo <= 0.01;
-  if (pagoCompleto) {
-    vt.saldo  = 0;
-    // Marcar como Pagada (no Entregado) — el usuario puede marcar Entregado por separado
-    if (vt.estado !== 'Entregado') vt.estado = 'Pagada';
-    (db.consignacion||[]).filter(ci => String(ci.ventaId) === String(vt.id))
-      .forEach(ci => { ci.estado = 'Vendido'; });
-  }
-  if (vt.cobranzaId) {
-    const _cob = (db.cobranza||[]).find(c => String(c.id) === String(vt.cobranzaId));
-    if (_cob) {
-      _cob.abonos = _cob.abonos || [];
-      _cob.abonos.push({ monto, fecha, hora, usuario: session.nombre, rol: session.rol, formaPago, ...(nota ? { nota } : {}) });
-      if (pagoCompleto) _cob.estado = 'Pagado';
-      if (window._serverSnapshot?.cobranza) delete window._serverSnapshot.cobranza[String(_cob.id)];
-      if (FIREBASE_ENABLED && firestore) {
-        firestore.collection('cobranza').doc(String(_cob.id))
-          .update({ abonos: _cob.abonos, estado: _cob.estado })
-          .catch(e => console.error('[cob sync]', e));
-      }
-    }
-  }
-  if (caja) {
-    _cajaMovAdd(caja, { id: sid(), tipo: 'entrada',
-      concepto: 'Pago — ' + (vt.folioPedido || ('#'+vt.id)) + ' · ' + vt.cliente,
-      monto, hora, usuario: session.nombre });
-  }
-  if (window._serverSnapshot?.ventas) delete window._serverSnapshot.ventas[String(vt.id)];
-  if (FIREBASE_ENABLED && firestore) {
-    firestore.collection('ventas').doc(String(vt.id))
-      .update({ pagos: vt.pagos, anticipo: vt.anticipo, saldo: vt.saldo, estado: vt.estado })
-      .catch(e => console.error('[venta sync]', e));
-  }
-  saveDb(['ventas','cobranza','consignacion',...(caja?['cajas']:[])]);
-  closeModal();
-  if (pagoCompleto) {
-    showToast('✅ Pago completo — ' + (vt.folioPedido||('#'+vt.id)) + ' marcado como Pagada');
-  } else {
-    showToast('💰 Abono $' + fmt(monto) + ' registrado — saldo: $' + fmt(vt.saldo));
-  }
-  renderVentas();
-}
-window['_abonarParaEntregar'] = _abonarParaEntregar;
-window['_confirmarAbonoParaEntregar'] = _confirmarAbonoParaEntregar;
-
-
 
 let ventaItems = [];
 let _tempFotosVt = [];
@@ -6011,6 +5890,118 @@ function vSelHideSugsLater() {
   }, 180);
 }
 window['vSelHideSugsLater'] = vSelHideSugsLater;
+
+// ── Click en sugerencia del picker de cotiz→pedido ──
+document.addEventListener('click', e => {
+  const sug = e.target.closest && e.target.closest('.pdsel-sug');
+  if (!sug) return;
+  const inp = document.getElementById('pdsel-item');
+  if (inp) inp.value = sug.getAttribute('data-nombre') || '';
+  pdSelItemChange();
+  const sugs = document.getElementById('pdsel-item-sugs');
+  if (sugs) sugs.style.display = 'none';
+});
+
+function pdSelHideSugsLater() {
+  setTimeout(() => {
+    const sugs = document.getElementById('pdsel-item-sugs');
+    if (sugs) sugs.style.display = 'none';
+  }, 180);
+}
+window['pdSelHideSugsLater'] = pdSelHideSugsLater;
+
+function _pdSelFindItem(tipo, nombre) {
+  const n = _normSearch(nombre||'');
+  if (!n) return null;
+  return (db[tipo]||[]).find(i => _normSearch((tipo==='consignacion'?i.producto:i.nombre)||'') === n) || null;
+}
+window['_pdSelFindItem'] = _pdSelFindItem;
+
+function pdSelRenderPicker() {
+  const tipo = document.getElementById('pdsel-tipo') ? document.getElementById('pdsel-tipo').value : '';
+  const cont = document.getElementById('pdsel-picker');
+  if (!cont) return;
+  if (!tipo) { cont.innerHTML = ''; return; }
+  const items = db[tipo]||[];
+  const disponibles = tipo === 'materia' ? items : items.filter(i => (i.cantidad||0) > 0 && i.estado !== 'Vendido' && i.estado !== 'Apartado');
+  cont.innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
+      <div style="position:relative;flex:2;min-width:140px">
+        <input id="pdsel-item" autocomplete="new-password"
+          placeholder="${disponibles.length ? 'Escribe para buscar...' : (tipo==='materia'?'Escribe para buscar o agrega uno nuevo...':'Sin artículos disponibles')}"
+          style="width:100%;box-sizing:border-box;padding:8px;border:1.5px solid var(--border);border-radius:8px"
+          oninput="pdSelItemChange()" onfocus="pdSelItemChange()" onblur="pdSelHideSugsLater()" />
+        <div id="pdsel-item-sugs" style="display:none;position:absolute;top:100%;left:0;min-width:100%;width:max-content;max-width:min(480px,90vw);z-index:50;background:#fff;border:1.5px solid var(--border);border-radius:8px;margin-top:2px;max-height:160px;overflow-y:auto;box-shadow:0 4px 14px rgba(0,0,0,.15)"></div>
+      </div>
+      <input id="pdsel-qty" type="number" placeholder="Cant." min="1" value="1" style="width:70px;padding:8px;border:1.5px solid var(--border);border-radius:8px" />
+      <input id="pdsel-price" type="number" placeholder="Precio" min="0" step="0.01" style="width:100px;padding:8px;border:1.5px solid var(--border);border-radius:8px" />
+      <button class="btn btn-success btn-sm" onclick="pdSelAddItem()">+ Añadir</button>
+    </div>`;
+  pdSelItemChange();
+}
+window['pdSelRenderPicker'] = pdSelRenderPicker;
+
+function pdSelItemChange() {
+  const tipoEl = document.getElementById('pdsel-tipo');
+  const tipo = tipoEl ? tipoEl.value : '';
+  const txt = _normSearch((document.getElementById('pdsel-item')||{}).value||'');
+  const sugs = document.getElementById('pdsel-item-sugs');
+  if (sugs) {
+    const all = db[tipo]||[];
+    const pool = tipo === 'materia' ? all : all.filter(i => (i.cantidad||0) > 0 && i.estado !== 'Vendido' && i.estado !== 'Apartado');
+    const matches = txt ? pool.filter(i => {
+      const nom = _normSearch((tipo==='consignacion'?i.producto:i.nombre)||'');
+      if (nom.includes(txt)) return true;
+      if (tipo==='consignacion' && i.folio && _normSearch(i.folio).includes(txt)) return true;
+      return false;
+    }) : [];
+    if (!pool.length && tipo !== 'materia') {
+      sugs.innerHTML = `<div style="padding:8px 10px;color:#94a3b8;font-size:0.85rem">Sin artículos disponibles en inventario</div>`;
+      sugs.style.display = 'block';
+    } else if (!txt) {
+      sugs.style.display = 'none';
+    } else if (!matches.length) {
+      sugs.innerHTML = `<div style="padding:8px 10px;color:#94a3b8;font-size:0.85rem">Sin coincidencias</div>`;
+      sugs.style.display = 'block';
+    } else {
+      sugs.innerHTML = matches.slice(0,50).map(i => {
+        const nom = (tipo==='consignacion'?i.producto:i.nombre)||'';
+        const stk = i.cantidad||0;
+        const foto = i.fotos && i.fotos[0] ? `<img src="${i.fotos[0]}" style="width:38px;height:32px;object-fit:cover;border-radius:5px;margin-right:8px;flex-shrink:0;border:1px solid #e2e8f0" />` : '';
+        const folioTag = i.folio ? ` <span style="font-size:0.72rem;background:#f1f5f9;color:#475569;padding:1px 5px;border-radius:4px;margin-left:4px">${esc(i.folio)}</span>` : '';
+        const stkColor = tipo==='materia' ? (stk>0?'#94a3b8':'#dc2626') : '#94a3b8';
+        const stkTxt = tipo==='materia' ? `· stock: ${stk}` : `· ${stk} disponible${stk!==1?'s':''}`;
+        return `<div class="pdsel-sug" data-nombre="${esc(nom)}" data-precio="${i.precioPublico||0}" style="padding:7px 10px;cursor:pointer;font-size:0.9rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center" onmousedown="event.preventDefault()">${foto}<span>${esc(nom)}${folioTag} <span style="color:${stkColor};font-size:0.8rem">${stkTxt}</span>${i.unidad?' <span style="font-size:0.75rem;color:#64748b">'+esc(i.unidad)+'</span>':''}</span></div>`;
+      }).join('');
+      sugs.style.display = 'block';
+    }
+    const item = _pdSelFindItem(tipo, (document.getElementById('pdsel-item')||{}).value||'');
+    const priceInput = document.getElementById('pdsel-price');
+    if (item && priceInput && !priceInput.value) priceInput.value = round2(item.precioPublico||0);
+  }
+}
+window['pdSelItemChange'] = pdSelItemChange;
+
+function pdSelAddItem() {
+  const tipoEl = document.getElementById('pdsel-tipo');
+  const tipo = tipoEl ? tipoEl.value : '';
+  const nombre = ((document.getElementById('pdsel-item')||{}).value||'').trim();
+  if (!nombre) { _info('Escribe o selecciona un artículo'); return; }
+  const item = _pdSelFindItem(tipo, nombre);
+  if (!item && tipo !== 'materia') { _info('Selecciona un artículo de la lista de sugerencias'); return; }
+  const qty = +((document.getElementById('pdsel-qty')||{}).value||1) || 1;
+  const price = +((document.getElementById('pdsel-price')||{}).value||0) || 0;
+  pedidoItems.push({
+    producto: tipo === 'consignacion' ? (item ? item.producto : nombre) : (item ? item.nombre : nombre),
+    cantidad: qty, precio: price,
+    _tipo: tipo, _itemId: item ? item.id : null,
+    unidad: tipo==='materia' ? (item ? item.unidad||'' : '') : '',
+    _consigFolio: tipo === 'consignacion' ? (item ? item.folio||undefined : undefined) : undefined
+  });
+  updatePedidoItems();
+  pdSelRenderPicker();
+}
+window['pdSelAddItem'] = pdSelAddItem;
 
 function vSelAddItem() {
   const tipo = v('vsel-tipo');
@@ -6718,8 +6709,6 @@ function guardarEditPedido(id) {
   // Si no hay items en el editor, conservar los originales del pedido
   if (!ventaItems.length) ventaItems = JSON.parse(JSON.stringify(vt.items || []));
   const anticipo = document.getElementById('ep-anticipo')?.value !== '' ? +document.getElementById('ep-anticipo').value : vt.anticipo;
-  // Limpiar pendienteCotizar en items que ya tienen precio definido
-  ventaItems.forEach(i => { if (i.pendienteCotizar && i.precio > 0) i.pendienteCotizar = false; });
   const subtotalEp = ventaItems.filter(i=>!i.pendienteCotizar).reduce((s,i)=>s+i.cantidad*i.precio,0);
   const ivaElEp = document.querySelector('input[name="ep-iva"]:checked');
   const ivaModeEp = ivaElEp ? ivaElEp.value : (vt.ivaMode || 'neto');
@@ -7718,7 +7707,7 @@ function verVenta(id, folioParam) {
       <div><strong>Fecha:</strong> ${fechaLarga(vt.fecha)}</div>
       <div><strong>Registrado por:</strong> ${esc(vt.usuario||'-')}</div>
       <div><strong>Estado:</strong> <span class="badge ${vt.estado==='Pagada'||vt.estado==='Entregado'?'badge-green':vt.estado==='Listo para entrega'?'badge-orange':vt.estado==='Pendiente'||vt.estado==='En Proceso'?'badge-yellow':'badge-red'}">${vt.estado}</span></div>
-      ${(vt.ctTelFijo||vt.telefono)&&(vt.ctTelFijo||vt.telefono)!=='No aplica'?`<div><strong>Tel.:</strong> ${esc(vt.ctTelFijo||vt.telefono||'—')}</div>`:''}${(vt.ctCelular||vt.celular)&&(vt.ctCelular||vt.celular)!=='No aplica'?`<div><strong>Cel.:</strong> ${esc(vt.ctCelular||vt.celular||'—')}</div>`:''}
+      ${(()=>{const _t=vt.ctTelFijo||vt.telefono||'';return _t&&_t!=='No aplica'?`<div><strong>Tel.:</strong> ${esc(_t)} <span data-cp="${esc(_t)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;font-size:0.75rem;opacity:.7" title="Copiar teléfono">📋</span></div>`:''})()}${(()=>{const _c=vt.ctCelular||vt.celular||'';return _c&&_c!=='No aplica'?`<div><strong>Cel.:</strong> ${esc(_c)} <span data-cp="${esc(_c)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;font-size:0.75rem;opacity:.7" title="Copiar celular">📋</span></div>`:''})()}
       ${vt.cotizRef?`<div><strong>Cotización:</strong> COTS-${String(vt.cotizRef).padStart(5,'0')}</div>`:''}
       ${vt.cobranzaId?`<div><strong>Crédito:</strong> <span class="badge badge-yellow">🏦 Enviado a Cobranza</span></div>`:''}
       ${vt.usoInterno?`<div style="grid-column:1/-1"><span style="display:inline-block;background:#fef3c7;border:1.5px solid #f59e0b;color:#92400e;font-weight:700;padding:3px 10px;border-radius:6px;font-size:0.82rem">🏷️ Sin cobro — Uso interno / Exhibición</span></div>`:''}
@@ -7729,7 +7718,7 @@ function verVenta(id, folioParam) {
     ${vt.fotos&&vt.fotos.length?`<div style="margin-bottom:8px"><strong style="font-size:0.82rem;color:#334155">📷 Fotos de referencia:</strong><div class="fotos-preview" style="margin-top:6px">${vt.fotos.map((src,idx)=>`<img src="${src}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:pointer" onclick="openLightboxItem(${vt.id},'ventas')" />`).join('')}</div></div>`:''}
     <table style="width:100%;font-size:0.85rem;border-collapse:collapse">
       <tr style="background:var(--bg)"><th style="padding:8px">Concepto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>
-      ${(vt.items||[]).map(i=>`<tr style="border-top:1px solid var(--border)">
+      ${vt.items.map(i=>`<tr style="border-top:1px solid var(--border)">
         <td style="padding:8px">${esc(i.producto)}${i._consigFolio?`<span style="font-size:10px;color:#94a3b8;font-family:monospace;background:#f1f5f9;padding:1px 5px;border-radius:4px;border:1px solid #e2e8f0;margin-left:4px">${esc(i._consigFolio)}</span>`:''}${i.devuelto?`<br><span style="font-size:0.74rem;color:#dc2626">↩️ ${i.devuelto} devuelto(s)</span>`:''}</td><td>${i.cantidad}</td>
         <td>$${fmt(i.precio)}</td><td>$${fmt(i.cantidad*i.precio)}</td>
       </tr>`).join('')}
@@ -7749,7 +7738,7 @@ function verVenta(id, folioParam) {
     </div>`:''}
     <div style="margin-top:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
       ${vt.totalOriginal&&vt.descuentos&&vt.descuentos.length?`<p style="font-size:0.88rem;color:#94a3b8">Total original: <span style="text-decoration:line-through">$${fmt(vt.totalOriginal)}</span> · Descuento: <span style="color:#16a34a;font-weight:600">-$${fmt(vt.descuentos.reduce((s,d)=>s+d.monto,0))}</span></p>`:''}
-      ${(()=>{ const _vtTotal=(vt.totalOriginal&&vt.descuentos&&vt.descuentos.length)?Math.max(0,vt.totalOriginal-vt.descuentos.reduce((s,d)=>s+d.monto,0)):vt.total; const _vtSaldo=Math.max(0,_vtTotal-(vt.anticipo||0)); return (vt.usoInterno ? `<p style="font-size:0.9rem;color:#92400e;font-weight:700">🏷️ Sin cobro — uso interno</p>` : `<p style="font-size:1rem;color:var(--text)">Total: <strong style="color:var(--primary)">${vt.pendienteCotizar ? ('📋 Pendiente de cotizar' + (can(['admin','secretaria','auxiliar']) ? ' <button onclick="_fijarPrecioVenta('+vt.id+')" style="background:#fef9c3;border:1.5px solid #fde68a;color:#92400e;border-radius:6px;padding:2px 10px;font-size:0.78rem;font-weight:700;cursor:pointer;margin-left:6px">✏️ Fijar total</button>' : '')) : '$'+fmt(_vtTotal)}</strong></p>`) + (!vt.usoInterno&&!vt.pendienteCotizar&&vt.anticipo!=null?`<p style="font-size:0.9rem;color:var(--success)">Anticipo: <strong>$${fmt(vt.anticipo)}</strong></p>`:'') + (!vt.usoInterno&&!vt.pendienteCotizar?`<p style="font-size:0.9rem;color:var(--danger)">Saldo pendiente: <strong>$${fmt(_vtSaldo)}</strong></p>`:''); })()}
+      ${(()=>{ const _vtTotal=(vt.totalOriginal&&vt.descuentos&&vt.descuentos.length)?Math.max(0,vt.totalOriginal-vt.descuentos.reduce((s,d)=>s+d.monto,0)):vt.total; const _vtSaldo=Math.max(0,_vtTotal-(vt.anticipo||0)); return (vt.usoInterno ? `<p style="font-size:0.9rem;color:#92400e;font-weight:700">🏷️ Sin cobro — uso interno</p>` : `<p style="font-size:1rem;color:var(--text)">Total: <strong style="color:var(--primary)">${vt.pendienteCotizar ? ('📋 Pendiente de cotizar' + (can(['admin','secretaria']) ? ' <button onclick="_fijarPrecioVenta('+vt.id+')" style="background:#fef9c3;border:1.5px solid #fde68a;color:#92400e;border-radius:6px;padding:2px 10px;font-size:0.78rem;font-weight:700;cursor:pointer;margin-left:6px">✏️ Fijar total</button>' : '')) : '$'+fmt(_vtTotal)}</strong></p>`) + (!vt.usoInterno&&!vt.pendienteCotizar&&vt.anticipo!=null?`<p style="font-size:0.9rem;color:var(--success)">Anticipo: <strong>$${fmt(vt.anticipo)}</strong></p>`:'') + (!vt.usoInterno&&!vt.pendienteCotizar?`<p style="font-size:0.9rem;color:var(--danger)">Saldo pendiente: <strong>$${fmt(_vtSaldo)}</strong></p>`:''); })()}
     </div>
     ${vt.notas?`<p style="margin-top:8px;font-size:0.82rem;color:#64748b"><em>${esc(vt.notas)}</em></p>`:''}
     ${(()=>{ const rep=(db.reportesProduccion||[]).find(r=>r.pedidoId===vt.id||r.folioPedido===vt.folioPedido); return rep?`<div style="margin-top:10px;display:flex;align-items:center;gap:10px;background:#eff6ff;border:.5px solid #93c5fd;border-radius:8px;padding:7px 12px;font-size:0.82rem"><span style="color:#1e40af;font-weight:700">🏭 Reporte de producción registrado</span><span style="color:#475569">${fechaLarga(rep.fecha)} · ${esc(rep.revisadoPor)}</span><button onclick="abrirReporteProduccion(${vt.id})" style="margin-left:auto;background:none;border:.5px solid #1e40af;color:#1e40af;border-radius:5px;padding:2px 10px;cursor:pointer;font-size:0.78rem;font-weight:700">Ver / editar</button><button onclick="_cargarLogoYAbrirPDFProduccion('${rep.id}')" style="background:none;border:.5px solid #475569;color:#475569;border-radius:5px;padding:2px 10px;cursor:pointer;font-size:0.78rem;font-weight:700">🖨️ PDF</button></div>`:''; })()}
@@ -7763,7 +7752,7 @@ function verVenta(id, folioParam) {
           <td style="padding:6px 8px">${fechaLarga(p.fecha)}</td>
           <td style="padding:6px 8px;color:#64748b">${p.hora||'-'}</td>
           <td style="padding:6px 8px;text-align:right;color:var(--success);font-weight:600">$${fmt(p.monto)}</td>
-          <td style="padding:6px 8px;color:#64748b">${p.nota||'-'}</td>
+          <td style="padding:6px 8px;color:#64748b">${esc(p.nota||'-')}</td>
           <td style="padding:6px 8px;color:#64748b">${p.recibidoPor||'-'}</td>
           <td style="padding:6px 8px;text-align:right;white-space:nowrap">
             <button onclick="generarReciboPago(${vt.id},${i})" style="background:none;border:none;cursor:pointer;color:#0ea5e9;font-size:0.85rem;margin-right:6px" title="Generar recibo de pago">🧾</button>
@@ -7886,31 +7875,37 @@ function _fijarPrecioVenta(id) {
       const _cob = (db.cobranza||[]).find(c => c.id === vt.cobranzaId || String(c.ventaId) === String(vt.id));
       if (_cob) {
         _cob.total = _finalTotal;
-        if (window._serverSnapshot?.cobranza) delete window._serverSnapshot.cobranza[String(_cob.id)];
+        if (window._serverSnapshot?.cobranza?.[String(_cob.id)]) window._serverSnapshot.cobranza[String(_cob.id)].total = _finalTotal;
         if (FIREBASE_ENABLED && firestore) firestore.collection('cobranza').doc(String(_cob.id)).update({ total: _finalTotal }).catch(()=>{});
       } else if (vt.estado === 'Entregado' && vt.saldo > 0.01) {
-        // La venta ya estaba Entregada sin precio fijado — crear entrada en cobranza ahora
+        // Venta ya entregada con precio pendiente: crear cobranza ahora
         const _cobId = sid();
-        const _creditoDias = vtCreditoAutorizado(vt) ? '15 dias' : '';
-        db.cobranza = db.cobranza || [];
         const _nuevaCob = {
           id: _cobId, cliente: vt.cliente,
           encargado: vt.usuario || session.nombre, tel: '',
           pedido: vt.folioPedido || ('PED-' + String(vt.id).padStart(5,'0')),
           folioPedido: vt.folioPedido || '', ventaId: vt.id,
-          fecha: today(), total: _finalTotal, credito: _creditoDias,
+          fecha: today(), total: _finalTotal, credito: vtCreditoAutorizado(vt) ? '15 dias' : '',
           estado: 'Pendiente', recFecha: '', recNota: '', recHecho: false,
-          abonos: vt.anticipo > 0 ? [{ monto: vt.anticipo, fecha: today(), nota: 'Anticipo del pedido' }] : [],
+          abonos: vt.anticipo > 0 ? [{ monto: vt.anticipo, fecha: today(), nota: 'Anticipo del pedido (previo a cobranza)' }] : [],
+          saldoPendiente: vt.saldo
         };
+        db.cobranza = db.cobranza || [];
         db.cobranza.push(_nuevaCob);
         vt.cobranzaId = _cobId;
-        // serverSnapshot NO pre-populado: fsWriteCollection detectará doc nuevo y lo escribirá vía batch
+        if (window._serverSnapshot) {
+          window._serverSnapshot.cobranza = window._serverSnapshot.cobranza || {};
+          window._serverSnapshot.cobranza[String(_cobId)] = { ..._nuevaCob };
+          if (window._serverSnapshot.ventas?.[String(id)]) window._serverSnapshot.ventas[String(id)].cobranzaId = _cobId;
+        }
         if (FIREBASE_ENABLED && firestore) {
           firestore.collection('cobranza').doc(String(_cobId)).set(_nuevaCob).catch(()=>{});
           firestore.collection('ventas').doc(String(id)).update({ cobranzaId: _cobId }).catch(()=>{});
         }
       }
-      if (window._serverSnapshot?.ventas) delete window._serverSnapshot.ventas[String(id)];
+      if (window._serverSnapshot?.ventas?.[String(id)]) {
+        Object.assign(window._serverSnapshot.ventas[String(id)], { items: vt.items, total: _finalTotal, iva: vt.iva, ivaMode: _ivaMode, subtotal: _subtotal, ivaAmount: _ivaAmt, pendienteCotizar: false, anticipo: vt.anticipo, saldo: vt.saldo });
+      }
       if (FIREBASE_ENABLED && firestore) {
         firestore.collection('ventas').doc(String(id)).update({ items: vt.items, total: _finalTotal, iva: vt.iva, ivaMode: _ivaMode, subtotal: _subtotal, ivaAmount: _ivaAmt, pendienteCotizar: false, anticipo: vt.anticipo, saldo: vt.saldo }).catch(()=>{});
       }
@@ -8076,21 +8071,9 @@ function otorgarCredito(id) {
         <label>Número de pedido o factura</label>
         <input id="oc-pedido" value="${esc(folio)}" placeholder="Ej. F-1024 / PED-203" />
       </div>
-      <div class="form-group" style="margin-bottom:8px">
+      <div class="form-group" style="margin-bottom:${requierePass?'8px':'0'}">
         <label>Tiempo del crédito</label>
         <input id="oc-credito" placeholder="Ej. 30 días, 2 quincenas, contado..." />
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:${requierePass?'8px':'0'}">
-        <div class="form-group" style="margin-bottom:0">
-          <label>Días de plazo</label>
-          <input id="oc-dias" type="number" min="1" max="365" placeholder="Ej. 30" />
-        </div>
-        <div class="form-group" style="margin-bottom:0;display:flex;align-items:flex-end;padding-bottom:6px">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal">
-            <input id="oc-unica" type="checkbox" style="width:16px;height:16px;cursor:pointer" />
-            Por única ocasión
-          </label>
-        </div>
       </div>
       ${requierePass ? `
       <p style="font-size:0.85rem;color:#475569;margin:10px 0 8px">
@@ -8300,8 +8283,6 @@ function _aplicarCredito(id) {
   const saldo = vt.saldo != null ? vt.saldo : Math.max(0, vt.total - (vt.anticipo||0));
   const yaPagado = Math.max(0, vt.total - saldo);
   const credito = document.getElementById('oc-credito')?.value.trim() || '';
-  const diasCredito = parseInt(document.getElementById('oc-dias')?.value || '', 10) || null;
-  const unicaOcasion = document.getElementById('oc-unica')?.checked || false;
   const encargado = document.getElementById('oc-encargado')?.value.trim() || '';
   const tel = document.getElementById('oc-tel')?.value.trim() || '';
   const folioDefault = vt.folioPedido || 'PED-' + String(vt.id).padStart(5,'0');
@@ -8319,8 +8300,6 @@ function _aplicarCredito(id) {
     fecha: today(),
     total: vt.total,
     credito,
-    ...(diasCredito ? { diasCredito } : {}),
-    ...(unicaOcasion ? { unicaOcasion: true } : {}),
     estado: 'Pendiente',
     recFecha: '',
     recNota: '',
@@ -8330,11 +8309,9 @@ function _aplicarCredito(id) {
   });
   vt.cobranzaId = cobId;
   vt.estado = 'Entregado';
-  if (!unicaOcasion) {
-    autorizarCreditoCliente(_vtNombreCredito(vt));
-    save('gp_clientesCredito', db.clientesCredito);
-    fsWriteCollection('clientesCredito', db.clientesCredito).catch(e => console.warn('[credito] Error Firestore:', e));
-  }
+  autorizarCreditoCliente(_vtNombreCredito(vt));
+  save('gp_clientesCredito', db.clientesCredito);
+  fsWriteCollection('clientesCredito', db.clientesCredito).catch(e => console.warn('[credito] Error Firestore:', e));
   saveDb(['ventas','cobranza']); closeModal(); renderVentas();
   _info('✅ Crédito otorgado. El pedido ' + pedido + ' se marcó como Entregado y se envió a Cobranza.');
 }
@@ -8566,7 +8543,7 @@ function eliminarPago(id, idx) {
   showModal('🔒 Autorización requerida', `
     <div style="padding:4px 0">
       <p style="font-size:0.9rem;color:#475569;margin-bottom:12px">
-        Solo un <strong>administrador</strong> puede cancelar un pago recibido ($${fmt(p.monto)} · ${p.nota||'sin nota'}).<br>
+        Solo un <strong>administrador</strong> puede cancelar un pago recibido ($${fmt(p.monto)} · ${esc(p.nota||'sin nota')}).<br>
         Solicita a un administrador que escriba aquí su usuario y contraseña para autorizar la cancelación.
       </p>
       <div class="form-group" style="margin-bottom:8px">
@@ -8649,7 +8626,7 @@ function generarReciboPago(vtId, pagoIdx, folio) {
 
   showModal('🧾 Recibo de pago', html, [
     { label:'🖨️ Imprimir', cls:'btn-primary', action:()=>_imprimirReciboPagoHTML() },
-    { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
+    { label:'Cerrar', cls:'btn-secondary', action:closeModal }
   ]);
 }
 window['generarReciboPago'] = generarReciboPago;
@@ -8899,7 +8876,7 @@ function archivarVentasSeleccionadas() {
           const folio = vt.folioPedido || ('#'+vt.id);
           const cobMonto = _cobSaldoMonto(vt.id);
           const razon = vt.archivado ? 'ya archivado' : cobMonto > 0 ? ('saldo en cobranza $'+fmt(cobMonto)) : vt.saldo > 0 ? ('saldo pendiente $'+vt.saldo.toLocaleString('es-MX')) : ('estado: '+vt.estado);
-          return `<li><strong>${folio}</strong> (${vt.cliente||'—'}) — ${razon}</li>`;
+          return `<li><strong>${folio}</strong> (${esc(vt.cliente||'—')}) — ${razon}</li>`;
         }).join('')
       + `</ul>` : '';
   const body = (validas.length
@@ -9580,8 +9557,7 @@ function _saldoCajaActual(caja) {
   const _foliosMovs = new Set(movs.filter(m=>m.tipo==='entrada').map(m=>{ const r=(m.concepto||'').match(/(?:Venta|Anticipo\s+pedido)\s+#?(.+?)\s*—/); return r?r[1].trim():null; }).filter(Boolean));
   const ventasCaja = (db.ventas||[]).filter(v =>
     v.cajaSesion === caja.id &&
-    !_idsMovs.has(v.id) && !(v.folioPedido && _foliosMovs.has(v.folioPedido)) &&
-    !((v.pagos||[]).length>0 && !(v.pagos||[]).some(p=>p.recibidoPor===caja.usuario))
+    !_idsMovs.has(v.id) && !(v.folioPedido && _foliosMovs.has(v.folioPedido))
   );
   const totalVentas = ventasCaja.reduce((s,v)=>s+_ventaEfectivoCaja(v),0);
   return (caja.fondo||0) + entradas + totalVentas - salidas;
@@ -10079,6 +10055,18 @@ document.addEventListener('paste', e => {
           subirFotoAStorage(dataUrl, 'ventas', url => {
             if (_fotoSessionVt !== token) return;
             _fotosSubiendoVt--; _tempFotosVt.push(url); renderFotosPreviewVt();
+          });
+        });
+      }
+    },
+    { previewId: 'fotos-preview-consig', handler: file => {
+        const token = _fotoSessionC;
+        comprimirImagen(file, dataUrl => {
+          if (_fotoSessionC !== token) return;
+          _fotosSubiendoC++; renderFotosPreviewC();
+          subirFotoAStorage(dataUrl, 'consignacion', url => {
+            if (_fotoSessionC !== token) return;
+            _fotosSubiendoC--; _tempFotosC.push(url); renderFotosPreviewC();
           });
         });
       }
@@ -10665,8 +10653,6 @@ function saveCotiz(id) {
         window._serverSnapshot.cotizaciones = window._serverSnapshot.cotizaciones || {};
         window._serverSnapshot.cotizaciones[String(obj.id)] = JSON.parse(JSON.stringify(_objToSave));
         save('gp_cotizaciones', db.cotizaciones);
-        // RTDB dual-write — esta función bypasea saveDb(), así que lo hacemos aquí manualmente
-        _rtdbWriteCollection('cotizaciones', db.cotizaciones).catch(() => {});
         setSyncStatus('ok');
         _programarRespaldo();
       })
@@ -10693,8 +10679,8 @@ function verCotiz(id) {
   const ctInfo = [
     c.ctEmpresa&&c.ctEmpresa!=='No aplica'?`<strong>Empresa:</strong> ${c.ctEmpresa}`:'',
     c.ctCiudad&&c.ctCiudad!=='No aplica'?`<strong>Ciudad:</strong> ${c.ctCiudad}${c.ctEstado&&c.ctEstado!=='No aplica'?', '+c.ctEstado:''}` :'',
-    c.ctTelFijo&&c.ctTelFijo!=='No aplica'?`<strong>Tel.:</strong> ${esc(c.ctTelFijo)}`:'',
-    c.ctCelular&&c.ctCelular!=='No aplica'?`<strong>Cel.:</strong> ${esc(c.ctCelular)}`:'',
+    c.ctTelFijo&&c.ctTelFijo!=='No aplica'?`<strong>Tel.:</strong> ${esc(c.ctTelFijo)}<span data-cp="${esc(c.ctTelFijo)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;margin-left:4px;font-size:0.75rem;opacity:.7" title="Copiar teléfono">📋</span>`:'',
+    c.ctCelular&&c.ctCelular!=='No aplica'?`<strong>Cel.:</strong> ${esc(c.ctCelular)}<span data-cp="${esc(c.ctCelular)}" onclick="try{navigator.clipboard.writeText(this.dataset.cp);this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)}catch(e){}" style="cursor:pointer;margin-left:4px;font-size:0.75rem;opacity:.7" title="Copiar celular">📋</span>`:'',
     c.ctRfc?`<strong>RFC:</strong> ${esc(c.ctRfc)}`:'',
     c.ctCorreo&&c.ctCorreo!=='No aplica'?`<strong>Correo:</strong> ${esc(c.ctCorreo)}`:'',
   ].filter(Boolean).join(' &nbsp;·&nbsp; ');
@@ -10812,7 +10798,21 @@ function cotizToVenta(id) {
     <div class="form-group"><label>Observaciones</label><textarea id="pd-obs" rows="8" style="resize:vertical">${esc(c.observaciones||'')}</textarea></div>
 
     <hr style="margin:10px 0;border:none;border-top:1px solid var(--border)"/>
-    <p style="font-size:0.8rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Conceptos del Pedido</p>
+    <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <p style="font-size:0.8rem;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px">📦 Agregar Producto desde Inventario</p>
+      <div class="form-group" style="margin-bottom:8px">
+        <select id="pdsel-tipo" onchange="pdSelRenderPicker()" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;background:#fff;width:auto;min-width:220px">
+          <option value="">-- Selecciona origen --</option>
+          <option value="consignacion">🔄 Consignación</option>
+          <option value="productos">📦 Producto Terminado</option>
+          <option value="materia">🔩 Materia Prima</option>
+        </select>
+      </div>
+      <div id="pdsel-picker"></div>
+    </div>
+
+    <hr style="margin:10px 0;border:none;border-top:1px solid var(--border)"/>
+    <p style="font-size:0.8rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Detalle de Precios (Manual)</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <input id="pd-prod" placeholder="Concepto" style="flex:2;min-width:100px;padding:7px;border:1.5px solid var(--border);border-radius:8px"/>
       <input id="pd-qty" type="number" placeholder="Cant." min="1" value="1" style="width:65px;padding:7px;border:1.5px solid var(--border);border-radius:8px"/>
@@ -10942,8 +10942,22 @@ function guardarPedido(c) {
     usuario: session.nombre
   };
   db.ventas.push(nuevoPedido);
+  // Marcar artículos de inventario vinculados al pedido como Apartado / descontar stock.
+  pedidoItems.forEach(i => {
+    if (i._itemId != null && i._tipo) {
+      const invItem = (db[i._tipo]||[]).find(x => x.id === i._itemId);
+      if (invItem) {
+        if (i._tipo === 'consignacion') {
+          invItem.estado = 'Apartado';
+          invItem.pedidoId = nuevoPedido.id;
+        } else if (i._tipo === 'productos' || i._tipo === 'materia') {
+          invItem.cantidad = Math.max(0, (invItem.cantidad||0) - i.cantidad);
+        }
+      }
+    }
+  });
   c.estado = 'Aprobada';
-  saveDb(['ventas','cotizaciones','cajas']); closeModal();
+  saveDb(['ventas','cotizaciones','cajas','consignacion','productos','materia']); closeModal();
   navigate('ventas');
   generarCopiasPedido(nuevoPedido);
   _info('✅ Pedido registrado correctamente.\n\nSe generaron las 3 copias en PDF: Administración, Cliente y Producción.');
@@ -11573,7 +11587,7 @@ function _generarPDFDesdeVenta(vt) {
   if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
     console.log('[PDF] cargando jsPDF desde CDN...');
     const s = document.createElement('script');
-    s.src = '/jspdf.umd.min.js';
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
     s.onload = () => { console.log('[PDF] jsPDF cargado'); _doBuild(); };
     s.onerror = () => _info('Error: no se pudo cargar jsPDF desde CDN. Verifica tu conexión.');
     document.head.appendChild(s);
@@ -11787,7 +11801,7 @@ function _cargarLogoYBuildCopiasPedido(vt) {
 
 function _buildCopiasPedidoPDF(vt, logoB64, logoW, logoH) {
   if (window._poppinsBoldB64) { _doPedidoPDF(vt, logoB64, logoW, logoH, window._poppinsBoldB64); return; }
-  fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Bold.ttf')
+  fetch('https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Bold.ttf')
     .then(r => { if (!r.ok) throw new Error('font'); return r.arrayBuffer(); })
     .then(buf => {
       const bytes = new Uint8Array(buf);
@@ -12426,8 +12440,6 @@ function _cajaMovAdd(caja, mov) {
   } else if (FIREBASE_ENABLED) {
     _hasPendingSync = true; _markPendingSync('cajas');
   }
-  // RTDB dual-write directo — no depende de que el caller llame saveDb('cajas')
-  if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection('cajas', db.cajas).catch(() => {});
 }
 
 function _cajaMovRemove(caja, movId) {
@@ -12639,8 +12651,7 @@ function renderCaja() {
   const ventasCaja = db.ventas.filter(v =>
     v.cajaSesion === caja.id &&
     !_idsEnMovs.has(v.id) && !(v.folioPedido && _foliosEnMovs.has(v.folioPedido)) &&
-    _ventaEfectivoCaja(v) > 0 &&
-    !((v.pagos||[]).length>0 && !(v.pagos||[]).some(p=>p.recibidoPor===caja.usuario))
+    _ventaEfectivoCaja(v) > 0
   );
   const totalVentas = ventasCaja.reduce((s,v)=>s+_ventaEfectivoCaja(v),0);
   const saldoActual = caja.fondo + entradas + totalVentas - salidas;
@@ -13149,8 +13160,7 @@ function cerrarCaja() {
   const _fmCj = new Set(movs.filter(m=>m.tipo==='entrada').map(m=>{ const r=(m.concepto||'').match(/(?:Venta|Anticipo\s+pedido)\s+#?(.+?)\s*—/); return r?r[1].trim():null; }).filter(Boolean));
   const ventasCaja = db.ventas.filter(v=>
     v.cajaSesion===caja.id&&
-    !_imCj.has(v.id)&&!(v.folioPedido&&_fmCj.has(v.folioPedido))&&
-    !((v.pagos||[]).length>0&&!(v.pagos||[]).some(p=>p.recibidoPor===caja.usuario))
+    !_imCj.has(v.id)&&!(v.folioPedido&&_fmCj.has(v.folioPedido))
   );
   const totalVentas = ventasCaja.reduce((s,v)=>s+_ventaEfectivoCaja(v),0);
   const saldoEsperado = caja.fondo + entradas + totalVentas - salidas;
@@ -13400,8 +13410,7 @@ function renderHistorialCajaTabla() {
     const idsEnMovs = new Set(movs.filter(m => m.ventaId).map(m => m.ventaId));
     const ventasFiltradas = ventasCaja.filter(v =>
       !idsEnMovs.has(v.id) && !(v.folioPedido && foliosEnMovs.has(v.folioPedido)) &&
-      _ventaEfectivoCaja(v) > 0 &&
-      !((v.pagos||[]).length>0 && !(v.pagos||[]).some(p=>p.recibidoPor===c.usuario))
+      _ventaEfectivoCaja(v) > 0
     );
 
     // Calcular rango del período seleccionado
@@ -14552,7 +14561,7 @@ function verFactura(id) {
     f.tieneXml?{ label:'📥 XML', cls:'btn-secondary', style:'background:#15803d;color:#fff;border-color:#15803d', action:()=>descargarXml(id) }:null,
     can(['admin','secretaria'])?{ label:'🗑️ Eliminar', cls:'btn-danger', action:()=>delFactura(id) }:null,
     (!f.cancelada && can(['admin','secretaria']))?{ label:'🚫 Cancelar factura', cls:'btn-danger', style:'background:#b91c1c;border-color:#b91c1c', action:()=>{ closeModal(); cancelarFactura(id); } }:null,
-    { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
+    { label:'Cerrar', cls:'btn-secondary', action:closeModal }
   ].filter(Boolean));
 }
 
@@ -14967,7 +14976,7 @@ function _eliminarCobranzaArchivada(id) {
   if (!can(['admin'])) return;
   const c = db.cobranza.find(x => x.id === id);
   if (!c) return;
-  _confirm(`¿Eliminar definitivamente el registro de "${c.cliente}"? Esta acción no se puede deshacer.`, () => {
+  _confirm(`¿Eliminar definitivamente el registro de "${esc(c.cliente)}"? Esta acción no se puede deshacer.`, () => {
     _addTombstone('cobranza', id); // evita resurrección desde Firestore offline
     db.cobranza = db.cobranza.filter(x => x.id !== id);
     if (window._serverSnapshot?.cobranza?.[String(id)]) delete window._serverSnapshot.cobranza[String(id)];
@@ -15637,8 +15646,6 @@ function marcarVehiculoRec(id, campo) {
   if (window._serverSnapshot?.vehiculos?.[String(id)]) {
     window._serverSnapshot.vehiculos[String(id)][campo] = true;
   }
-  // RTDB dual-write — antes del write de Firestore para no depender del catch
-  if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection('vehiculos', db.vehiculos).catch(() => {});
   // Escribir SOLO ese campo en Firestore — sin tocar vencimiento, poliza ni ningún otro campo
   if (FIREBASE_ENABLED && firestore) {
     if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {};
@@ -17274,7 +17281,7 @@ function verCatalogoMateriales() {
         </tr>`).join('')}</tbody>
       </table>
     </div>`}
-  `, [{ label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }]);
+  `, [{ label:'Cerrar', cls:'btn-secondary', action:closeModal }]);
 }
 window['verCatalogoMateriales'] = verCatalogoMateriales;
 
@@ -17742,7 +17749,6 @@ function showModal(title, body, buttons, opts) {
   });
   const box = document.getElementById('modal-box');
   box.classList.toggle('modal-wide', !!(opts && opts.wide));
-  _modalOnCloseHook = (opts && opts.onClose) || null;
   document.getElementById('modal-overlay').classList.add('open');
   // Scroll lock: overflow hidden (preserva coordenadas para selección de texto)
   document.body.style.overflow = 'hidden';
@@ -17751,8 +17757,6 @@ function showModal(title, body, buttons, opts) {
 // Flag: true cuando el modal activo tiene datos que se perderían al cerrar sin guardar.
 // Setearlo a true en los modales de edición/creación (openConsigModal, openVentaModal, etc.)
 let _modalConfirmClose = false;
-// Hook opcional: función que se llama al cerrar el modal (via closeModal)
-let _modalOnCloseHook = null;
 // Rastreo de qué colección e ítem se está editando en el modal activo (para toast inteligente)
 let _modalEditingCol = null;
 let _modalEditingId  = null;
@@ -17808,7 +17812,6 @@ function closeModal() {
   if (typeof rbDetenerGlobalScanner === 'function') rbDetenerGlobalScanner();
   if (typeof _mbGlobalKeyHandler === 'function') document.removeEventListener('keydown', _mbGlobalKeyHandler);
   setTimeout(function(){ if (typeof window._gsRefocusIfActive === 'function') window._gsRefocusIfActive(); }, 150);
-  if (_modalOnCloseHook) { const _hookFn = _modalOnCloseHook; _modalOnCloseHook = null; _hookFn(); }
 }
 
 // Cierre con confirmación — usar en ✕ y clic en fondo para modales con formulario
@@ -17945,7 +17948,7 @@ function recibirConBarcode(codigoInicial) {
       </div>
     </div>
     <div id="rb-resultado"></div>
-  `, [{ label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }]);
+  `, [{ label:'Cerrar', cls:'btn-secondary', action:closeModal }]);
   setTimeout(()=>{
     const t=document.getElementById('rb-tablet'); if(t) t.focus();
     if(codigoInicial){
@@ -18990,7 +18993,7 @@ function _mostrarQRItem(tipo, id) {
     <pre style="font-size:0.72rem;background:var(--bg);border-radius:8px;padding:8px;margin-top:10px;white-space:pre-wrap;color:#334155">${esc(info)}</pre>
   `, [
     { label:'🖨️ Imprimir etiqueta', cls:'btn-primary', action: imprimirEtiquetaQR },
-    { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
+    { label:'Cerrar', cls:'btn-secondary', action:closeModal }
   ]);
   setTimeout(() => {
     const cont = document.getElementById('qr-canvas-area');
@@ -19508,7 +19511,7 @@ function generarPDFCotiz(c) {
   window.jspdf = undefined;
   window.jsPDF = undefined;
   const s = document.createElement('script');
-  s.src = '/jspdf.umd.min.js';
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
   s.onload = () => { console.log('[PDF] jsPDF cargado OK, jspdf=', typeof window.jspdf, 'jsPDF=', typeof window.jsPDF); _doBuild(); };
   s.onerror = (e) => {
     console.error('[PDF] CDN bloqueado o sin internet:', e);
@@ -19682,11 +19685,11 @@ function _cargarFuenteYBuildPDF(c, logoB64, logoW, logoH, pdfWin, ventaOverride,
   const _withTimeout = (p, ms) => Promise.race([p, new Promise(res => setTimeout(() => res(null), ms))]);
   if (window._poppinsBoldB64 && window._poppinsBlackB64) { _precargarFotos(window._poppinsBoldB64); return; }
   const fetchPoppins = window._poppinsBoldB64 ? Promise.resolve(window._poppinsBoldB64)
-    : _withTimeout(fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Bold.ttf')
+    : _withTimeout(fetch('https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Bold.ttf')
         .then(r=>r.arrayBuffer()).then(buf=>{ window._poppinsBoldB64=_ttfToB64(buf); return window._poppinsBoldB64; })
         .catch(()=>null), 4000);
   const fetchMontserrat = window._poppinsBlackB64 ? Promise.resolve(window._poppinsBlackB64)
-    : _withTimeout(fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Black.ttf')
+    : _withTimeout(fetch('https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Black.ttf')
         .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.arrayBuffer(); })
         .then(buf=>{ window._poppinsBlackB64=_ttfToB64(buf); return window._poppinsBlackB64; })
         .catch(()=>null), 4000);
@@ -20243,12 +20246,11 @@ function _buildPDF(c, logoB64, logoW, logoH, fontB64, pdfWin, ventaOverride, aut
       doc.text('SUBTOTAL', cSub, y+5.5, {align:'right'});
       y += 8;
       c.items.forEach((item)=>{
-        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
-        const descLines = doc.splitTextToSize(String(item.producto), cQty - M - 8); // v305
-        const lineH = 5; const rh = Math.max(9, descLines.length * lineH + 4); // v305
+        const rh = 8;
         doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
         doc.line(M, y+rh, M+tableW, y+rh);
-        descLines.forEach((ln,i) => doc.text(ln, M+4, y+5.5+i*lineH));
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
+        doc.text(String(item.producto).substring(0,50), M+4, y+5.5);
         doc.text(String(item.cantidad), cQty, y+5.5, {align:'right'});
         doc.text(`$${fmt(item.precio)}`, cPrice, y+5.5, {align:'right'});
         doc.setFont('helvetica','bold');
@@ -20283,15 +20285,14 @@ function _buildPDF(c, logoB64, logoW, logoH, fontB64, pdfWin, ventaOverride, aut
       doc.text('CANT.', cQtyP, y+5.5, {align:'right'});
       y += 8;
       c.items.forEach((item)=>{
-        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
-        const descLinesP = doc.splitTextToSize(String(item.producto), cQtyP - M - 8); // v305
-        const lineHP = 5; const rhP = Math.max(9, descLinesP.length * lineHP + 4); // v305
+        const rh = 8;
         doc.setDrawColor(226,232,240); doc.setLineWidth(0.2);
-        doc.line(M, y+rhP, M+tableW, y+rhP);
-        descLinesP.forEach((ln,i) => doc.text(ln, M+4, y+5.5+i*lineHP));
+        doc.line(M, y+rh, M+tableW, y+rh);
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(30,41,59);
+        doc.text(String(item.producto).substring(0,60), M+4, y+5.5);
         doc.setFont('helvetica','bold');
         doc.text(String(item.cantidad), cQtyP, y+5.5, {align:'right'});
-        y += rhP;
+        y += rh;
       });
     }
 
@@ -20486,12 +20487,6 @@ function renderAgenda() {
   const canEdit = can(['admin','secretaria','auxiliar']);
   const esAdmin = session.rol === 'admin';
   const hoy = new Date().toISOString().slice(0,10);
-
-  // ── Indicador de actualización ────────────────────────────────────
-  const _agendaStale = !window._agendaNavTs || (Date.now() - window._agendaNavTs) < 5000;
-  const _syncBanner = _agendaStale
-    ? `<div style="display:flex;align-items:center;gap:6px;font-size:0.74rem;color:#64748b;padding:4px 10px;background:var(--bg,#f8fafc);border:1px solid var(--border,#e2e8f0);border-radius:6px;margin-bottom:10px;animation:agendaFadeOut 0.4s 3.5s forwards"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;animation:agendaSpin 1s linear infinite"><path d="M21 12a9 9 0 11-6-8.5"/><path d="M21 3v5h-5"/></svg>Actualizando datos…</div>`
-    : '';
 
   // ── Divisor de sección ─────────────────────────────────────────────────
   const _secDiv = (label) => `<div style="display:flex;align-items:center;gap:10px;margin:20px 0 12px"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:0.75rem;font-weight:700;color:var(--text-light);letter-spacing:0.8px;text-transform:uppercase;white-space:nowrap;padding:0 4px">${label}</span><div style="flex:1;height:1px;background:var(--border)"></div></div>`;
@@ -20765,7 +20760,7 @@ function renderAgenda() {
     const _allFilterUsers = [...new Set([..._recUsuarios,..._persUsuarios.map(u=>u.n)])].filter(n=>n!==session.nombre).sort();
     const _curFiltVal = !window._recAgAdminFilter?'':window._recAgAdminFilter===session.nombre?`${session.nombre}|${session.uid}`:`${window._recAgAdminFilter}|${window._persAdminFilter}`;
     const _adminFilter = esAdmin?`<select onchange="var p=this.value.split('|');window._recAgAdminFilter=p[0]||'';window._persAdminFilter=p[1]||'';renderAgenda()" style="font-size:0.72rem;padding:3px 7px;border:1px solid var(--border,#e2e8f0);border-radius:6px;background:var(--card,#fff);color:var(--text,#374151)"><option value="" ${!_curFiltVal?'selected':''}>🔔 Todos</option><option value="${session.nombre}|${session.uid}" ${_curFiltVal===session.nombre+'|'+session.uid?'selected':''}>Solo míos</option>${_allFilterUsers.map(n=>{const uid=_userNameToUid[n]||'';const v=n+'|'+uid;return`<option value="${v}" ${_curFiltVal===v?'selected':''}>${esc(n)}</option>`}).join('')}</select>`:'';
-    return `${_syncBanner}<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="window._recSearchQ=this.value;renderAgenda()" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
+    return `<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="window._recSearchQ=this.value;renderAgenda()" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
   })() : `<div class="card" style="text-align:center;padding:30px;color:#94a3b8">Sin acceso a recordatorios.</div>`;
 
   if (window._recSecOpen === undefined) {
@@ -20952,33 +20947,8 @@ function _prCleanup() {
 function openPersonalRecModal(id, defaultFecha) {
   const p = id ? (db.recordatoriosPersonales||[]).find(x => x.id === id) : null;
   const hoy = new Date().toISOString().slice(0,10);
-  const _persBannerHtml = (window._recAbrirPersId && window._recAbrirPersId === id) ? (() => {
-    window._recAbrirPersId = null;
-    return `<div id="_rec-pers-banner" style="background:#eff6ff;border:1.5px solid #93c5fd;border-radius:10px;padding:10px 14px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <span style="font-size:1.1rem">🔔</span>
-      <span style="font-weight:600;font-size:0.85rem;color:#1e40af;flex:1">Recordatorio activo</span>
-      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-        <select id="_rec-pers-snooze" onchange="const inp=document.getElementById('_rec-pers-manual-wrap');if(inp)inp.style.display=this.value==='manual'?'flex':'none'" style="font-size:0.78rem;padding:4px 6px;border:1px solid #93c5fd;border-radius:6px;background:white;color:#1e293b">
-          <option value="5">5 minutos</option>
-          <option value="15">15 minutos</option>
-          <option value="30" selected>30 minutos</option>
-          <option value="60">1 hora</option>
-          <option value="120">2 horas</option>
-          <option value="240">4 horas</option>
-          <option value="10080">1 semana</option>
-          <option value="20160">2 semanas</option>
-          <option value="tomorrow">Mañana 8am</option>
-          <option value="manual">Fecha manual...</option>
-        </select>
-        <div id="_rec-pers-manual-wrap" style="display:none;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px"><input type="date" id="_rec-pers-manual-date" style="font-size:0.78rem;padding:4px 6px;border:1px solid #93c5fd;border-radius:6px"><input type="time" id="_rec-pers-manual-time" value="08:00" style="display:none;font-size:0.78rem;padding:4px 6px;border:1px solid #93c5fd;border-radius:6px"><label style="font-size:0.76rem;color:#475569;cursor:pointer;display:flex;align-items:center;gap:4px"><input type="checkbox" id="_rec-pers-allday" checked onchange="var ti=document.getElementById('_rec-pers-manual-time');if(ti)ti.style.display=this.checked?'none':'inline-block'">Todo el día</label></div>
-        <button onclick="window._recPosponerPersModal('${id}')" style="font-size:0.78rem;padding:5px 12px;background:#1d4ed8;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;white-space:nowrap">⏰ Posponer</button>
-        <button onclick="marcarPersonalHecho('${id}');closeModal()" style="font-size:0.78rem;padding:5px 12px;background:white;color:#64748b;border:1.5px solid #cbd5e1;border-radius:6px;cursor:pointer;white-space:nowrap">✅ Marcar hecho</button>
-      </div>
-    </div>`;
-  })() : '';
   showModal(p ? 'Editar Recordatorio Personal' : 'Nuevo Recordatorio Personal', `
     <div style="display:flex;flex-direction:column;gap:12px">
-      ${_persBannerHtml}
       <div class="form-group">
         <label>Título *</label>
         <input id="pr-titulo" class="form-control" value="${esc(p?.titulo||'')}" placeholder="¿Qué necesitas hacer?" autocomplete="off" />
@@ -21320,9 +21290,13 @@ function openAgendaModal(id, prefill) {
           estado: 'Pendiente', creadoPor: session.nombre,
           creadoEn: new Date().toISOString() });
       }
+      // Actualizar estado local ANTES del write para evitar race con onSnapshot
+      db.agenda = agenda;
+      save('gp_agenda', db.agenda);
+      try { if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {}; window._ownWriteUntilByCol['agenda'] = Math.max(window._ownWriteUntilByCol['agenda']||0, Date.now()+30000); } catch(e) {}
       closeModal();
-      await fsWriteCollection('agenda', agenda);
       renderAgenda();
+      fsWriteCollection('agenda', agenda).catch(e => { console.error('[agenda] Error guardando:', e); });
     }},
     { label: 'Cancelar', cls: 'btn-secondary', action: closeModal }
   ]);
@@ -21480,7 +21454,7 @@ function verCita(id) {
     ...(isAdmin ? [
       { label:'🗑️ Eliminar definitivamente', cls:'btn-danger', style:'background:#7f1d1d;border-color:#7f1d1d', action:()=>{ closeModal(); setTimeout(()=>eliminarCita(id),150); } }
     ] : []),
-    { label:'Cerrar', cls:'btn-secondary', action:()=>{ closeModal(); renderVentas(); } }
+    { label:'Cerrar', cls:'btn-secondary', action:closeModal }
   ]);
 }
 
@@ -22061,7 +22035,7 @@ function generarPDFCompra(id, elaboroOverride) {
   const _doGen = () => _withLogo(logoB64 => _withBarcode(logoB64, (l, bc) => _buildPDFCompra(oc, l, bc, elaboroOverride)));
   if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
     const s = document.createElement('script');
-    s.src = '/jspdf.umd.min.js';
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
     s.onload = _doGen;
     s.onerror = () => _info('No se pudo cargar jsPDF. Verifica tu conexión.');
     document.head.appendChild(s);
@@ -24404,12 +24378,11 @@ function logActividad(accion, detalle) {
     const _hoyStr = today();
     const _nowHM = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
     const _myUid = session.uid;
-    const _persVenc = (db.recordatoriosPersonales||[]).filter(p => {
-      if (p.completado || p.usuarioId !== _myUid) return false;
-      try { const _s = _getSnooze(); if (_s['pers_' + p.id] && _s['pers_' + p.id] > Date.now()) return false; } catch(e) {}
-      if (p.snoozeHasta && p.snoozeHasta > Date.now()) return false;
-      return p.fecha && (p.fecha < _hoyStr || (p.fecha === _hoyStr && (!p.hora || p.hora <= _nowHM)));
-    });
+    const _persVenc = (db.recordatoriosPersonales||[]).filter(p =>
+      !p.completado && p.usuarioId === _myUid &&
+      !(p.snoozeHasta && p.snoozeHasta > Date.now()) &&
+      p.fecha && (p.fecha < _hoyStr || (p.fecha === _hoyStr && (!p.hora || p.hora <= _nowHM)))
+    );
     if (!pendientes.length && !_persVenc.length) { const _ep=document.getElementById('_rec-panel'); if(_ep) _ep.remove(); return; }
     if (_panelSnoozedUntil > Date.now()) return; // cerrado con ✕, esperar snooze
     _mostrarPopupRecordatorios(pendientes, esAdmin);
@@ -24473,12 +24446,11 @@ function logActividad(accion, detalle) {
     // Personales vencidos del usuario actual (para popup)
     const _popupHoy = (typeof today==='function') ? today() : new Date().toISOString().slice(0,10);
     const _popupHM = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
-    const _popupPersV = (db.recordatoriosPersonales||[]).filter(p => {
-      if (p.completado || p.usuarioId !== session.uid) return false;
-      try { const _s = _getSnooze(); if (_s['pers_' + p.id] && _s['pers_' + p.id] > Date.now()) return false; } catch(e) {}
-      if (p.snoozeHasta && p.snoozeHasta > Date.now()) return false;
-      return p.fecha && (p.fecha < _popupHoy || (p.fecha === _popupHoy && (!p.hora || p.hora <= _popupHM)));
-    });
+    const _popupPersV = (db.recordatoriosPersonales||[]).filter(p =>
+      !p.completado && p.usuarioId === session.uid &&
+      !(p.snoozeHasta && p.snoozeHasta > Date.now()) &&
+      p.fecha && (p.fecha < _popupHoy || (p.fecha === _popupHoy && (!p.hora || p.hora <= _popupHM)))
+    );
 
     const panel = document.createElement('div');
     panel.id = '_rec-panel';
@@ -24528,19 +24500,17 @@ function logActividad(accion, detalle) {
           </div>`;
         }).join('')}
         ${_popupPersV.map(p => {
-          const _phoy = typeof today==='function' ? today() : new Date().toISOString().slice(0,10);
-          const _pvenc = p.fecha < _phoy;
-          const dotCls = _pvenc ? 'vencido' : 'hoy';
+          const dotCls = 'vencido';
           return `<div class="rec-item" data-pers-id="${p.id}">
             <div class="rec-dot ${dotCls}"></div>
             <div style="flex:1;min-width:0">
               <div style="font-weight:600;font-size:0.83rem;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📌 ${esc(p.titulo||'Sin título')}</div>
               <div style="font-size:0.72rem;color:#64748b;margin-top:1px">
-                ${p.hora ? p.hora+' · ' : ''}<span style="color:${_pvenc?'#ef4444':'#f59e0b'};font-size:0.72rem">${_pvenc?'Vencido':'Hoy'}</span>
+                ${p.hora ? p.hora+' · ' : ''}<span style="color:#ef4444;font-size:0.72rem">Vencido</span>
               </div>
               ${p.descripcion ? `<div style="font-size:0.76rem;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.descripcion)}</div>` : ''}
               <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
-                <button onclick="window._recAbrirAgenda('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
+                <button onclick="window._verRecPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
                 <button onclick="window._recDescartarPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Descartar</button>
               </div>
               <div style="display:flex;gap:4px;margin-top:5px">
@@ -24728,7 +24698,7 @@ function logActividad(accion, detalle) {
     const _recItemEl = document.querySelector(`#_rec-panel .rec-item[data-id="${id}"]`);
     if (_recItemEl) _recItemEl.remove();
     const _recPanelEl = document.getElementById('_rec-panel');
-    if (_recPanelEl && !_recPanelEl.querySelector('.rec-item')) _recPanelEl.remove();
+    if (_recPanelEl && !_recPanelEl.querySelector('.rec-item[data-id]')) _recPanelEl.remove();
     navigate('cotizaciones');
     // Reintentar hasta que la página haya renderizado (evita fallo en tabletas lentas)
     let _recAbrirIntentos = 0;
@@ -24746,24 +24716,83 @@ function logActividad(accion, detalle) {
   };
 
   // Descartar un item individual
-  window._recAbrirAgenda = function(persId) {
-    if (persId) {
-      const el = document.querySelector('[data-pers-id="'+persId+'"]');
-      if (el) el.remove();
-    }
+  window._recAbrirAgenda = function() {
     const panel = document.getElementById('_rec-panel');
-    if (panel && !panel.querySelector('.rec-item')) panel.remove();
-    window._recAbrirPersId = persId || null;
-    if (typeof openPersonalRecModal === 'function') openPersonalRecModal(persId);
+    if (panel) panel.remove();
+    if (typeof navigate === 'function') navigate('agenda');
   };
   window._recDescartarPers = function(persId) {
-    // Solo descartar del popup — el item sigue en la agenda (NO marcar completado).
-    // Igual que cotizaciones: agrega a lista local para no mostrar popup de nuevo.
-    _dismissItem('pers_' + persId);
+    // Solo cierra el popup — NO marca como completado para que el recordatorio permanezca en la Agenda
+    const snoozeTs = 9999999999999;
+    const updated = (db.recordatoriosPersonales||[]).map(p => p.id===persId ? {...p, snoozeHasta:snoozeTs} : p);
+    db.recordatoriosPersonales = updated;
+    saveDb('recordatoriosPersonales');
+    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(persId)).update({snoozeHasta:snoozeTs}).catch(()=>{});
     const el = document.querySelector('[data-pers-id="'+persId+'"]');
     if (el) el.remove();
     const panel = document.getElementById('_rec-panel');
     if (panel && !panel.querySelector('.rec-item')) panel.remove();
+  };
+  window._posponerDesdeVista = function(persId) {
+    var sel = document.getElementById('_vrp-snooze');
+    if (!sel) return;
+    var sv = sel.value;
+    var ts;
+    if (sv === 'tomorrow') { var t=new Date(); t.setDate(t.getDate()+1); t.setHours(8,0,0,0); ts=t.getTime(); }
+    else { ts = Date.now() + parseInt(sv)*60000; }
+    var upd = (db.recordatoriosPersonales||[]).map(function(p){ return String(p.id)===String(persId) ? Object.assign({},p,{snoozeHasta:ts}) : p; });
+    db.recordatoriosPersonales = upd;
+    saveDb('recordatoriosPersonales');
+    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(persId)).update({snoozeHasta:ts}).catch(function(){});
+    var el = document.querySelector('[data-pers-id="'+persId+'"]');
+    if (el) el.remove();
+    var pnl = document.getElementById('_rec-panel');
+    if (pnl && !pnl.querySelector('.rec-item')) pnl.remove();
+    var mini = document.getElementById('_vrp-mini');
+    if (mini) mini.remove();
+  };
+  window._verRecPers = function(persId) {
+    var prev = document.getElementById('_vrp-mini');
+    if (prev) prev.remove();
+    var p = (db.recordatoriosPersonales||[]).find(function(x){ return String(x.id)===String(persId); });
+    if (!p) return;
+    var _hoy = new Date().toISOString().slice(0,10);
+    var _hm = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
+    var _venc = p.fecha && (p.fecha < _hoy || (p.fecha===_hoy && p.hora && p.hora <= _hm));
+    var snoozeOpts = [
+      {val:'5',label:'5 minutos'},{val:'15',label:'15 minutos'},{val:'30',label:'30 minutos'},
+      {val:'60',label:'1 hora'},{val:'120',label:'2 horas'},{val:'240',label:'4 horas'},
+      {val:'1440',label:'1 día'},{val:'2880',label:'2 días'},{val:'10080',label:'1 semana'},
+      {val:'tomorrow',label:'Mañana (8:00 am)'}
+    ];
+    var optsHtml = snoozeOpts.map(function(o){ return '<option value="'+o.val+'">'+o.label+'</option>'; }).join('');
+    var mini = document.createElement('div');
+    mini.id = '_vrp-mini';
+    mini.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10050;width:290px;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.22);padding:16px;font-family:inherit';
+    mini.innerHTML =
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">' +
+        '<div style="font-weight:700;font-size:0.92rem;color:#1e293b;flex:1;padding-right:8px;line-height:1.3">' + esc(p.titulo||'Recordatorio') + '</div>' +
+        '<button onclick="document.getElementById(\'_vrp-mini\').remove()" style="border:none;background:none;font-size:1.1rem;cursor:pointer;color:#94a3b8;line-height:1;padding:0;flex-shrink:0">✕</button>' +
+      '</div>' +
+      '<div style="font-size:0.78rem;color:#64748b;margin-bottom:10px">' +
+        (p.fecha||'Sin fecha') + (p.hora ? ' · '+p.hora : '') +
+        (_venc ? '<span style="color:#ef4444;font-weight:600;margin-left:6px">Vencido</span>' : '') +
+      '</div>' +
+      (p.descripcion ? '<div style="background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:0.83rem;color:#334155;margin-bottom:12px">' + esc(p.descripcion) + '</div>' : '') +
+      '<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">' +
+        '<select id="_vrp-snooze" style="flex:1;padding:6px 7px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.78rem;background:white;color:#1e293b">' + optsHtml + '</select>' +
+        '<button onclick="window._posponerDesdeVista(\'' + persId + '\')" style="padding:6px 12px;background:#1d4ed8;color:white;border:none;border-radius:7px;font-size:0.78rem;cursor:pointer;font-weight:600;white-space:nowrap">⏰ Posponer</button>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px">' +
+        '<button onclick="document.getElementById(\'_vrp-mini\').remove();setTimeout(function(){openPersonalRecModal(\'' + persId + '\')},80)" style="flex:1;padding:6px 8px;border:1px solid #cbd5e1;border-radius:7px;font-size:0.78rem;cursor:pointer;background:white;color:#1e293b">✏️ Editar</button>' +
+        '<button onclick="document.getElementById(\'_vrp-mini\').remove();window._recDescartarPers(\'' + persId + '\')" style="flex:1;padding:6px 8px;border:none;border-radius:7px;font-size:0.78rem;cursor:pointer;background:#fee2e2;color:#dc2626;font-weight:600">Descartar</button>' +
+      '</div>';
+    document.body.appendChild(mini);
+    function _vrpClose(e) {
+      var m = document.getElementById('_vrp-mini');
+      if (m && !m.contains(e.target)) { m.remove(); document.removeEventListener('mousedown', _vrpClose); }
+    }
+    setTimeout(function(){ document.addEventListener('mousedown', _vrpClose); }, 100);
   };
   window._recPosponerPers = function(btn) {
     const persId = btn.dataset.persId;
@@ -24833,33 +24862,6 @@ function logActividad(accion, detalle) {
   };
 
   // Marcar como hecho desde el modal de cotización
-  window._recPosponerPersModal = function(id) {
-    const selVal = document.getElementById('_rec-pers-snooze')?.value;
-    const p = db && (db.recordatoriosPersonales||[]).find(x => String(x.id) === String(id));
-    if (!p || !selVal) return;
-    if (selVal === 'tomorrow') {
-      const tom = new Date(); tom.setDate(tom.getDate()+1); tom.setHours(8,0,0,0);
-      p.snoozeHasta = tom.getTime();
-    } else if (selVal === 'manual') {
-      const dv = document.getElementById('_rec-pers-manual-date')?.value;
-      if (!dv) { _info('Selecciona una fecha'); return; }
-      const allDay = document.getElementById('_rec-pers-allday')?.checked !== false;
-      const tv = document.getElementById('_rec-pers-manual-time')?.value || '08:00';
-      const timeStr = allDay ? '08:00:00' : (tv.length === 5 ? tv + ':00' : tv);
-      const d = new Date(dv + 'T' + timeStr);
-      if (isNaN(d.getTime())) { _info('Fecha inválida'); return; }
-      p.snoozeHasta = d.getTime();
-    } else {
-      p.snoozeHasta = Date.now() + parseInt(selVal) * 60000;
-    }
-    saveDb('recordatoriosPersonales');
-    if (firestore) firestore.collection('recordatoriosPersonales').doc(String(p.id))
-      .update({ snoozeHasta: p.snoozeHasta }).catch(() => {});
-    const banner = document.getElementById('_rec-pers-banner');
-    if (banner) banner.innerHTML = `<span style="color:#1d4ed8;font-size:0.83rem">⏰ Recordatorio pospuesto.</span>`;
-    setTimeout(() => closeModal(), 600);
-  };
-
   window._recDescartarModal = function(id) {
     const cot = db && findById(db.cotizaciones, id);
     if (!cot) return;
