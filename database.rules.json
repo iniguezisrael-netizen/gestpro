@@ -3,7 +3,10 @@
     ".read": false,
     ".write": false,
     "_meta": {
-      ".read": "auth != null"
+      ".read": "auth != null",
+      "tombstones": {
+        ".write": "auth != null"
+      }
     },
     "db": {
       ".read": "auth != null",

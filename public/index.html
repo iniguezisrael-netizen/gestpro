@@ -970,18 +970,22 @@ if (FIREBASE_ENABLED) {
     // ──────────────────────────────────────────────────────────────────────
     firestore = firebase.firestore();
     try { rtdb = firebase.database(); } catch(e) { console.warn('RTDB init error:', e); }
-    // Persistencia offline: Firestore guarda las escrituras localmente y las envía
-    // automáticamente cuando regresa la conexión. synchronizeTabs:true permite
-    // que múltiples pestañas compartan el mismo caché offline.
-    firestore.enablePersistence({ synchronizeTabs: true })
-      .then(() => console.log('Firestore: persistencia offline activada ✓'))
-      .catch(err => {
-        if (err.code === 'failed-precondition') {
-          console.warn('Firestore offline: múltiples pestañas activas, persistencia en una sola.');
-        } else if (err.code === 'unimplemented') {
-          console.warn('Firestore offline: este navegador no soporta persistencia IndexedDB.');
-        }
+    // Persistencia offline multi-pestaña (IndexedDB) — API no deprecada para Firebase 10.x.
+    // settings() debe llamarse antes de cualquier operación de Firestore.
+    try {
+      firestore.settings({
+        localCache: firebase.firestore.persistentLocalCache({
+          tabManager: firebase.firestore.persistentMultipleTabManager()
+        })
       });
+      console.log('Firestore: persistencia offline activada ✓');
+    } catch(err) {
+      if (err.code === 'failed-precondition') {
+        console.warn('Firestore offline: múltiples pestañas activas, persistencia en una sola.');
+      } else if (err.code === 'unimplemented') {
+        console.warn('Firestore offline: este navegador no soporta persistencia IndexedDB.');
+      }
+    }
     try { auth = firebase.auth(); } catch(eA) { console.error('Error Firebase Auth:', eA); auth = null; }
     // Storage y Functions se cargan en background — inicializar cuando estén disponibles
     function _tryInitStorage() {
