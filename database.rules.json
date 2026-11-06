@@ -2,6 +2,9 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "_meta": {
+      ".read": "auth != null"
+    },
     "db": {
       ".read": "auth != null",
       "$collection": {
