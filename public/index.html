@@ -3093,11 +3093,11 @@ function _prewarmPDFAssets() {
   // Pre-cargar fuentes Poppins en background (evita espera de red al abrir PDF)
   const _ttfToB64 = buf => { const b=new Uint8Array(buf); let s=''; for(let i=0;i<b.byteLength;i++) s+=String.fromCharCode(b[i]); return btoa(s); };
   if (!window._poppinsBoldB64) {
-    fetch('https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Bold.ttf')
+    fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Bold.ttf')
       .then(r=>r.arrayBuffer()).then(buf=>{ window._poppinsBoldB64=_ttfToB64(buf); }).catch(()=>{});
   }
   if (!window._poppinsBlackB64) {
-    fetch('https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Black.ttf')
+    fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Black.ttf')
       .then(r=>r.arrayBuffer()).then(buf=>{ window._poppinsBlackB64=_ttfToB64(buf); }).catch(()=>{});
   }
   // Si ya tenemos el logo cacheado, no hacer nada más
@@ -11756,7 +11756,7 @@ function _cargarLogoYBuildCopiasPedido(vt) {
 
 function _buildCopiasPedidoPDF(vt, logoB64, logoW, logoH) {
   if (window._poppinsBoldB64) { _doPedidoPDF(vt, logoB64, logoW, logoH, window._poppinsBoldB64); return; }
-  fetch('https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Bold.ttf')
+  fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Bold.ttf')
     .then(r => { if (!r.ok) throw new Error('font'); return r.arrayBuffer(); })
     .then(buf => {
       const bytes = new Uint8Array(buf);
@@ -19651,11 +19651,11 @@ function _cargarFuenteYBuildPDF(c, logoB64, logoW, logoH, pdfWin, ventaOverride,
   const _withTimeout = (p, ms) => Promise.race([p, new Promise(res => setTimeout(() => res(null), ms))]);
   if (window._poppinsBoldB64 && window._poppinsBlackB64) { _precargarFotos(window._poppinsBoldB64); return; }
   const fetchPoppins = window._poppinsBoldB64 ? Promise.resolve(window._poppinsBoldB64)
-    : _withTimeout(fetch('https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Bold.ttf')
+    : _withTimeout(fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Bold.ttf')
         .then(r=>r.arrayBuffer()).then(buf=>{ window._poppinsBoldB64=_ttfToB64(buf); return window._poppinsBoldB64; })
         .catch(()=>null), 4000);
   const fetchMontserrat = window._poppinsBlackB64 ? Promise.resolve(window._poppinsBlackB64)
-    : _withTimeout(fetch('https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Black.ttf')
+    : _withTimeout(fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Black.ttf')
         .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.arrayBuffer(); })
         .then(buf=>{ window._poppinsBlackB64=_ttfToB64(buf); return window._poppinsBlackB64; })
         .catch(()=>null), 4000);
