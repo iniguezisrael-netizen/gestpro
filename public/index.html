@@ -738,17 +738,6 @@
     </div>
     <button class="btn btn-primary btn-full" onclick="doLogin()">Iniciar Sesión</button>
     <div id="login-error"></div>
-    <!-- MODO DEV — solo visible para admin -->
-    <div id="modo-dev-wrap" style="display:none;margin-top:14px">
-      <div onclick="_toggleModoDev()" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff7ed;border:1.5px solid #f97316;border-radius:10px;padding:9px 13px;cursor:pointer;user-select:none">
-        <div>
-          <div style="font-size:0.82rem;font-weight:700;color:#9a3412">🔧 Modo Desarrollo</div>
-          <div style="font-size:0.72rem;color:#c2410c">Sin Firebase — usa datos del último sync</div>
-        </div>
-        <div id="modo-dev-switch" style="flex-shrink:0;width:38px;height:21px;background:#cbd5e1;border-radius:99px;position:relative;transition:background .2s">
-          <div id="modo-dev-knob" style="position:absolute;top:3px;left:3px;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s"></div>
-        </div>
-      </div>
     </div>
     <p style="text-align:center;margin-top:10px"><a href="#" style="font-size:0.82rem;color:#64748b" onclick="event.preventDefault();recuperarPassword()">¿Olvidaste tu contraseña?</a></p>
 
@@ -756,12 +745,7 @@
 </div>
 
 <!-- APP -->
-<div id="app">
-<!-- Banner Modo Desarrollo -->
-<div id="modo-dev-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#f97316;color:#fff;text-align:center;padding:6px 12px;font-size:0.8rem;font-weight:700;letter-spacing:0.03em;cursor:pointer" title="Haz clic para apagar el Modo Desarrollo" onclick="_apgarModoDev()">
-  🔧 MODO DESARROLLO ACTIVO — sin Firebase &nbsp;·&nbsp; Clic aquí para apagar
-</div>
-  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+<div id="app">  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
   <div class="layout">
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
@@ -931,53 +915,6 @@ let functions = null;
 const EMAIL_DOMAIN = '@camperslacuesta.app';
 // El admin usa un correo real (para poder recuperar su contraseña); los demás usuarios usan el dominio falso interno.
 const ADMIN_USERNAME = 'admin';
-
-// ── MODO DESARROLLO — sin Firebase ─────────────────────────────────────────
-// Actívalo en el login para hacer pruebas sin generar lecturas en Firestore.
-const _MODO_DEV_KEY = 'gp_modo_dev';
-let _MODO_DEV = false;
-try { _MODO_DEV = localStorage.getItem(_MODO_DEV_KEY) === '1'; } catch(e) {}
-
-function _apgarModoDev() {
-  _MODO_DEV = false;
-  try { localStorage.setItem(_MODO_DEV_KEY, '0'); } catch(e) {}
-  location.reload();
-}
-
-function _toggleModoDev() {
-  _MODO_DEV = !_MODO_DEV;
-  try { localStorage.setItem(_MODO_DEV_KEY, _MODO_DEV ? '1' : '0'); } catch(e) {}
-  // Al activar dev mode: cancelar listeners activos para evitar sobrescrituras de Firestore
-  if (_MODO_DEV) {
-    _syncUnsubscribers.forEach(u => u());
-    _syncUnsubscribers = [];
-    _listenersStarted.clear();
-  }
-  const sw = document.getElementById('modo-dev-switch');
-  const kn = document.getElementById('modo-dev-knob');
-  if (sw) sw.style.background = _MODO_DEV ? '#f97316' : '#cbd5e1';
-  if (kn) kn.style.transform = _MODO_DEV ? 'translateX(17px)' : 'translateX(0)';
-}
-
-function _initModoDev() {
-  // Mostrar toggle solo cuando se escribe el usuario admin
-  const inp = document.getElementById('login-user');
-  const wrap = document.getElementById('modo-dev-wrap');
-  if (!inp || !wrap) return;
-  inp.addEventListener('input', () => {
-    wrap.style.display = inp.value.trim().length >= 3 ? 'block' : 'none';
-  });
-  // Aplicar estado guardado al toggle visual
-  if (_MODO_DEV) {
-    const sw = document.getElementById('modo-dev-switch');
-    const kn = document.getElementById('modo-dev-knob');
-    if (sw) sw.style.background = '#f97316';
-    if (kn) kn.style.transform = 'translateX(17px)';
-    // Mostrar el toggle activo (no pre-rellenar usuario para evitar confusión con secretaria/auxiliar)
-  }
-}
-// Iniciar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', _initModoDev);
 // ────────────────────────────────────────────────────────────────────────────
 let _adminRealEmail = '';
 function getLoginEmail(loginUser) {
@@ -1504,7 +1441,6 @@ async function fsReadCollection(colName) {
         if (doc.exists) return doc.data().items || [];
       } catch(_) {}
       // Sin caché → servidor (primera carga o caché vacío)
-      if (_MODO_DEV) return null; // Modo Dev: nunca ir al servidor
       const doc = await firestore.collection(colName).doc('data').get();
       return doc.exists ? (doc.data().items || []) : [];
     }
@@ -1519,7 +1455,6 @@ async function fsReadCollection(colName) {
       }
     } catch(_) {}
     // Sin caché → servidor (primera carga o caché vacío)
-    if (_MODO_DEV) return null; // Modo Dev: nunca ir al servidor
     const snap = await firestore.collection(colName).get();
     return snap.docs
       .filter(d => !d.id.startsWith('_'))
@@ -1855,13 +1790,6 @@ function saveDb(colChanged) {
     if (key) save(key, db[c] != null ? db[c] : []);
   });
   // Firestore (nube)
-  if (_MODO_DEV) {
-    // En dev mode solo proteger snapshots, sin escribir a Firestore
-    if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {};
-    const _devCols = colChanged ? (Array.isArray(colChanged) ? colChanged : [colChanged]) : Object.keys(_LS_KEYS);
-    _devCols.forEach(c => { window._ownWriteUntilByCol[c] = Date.now() + 5000; });
-    return;
-  }
   if (FIREBASE_ENABLED && firestore) {
     const isOffline = !navigator.onLine;
     // Proteger datos locales durante la escritura (online o offline).
@@ -2097,22 +2025,6 @@ async function _loadTombstonesFirestore() {
 
 // Cargar todos los datos desde Firestore al iniciar sesión
 async function loadFromFirebase() {
-  if (_MODO_DEV) {
-    // Modo Desarrollo: cargar desde caché offline de Firestore (IndexedDB, 0 lecturas de red)
-    setSyncStatus('syncing');
-    try {
-      const _devCols = FS_COLLECTIONS.filter(c => !['facturas'].includes(c));
-      const _devRes = await Promise.allSettled(_devCols.map(c => fsReadCollection(c)));
-      const _devLoaded = [], _devData = [];
-      _devRes.forEach((r, i) => { if (r.status === 'fulfilled' && r.value !== null) { _devLoaded.push(_devCols[i]); _devData.push(r.value); } });
-      if (_devLoaded.length) await _procesarColecciones(_devLoaded, _devData);
-    } catch(e) { console.warn('[DEV] Error cargando caché:', e); }
-    setSyncStatus('ok');
-    _appReady = true;
-    setTimeout(() => { if (currentPage) renderPage(currentPage); }, 200);
-    setTimeout(() => window._checkRecordatorios && window._checkRecordatorios(), 1500);
-    return;
-  }
   if (!FIREBASE_ENABLED || !firestore) return;
   setSyncStatus('syncing');
   try {
@@ -2257,7 +2169,6 @@ let _syncRenderTimer = null; // debounce para no re-renderizar en cada doc indiv
 
 // ── Lazy loading: inicia el listener de UNA colección ──────────────────────
 function _startSingleCollectionListener(colName) {
-  if (_MODO_DEV) return; // Modo Desarrollo: sin listeners
   if (_listenersStarted.has(colName)) return; // ya activo
   if (!FIREBASE_ENABLED || !firestore) return;
   _listenersStarted.add(colName);
@@ -2710,8 +2621,6 @@ async function doLogin() {
   }
 
   document.getElementById('login-screen').style.display = 'none';
-    // Mostrar banner si modo dev está activo
-    if (_MODO_DEV) { const b = document.getElementById('modo-dev-banner'); if (b) b.style.display = 'block'; };
   btn.disabled = false; btn.textContent = 'Entrar'; btn.classList.remove('btn-loading');
   // Si hay ?codigo= en URL y rol permitido → mostrar ficha interna QR
   if (window._mostrarFichaQR && ['admin','secretaria','auxiliar'].includes(session.rol) &&
@@ -14484,7 +14393,6 @@ function cancelarCfdi() {
 
 async function _sincronizarFacturas() {
   if (!FIREBASE_ENABLED || !firestore) return;
-  if (_MODO_DEV) return; // Modo Dev: sin lecturas de servidor
   if (window._facturasSyncDone) return; // ya sincronizó esta sesión
   window._facturasSyncDone = true;
   try {
