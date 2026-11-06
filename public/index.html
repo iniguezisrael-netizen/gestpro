@@ -216,6 +216,8 @@
   .dark-mode .rec-mcell.other-month { background:#090f1a; }
   .dark-mode .rec-search-bar { background:#0f172a; }
   .dark-mode .rec-search-bar input { color:#e2e8f0; }
+  @keyframes agendaSpin { to { transform: rotate(360deg); } }
+  @keyframes agendaFadeOut { to { opacity: 0; height: 0; margin: 0; padding: 0; border: none; overflow: hidden; } }
   /* ─────────────────────────────────────────────────────────── */
 
   /* STATS */
@@ -3189,7 +3191,7 @@ function renderPage(page) {
   else if (page === 'facturas') { renderFacturas(); _sincronizarFacturas(); }
   else if (page === 'vehiculos') renderVehiculos();
   else if (page === 'produccion') renderProduccion();
-  else if (page === 'agenda') renderAgenda();
+  else if (page === 'agenda') { window._agendaNavTs = Date.now(); renderAgenda(); }
   else if (page === 'compras') renderCompras();
   else if (page === 'clientes') renderClientes();
   else if (page === 'herramientas') renderHerramientas();
@@ -20451,6 +20453,12 @@ function renderAgenda() {
   const esAdmin = session.rol === 'admin';
   const hoy = new Date().toISOString().slice(0,10);
 
+  // ── Indicador de actualización ────────────────────────────────────
+  const _agendaStale = !window._agendaNavTs || (Date.now() - window._agendaNavTs) < 5000;
+  const _syncBanner = _agendaStale
+    ? `<div style="display:flex;align-items:center;gap:6px;font-size:0.74rem;color:#64748b;padding:4px 10px;background:var(--bg,#f8fafc);border:1px solid var(--border,#e2e8f0);border-radius:6px;margin-bottom:10px;animation:agendaFadeOut 0.4s 3.5s forwards"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;animation:agendaSpin 1s linear infinite"><path d="M21 12a9 9 0 11-6-8.5"/><path d="M21 3v5h-5"/></svg>Actualizando datos…</div>`
+    : '';
+
   // ── Divisor de sección ─────────────────────────────────────────────────
   const _secDiv = (label) => `<div style="display:flex;align-items:center;gap:10px;margin:20px 0 12px"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:0.75rem;font-weight:700;color:var(--text-light);letter-spacing:0.8px;text-transform:uppercase;white-space:nowrap;padding:0 4px">${label}</span><div style="flex:1;height:1px;background:var(--border)"></div></div>`;
 
@@ -20723,7 +20731,7 @@ function renderAgenda() {
     const _allFilterUsers = [...new Set([..._recUsuarios,..._persUsuarios.map(u=>u.n)])].filter(n=>n!==session.nombre).sort();
     const _curFiltVal = !window._recAgAdminFilter?'':window._recAgAdminFilter===session.nombre?`${session.nombre}|${session.uid}`:`${window._recAgAdminFilter}|${window._persAdminFilter}`;
     const _adminFilter = esAdmin?`<select onchange="var p=this.value.split('|');window._recAgAdminFilter=p[0]||'';window._persAdminFilter=p[1]||'';renderAgenda()" style="font-size:0.72rem;padding:3px 7px;border:1px solid var(--border,#e2e8f0);border-radius:6px;background:var(--card,#fff);color:var(--text,#374151)"><option value="" ${!_curFiltVal?'selected':''}>🔔 Todos</option><option value="${session.nombre}|${session.uid}" ${_curFiltVal===session.nombre+'|'+session.uid?'selected':''}>Solo míos</option>${_allFilterUsers.map(n=>{const uid=_userNameToUid[n]||'';const v=n+'|'+uid;return`<option value="${v}" ${_curFiltVal===v?'selected':''}>${esc(n)}</option>`}).join('')}</select>`:'';
-    return `<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="window._recSearchQ=this.value;renderAgenda()" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
+    return `${_syncBanner}<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="window._recSearchQ=this.value;renderAgenda()" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
   })() : `<div class="card" style="text-align:center;padding:30px;color:#94a3b8">Sin acceso a recordatorios.</div>`;
 
   if (window._recSecOpen === undefined) {
@@ -24362,11 +24370,12 @@ function logActividad(accion, detalle) {
     const _hoyStr = today();
     const _nowHM = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
     const _myUid = session.uid;
-    const _persVenc = (db.recordatoriosPersonales||[]).filter(p =>
-      !p.completado && p.usuarioId === _myUid &&
-      !(p.snoozeHasta && p.snoozeHasta > Date.now()) &&
-      p.fecha && (p.fecha < _hoyStr || (p.fecha === _hoyStr && (!p.hora || p.hora <= _nowHM)))
-    );
+    const _persVenc = (db.recordatoriosPersonales||[]).filter(p => {
+      if (p.completado || p.usuarioId !== _myUid) return false;
+      try { const _s = _getSnooze(); if (_s['pers_' + p.id] && _s['pers_' + p.id] > Date.now()) return false; } catch(e) {}
+      if (p.snoozeHasta && p.snoozeHasta > Date.now()) return false;
+      return p.fecha && (p.fecha < _hoyStr || (p.fecha === _hoyStr && (!p.hora || p.hora <= _nowHM)));
+    });
     if (!pendientes.length && !_persVenc.length) { const _ep=document.getElementById('_rec-panel'); if(_ep) _ep.remove(); return; }
     if (_panelSnoozedUntil > Date.now()) return; // cerrado con ✕, esperar snooze
     _mostrarPopupRecordatorios(pendientes, esAdmin);
@@ -24430,11 +24439,12 @@ function logActividad(accion, detalle) {
     // Personales vencidos del usuario actual (para popup)
     const _popupHoy = (typeof today==='function') ? today() : new Date().toISOString().slice(0,10);
     const _popupHM = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
-    const _popupPersV = (db.recordatoriosPersonales||[]).filter(p =>
-      !p.completado && p.usuarioId === session.uid &&
-      !(p.snoozeHasta && p.snoozeHasta > Date.now()) &&
-      p.fecha && (p.fecha < _popupHoy || (p.fecha === _popupHoy && (!p.hora || p.hora <= _popupHM)))
-    );
+    const _popupPersV = (db.recordatoriosPersonales||[]).filter(p => {
+      if (p.completado || p.usuarioId !== session.uid) return false;
+      try { const _s = _getSnooze(); if (_s['pers_' + p.id] && _s['pers_' + p.id] > Date.now()) return false; } catch(e) {}
+      if (p.snoozeHasta && p.snoozeHasta > Date.now()) return false;
+      return p.fecha && (p.fecha < _popupHoy || (p.fecha === _popupHoy && (!p.hora || p.hora <= _popupHM)));
+    });
 
     const panel = document.createElement('div');
     panel.id = '_rec-panel';
