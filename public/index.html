@@ -232,6 +232,7 @@
 
   /* TABLE */
   .table-wrap { overflow-x: auto; }
+  .tbl-inv-sticky thead th { position: sticky; top: 50px; z-index: 30; background: var(--bg); box-shadow: 0 1px 0 var(--border); }
   table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
   th { background: var(--bg); padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-light); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
   td { padding: 10px 12px; border-top: 1px solid var(--border); color: var(--text); transition: background 0.12s; }
@@ -3933,8 +3934,8 @@ function renderInventario(tipo, _tab, _skipSync) {
         <input type="text" placeholder="Buscar..." oninput="_invSearch(this,'${tipo}')" style="flex:1;min-width:140px" />
 
       </div>
-      <div class="table-wrap"><table id="tbl-${tipo}">
-        <tr>
+      <div class="table-wrap"><table id="tbl-${tipo}" class="tbl-inv-sticky">
+        <thead><tr>
           <th>Foto</th>
           <th>Nombre</th>
           ${tipo === 'materia' ? '<th>Código</th>' : ''}
@@ -3947,7 +3948,7 @@ function renderInventario(tipo, _tab, _skipSync) {
           ${!isAlmacenista ? '<th>P. Público</th>' : ''}
           ${tipo !== 'materia' && !isVendedor ? '<th style="cursor:pointer;user-select:none;white-space:nowrap" onclick="_filtrarProdEstadoClick(this,\'tbl-'+tipo+'\' )" title="Filtrar por estado" data-filter="">Estado <span style="font-size:10px;opacity:.7">▾</span></th>' : ''}
           <th>Acciones</th>
-        </tr>
+        </tr></thead><tbody>
         ${_pgInvTotal ? _pgInvPaged.map((i, _pgIdx) => {
           const foto = (i.fotos && i.fotos[0])
             ? `<img class="foto-thumb" src="${i.fotos[0]}" loading="lazy" onclick="openLightboxItem(${i.id},'${tipo}')" title="Ver fotos" />`
@@ -3983,7 +3984,7 @@ function renderInventario(tipo, _tab, _skipSync) {
             </td>
           </tr>`;
         }).join('') : `<tr><td colspan="12" class="td-empty">Sin registros. ${canEdit?'Agrega el primero.':''}</td></tr>`}
-      </table></div>
+      </tbody></table></div>
     ${(tipo==='materia'||tipo==='productos') ? `<div id="inv-pg-${tipo}">${_invPgControls(tipo, window._invPgPage[tipo]||0, _pgInvTotal, Math.ceil(_pgInvTotal/50))}</div>` : _pgHTML(_pgInvKey, _pgInvTotal, `renderInventario('${tipo}')`)}
     </div>`;
   // Partial update on search: only replace table rows + pagination, keep card structure stable
