@@ -3086,7 +3086,7 @@ function _prewarmPDFAssets() {
   // Pre-cargar jsPDF en background
   if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
     const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.src = '/jspdf.umd.min.js';
     s.async = true;
     document.head.appendChild(s);
   }
@@ -11542,7 +11542,7 @@ function _generarPDFDesdeVenta(vt) {
   if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
     console.log('[PDF] cargando jsPDF desde CDN...');
     const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.src = '/jspdf.umd.min.js';
     s.onload = () => { console.log('[PDF] jsPDF cargado'); _doBuild(); };
     s.onerror = () => _info('Error: no se pudo cargar jsPDF desde CDN. Verifica tu conexión.');
     document.head.appendChild(s);
@@ -19477,7 +19477,7 @@ function generarPDFCotiz(c) {
   window.jspdf = undefined;
   window.jsPDF = undefined;
   const s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  s.src = '/jspdf.umd.min.js';
   s.onload = () => { console.log('[PDF] jsPDF cargado OK, jspdf=', typeof window.jspdf, 'jsPDF=', typeof window.jsPDF); _doBuild(); };
   s.onerror = (e) => {
     console.error('[PDF] CDN bloqueado o sin internet:', e);
@@ -22024,7 +22024,7 @@ function generarPDFCompra(id, elaboroOverride) {
   const _doGen = () => _withLogo(logoB64 => _withBarcode(logoB64, (l, bc) => _buildPDFCompra(oc, l, bc, elaboroOverride)));
   if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
     const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.src = '/jspdf.umd.min.js';
     s.onload = _doGen;
     s.onerror = () => _info('No se pudo cargar jsPDF. Verifica tu conexión.');
     document.head.appendChild(s);
