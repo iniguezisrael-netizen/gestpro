@@ -2034,6 +2034,28 @@ async function _loadTombstonesFirestore() {
     });
     if (changed) try { localStorage.setItem(_FS_TOMBSTONES_KEY, JSON.stringify(_fsTombstones)); } catch(e) {}
   } catch(e) { console.warn('[tombstone] carga desde FS error:', e); }
+  // Merge adicional desde RTDB (para cuando el listener de RTDB reemplaza al de Firestore)
+  if (rtdb) {
+    try {
+      const _rtSnap = await rtdb.ref('_meta/tombstones').once('value');
+      const _rtData = _rtSnap.val();
+      if (_rtData) {
+        let _rtChanged = false;
+        Object.keys(_rtData).forEach(col => {
+          const colData = _rtData[col];
+          if (!colData || typeof colData !== 'object') return;
+          if (!_fsTombstones[col]) _fsTombstones[col] = {};
+          Object.keys(colData).forEach(id => {
+            if (!_fsTombstones[col][id]) {
+              _fsTombstones[col][id] = typeof colData[id] === 'number' ? colData[id] : Date.now();
+              _rtChanged = true;
+            }
+          });
+        });
+        if (_rtChanged) try { localStorage.setItem(_FS_TOMBSTONES_KEY, JSON.stringify(_fsTombstones)); } catch(e) {}
+      }
+    } catch(_rtErr) { console.warn('[tombstone] RTDB merge error:', _rtErr.message); }
+  }
 }
 
 // Cargar todos los datos desde Firestore al iniciar sesión
@@ -4382,6 +4404,12 @@ function _addTombstone(colName, id) {
   try { localStorage.setItem(_FS_TOMBSTONES_KEY, JSON.stringify(_fsTombstones)); } catch(e) {}
   // Persistir en Firestore para que otros dispositivos también lo respeten
   _saveTombstoneFirestore(colName, id);
+  // Persistir en RTDB para que el futuro listener de RTDB lo respete también
+  if (rtdb && RTDB_DUAL_WRITE) {
+    rtdb.ref('_meta/tombstones/' + colName + '/' + String(id))
+      .set(Date.now())
+      .catch(e => console.warn('[tombstone] RTDB error:', e));
+  }
 }
 function _saveTombstoneFirestore(colName, id) {
   if (typeof FIREBASE_ENABLED === 'undefined' || !FIREBASE_ENABLED || !firestore) return;
