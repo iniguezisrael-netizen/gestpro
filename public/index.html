@@ -1669,6 +1669,36 @@ async function _rtdbWriteCollection(colName, arr) {
   } catch(e) { console.warn('[rtdb-write]', colName, e); }
 }
 
+// Verifica en Firestore si las cajas abiertas tienen más movimientos que RTDB.
+// Se llama en background (setTimeout) después de la carga rápida desde RTDB para detectar
+// escrituras a Firestore que no llegaron a RTDB (p.ej. navegador cerrado a media escritura).
+async function _verificarCajasAbiertas() {
+  if (!firestore || !rtdb || !RTDB_DUAL_WRITE) return;
+  try {
+    const cajasAbiertas = (db.cajas || []).filter(c => !c.cerrada);
+    if (!cajasAbiertas.length) return;
+    let actualizado = false;
+    for (const cajaLocal of cajasAbiertas) {
+      const snap = await firestore.collection('cajas').doc(String(cajaLocal.id)).get();
+      if (!snap.exists) continue;
+      const cajaFS = snap.data();
+      const movsFS   = (cajaFS.movimientos   || []).length;
+      const movsLocal = (cajaLocal.movimientos || []).length;
+      if (movsFS > movsLocal) {
+        // Firestore tiene más movimientos que RTDB — sincronizar
+        const idx = db.cajas.findIndex(c => String(c.id) === String(cajaLocal.id));
+        if (idx >= 0) db.cajas[idx] = cajaFS;
+        await rtdb.ref('db/cajas/' + String(cajaLocal.id)).set(cajaFS);
+        console.log('[sync-caja] Caja ' + cajaLocal.id + ' sincronizada: ' + movsLocal + ' → ' + movsFS + ' movimientos ✓');
+        actualizado = true;
+      }
+    }
+    if (actualizado && currentPage === 'caja') {
+      if (typeof renderCaja === 'function') renderCaja();
+    }
+  } catch(e) { console.warn('[sync-caja]', e); }
+}
+
 async function _rtdbDeleteFromCollection(colName, id) {
   if (!rtdb || !RTDB_DUAL_WRITE) return;
   try {
@@ -2101,6 +2131,8 @@ async function loadFromFirebase() {
             const _rFotos = _COLS_CON_FOTOS.some(col => (db[col]||[]).some(it => (it.fotos||[]).some(f => f && f.startsWith('data:'))));
             if (_rFotos) await sincronizarFotosPendientes();
             console.log('[RTDB] ' + _rCols.length + ' cols cargadas ✓ — 0 lecturas Firestore');
+            // Background: verificar cajas abiertas vs Firestore (detecta escrituras RTDB perdidas)
+            setTimeout(() => _verificarCajasAbiertas().catch(() => {}), 2000);
             return;
           }
         }
@@ -12531,8 +12563,10 @@ function _cajaMovAdd(caja, mov) {
   } else if (FIREBASE_ENABLED) {
     _hasPendingSync = true; _markPendingSync('cajas');
   }
-  // RTDB dual-write directo — no depende de que el caller llame saveDb('cajas')
-  if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection('cajas', db.cajas).catch(() => {});
+  // RTDB dual-write directo — no depende de que el caller llame saveDb('cajas').
+  // Escribe SOLO la caja modificada (no la colección completa) para que sea más rápido y no
+  // se pierda si el navegador se cierra antes de que termine una escritura grande.
+  if (RTDB_DUAL_WRITE && rtdb) rtdb.ref('db/cajas/' + String(caja.id)).set(caja).catch(() => {});
 }
 
 function _cajaMovRemove(caja, movId) {

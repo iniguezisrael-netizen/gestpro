@@ -64,9 +64,23 @@ Incrementar en cada deploy que requiera invalidar caché de usuarios.
 
 ## Pendientes de sesiones anteriores
 - [ ] `_EMPRESA` security fix: datos bancarios/RFC en HTML público (líneas ~200-250 aprox.)
-- [ ] `dailyBackup` Cloud Function: falta `.trim()` en credenciales R2 — fix listo, no deploado
-- [ ] RTDB write rules: cambiar collection-level write a `.write: false`
+- [x] `dailyBackup` Cloud Function: `.trim()` ya estaba aplicado — no requería cambio
+- [x] Firestore persistence: migrado de `enablePersistence` a `settings({localCache})` — commit c7db2da
+- [x] RTDB write rules: `_meta/tombstones` tightened — commit c7db2da + publicado en Firebase Console
 - [ ] Verificar NV 195 — si aún muestra $0, buscar en RTDB o investigar causa distinta
+
+## PRÓXIMA SESIÓN (2026-11-10, después de las 3pm) — PRIORITARIO
+### Problema raíz: escrituras RTDB grandes pueden perderse si el navegador se cierra
+- **Causa**: `_rtdbWriteCollection` escribe TODA la colección (pesado/lento). Si se interrumpe,
+  RTDB queda desactualizado vs Firestore. Al cargar, app lee RTDB (≥10 cols) y salta Firestore → dato perdido.
+- **Fix 1 (write path)**: Cambiar `_cajaMovAdd` y otros para hacer write targetizado al doc específico
+  en RTDB (`database.ref('/db/cajas/' + caja.id).set(caja)`) en lugar de `_rtdbWriteCollection`.
+  Aplica también a `confirmarCierre` y `saveDb` donde sea posible.
+- **Fix 2 (load path)**: Cambiar `loadFromFirebase` para que, al detectar RTDB ≥10 colecciones, aún
+  compare conteos de documentos en colecciones críticas (cajas, ventas) vs Firestore. Si hay
+  discrepancia → recargar esa colección desde Firestore.
+- **Dato de referencia**: El movimiento $520 ("Concha no. 11 bolita", 2026-11-07 12:22) fue
+  restaurado manualmente en RTDB vía browser el 2026-11-09. Caja 1276614, Secretaria.
 
 ## Reglas de operación — NO HACER SIN AUTORIZACIÓN EXPLÍCITA
 - NO correr migraciones de datos sin confirmación
