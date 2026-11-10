@@ -2267,10 +2267,17 @@ function _startRTDBListenerForCol(colName) {
     // Parsear formato RTDB → array
     let items;
     if (_isArray) {
-      items = (raw.items || []).filter(x => x && x.id != null);
-    } else {
-      items = Object.values(raw).filter(x => x && typeof x === 'object' && x.id != null);
+      // Fix 8: FS_ARRAY_COLS (ej. clientesCredito) guarda strings, no objetos con .id
+      // El filtro anterior eliminaba TODOS los items → db.clientesCredito quedaba vacío → créditos perdidos
+      const _arrItems = Array.isArray(raw.items) ? raw.items.filter(x => x != null) : [];
+      if (!_arrItems.length && (db[colName] || []).length > 0) return; // no sobreescribir con vacío
+      try { db[colName] = _arrItems.slice(); save('gp_' + colName, db[colName]); _touchColTs(colName); } catch(e) {}
+      _syncInitialized[colName] = true;
+      clearTimeout(_syncRenderTimer);
+      _syncRenderTimer = setTimeout(() => { if (currentPage) renderPage(currentPage); }, _RENDER_DEBOUNCE);
+      return; // saltar merge/tombstone/serverSnapshot — diseñados para objetos, no strings
     }
+    items = Object.values(raw).filter(x => x && typeof x === 'object' && x.id != null);
     // Tombstones: filtrar eliminados
     const colTombstones = _fsTombstones[colName] || {};
     items = items.filter(x => !colTombstones[String(x.id)]);
