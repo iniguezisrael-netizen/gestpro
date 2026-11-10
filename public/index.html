@@ -1674,6 +1674,13 @@ async function _rtdbWriteCollection(colName, arr) {
 // escrituras a Firestore que no llegaron a RTDB (p.ej. navegador cerrado a media escritura).
 async function _verificarCajasAbiertas() {
   if (!firestore || !rtdb || !RTDB_DUAL_WRITE) return;
+  // Fix 7: TTL 1 hora — solo verificar una vez por hora para evitar reads Firestore en cada login
+  const _VCAJ_KEY = 'gp_vcajas_ts';
+  try {
+    const _last = parseInt(localStorage.getItem(_VCAJ_KEY) || '0', 10);
+    if (Date.now() - _last < 60 * 60 * 1000) return;
+    localStorage.setItem(_VCAJ_KEY, String(Date.now()));
+  } catch(_) {}
   try {
     const cajasAbiertas = (db.cajas || []).filter(c => !c.cerrada);
     if (!cajasAbiertas.length) return;
@@ -2046,12 +2053,18 @@ async function _procesarColecciones(cols, results) {
 // Cargar tombstones desde Firestore y mezclar con los locales
 async function _loadTombstonesFirestore() {
   if (!FIREBASE_ENABLED || !firestore) return;
+  // Fix 5: TTL 30 min — si los tombstones se cargaron del servidor recientemente, omitir lectura Firestore
+  const _TS_SRV_KEY = 'gp_tombstones_srv_ts';
+  const _TS_TTL = 30 * 60 * 1000;
+  let _skipFS = false;
+  try { _skipFS = (Date.now() - parseInt(localStorage.getItem(_TS_SRV_KEY) || '0', 10)) < _TS_TTL; } catch(_) {}
+  if (!_skipFS) {
   try {
     // Caché primero: los tombstones cambian poco, evitar lectura de servidor en cada login
     let doc;
     try { doc = await firestore.collection('_meta').doc('tombstones').get({ source: 'cache' }); } catch(_) {}
     if (!doc || !doc.exists) doc = await firestore.collection('_meta').doc('tombstones').get();
-    if (!doc.exists) return;
+    if (!doc.exists) { try { localStorage.setItem(_TS_SRV_KEY, String(Date.now())); } catch(_) {} return; }
     const data = doc.data() || {};
     let changed = false;
     Object.keys(data).forEach(col => {
@@ -2067,7 +2080,9 @@ async function _loadTombstonesFirestore() {
       });
     });
     if (changed) try { localStorage.setItem(_FS_TOMBSTONES_KEY, JSON.stringify(_fsTombstones)); } catch(e) {}
+    try { localStorage.setItem(_TS_SRV_KEY, String(Date.now())); } catch(_) {} // Fix 5: marcar timestamp
   } catch(e) { console.warn('[tombstone] carga desde FS error:', e); }
+  } // end if (!_skipFS)
   // Merge adicional desde RTDB (para cuando el listener de RTDB reemplaza al de Firestore)
   if (rtdb) {
     try {
@@ -2125,9 +2140,7 @@ async function loadFromFirebase() {
             if (currentPage) renderPage(currentPage);
             if (session && session.rol === 'admin') _iniciarRespaldoAutomatico();
             setTimeout(() => window._checkRecordatorios && window._checkRecordatorios(), 1500);
-            const _rNextId = await fsReadNextId();
-            if (_rNextId !== null && _rNextId > nextId) { nextId = _rNextId; save('gp_nextid', nextId); }
-            _refillIdPool().catch(() => {});
+            _refillIdPool().catch(() => {}); // Fix 6: _refillIdPool ya incluye la lectura/escritura de nextId — fsReadNextId() era redundante
             const _rFotos = _COLS_CON_FOTOS.some(col => (db[col]||[]).some(it => (it.fotos||[]).some(f => f && f.startsWith('data:'))));
             if (_rFotos) await sincronizarFotosPendientes();
             console.log('[RTDB] ' + _rCols.length + ' cols cargadas ✓ — 0 lecturas Firestore');
@@ -14565,6 +14578,7 @@ function cancelarCfdi() {
 async function _sincronizarFacturas() {
   if (!FIREBASE_ENABLED || !firestore) return;
   if (window._facturasSyncDone) return; // ya sincronizó esta sesión
+  if ((db.facturas || []).length > 0) { window._facturasSyncDone = true; return; } // Fix 4: ya en memoria, sin leer Firestore
   window._facturasSyncDone = true;
   try {
     // Caché primero: 0 lecturas de servidor si IndexedDB tiene datos (igual que fsReadCollection)
