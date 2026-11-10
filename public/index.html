@@ -2128,6 +2128,14 @@ async function loadFromFirebase() {
           FS_COLLECTIONS.forEach(col => {
             const raw = _rAll[col];
             if (raw && typeof raw === 'object') {
+              // Fix 9: FS_ARRAY_COLS (ej. clientesCredito) usa {data:{items:[]}} sin .id
+              // El filtro .id != null las excluía → db.clientesCredito quedaba vacío al arrancar
+              if (FS_ARRAY_COLS.includes(col)) {
+                const _d = raw.data;
+                const _arr = (_d && Array.isArray(_d.items)) ? _d.items.filter(x => x != null) : [];
+                if (_arr.length) { db[col] = _arr; save('gp_' + col, db[col]); }
+                return;
+              }
               const items = Object.values(raw).filter(x => x && x.id != null);
               if (items.length) { _rCols.push(col); _rData.push(items); }
             }
