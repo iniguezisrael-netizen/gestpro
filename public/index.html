@@ -5700,7 +5700,6 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
     }
   }
   const estadoAnterior = vt.estado;
-  const estadoAnterior = vt.estado;
   if (nuevoEstado === 'Reportado') {
     vt.reportadoPor = session.rol==='admin'?'Administrador':session.rol==='secretaria'?'Secretaria':'Auxiliar';
   } else if (estadoAnterior === 'Reportado') {
