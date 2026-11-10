@@ -8158,6 +8158,11 @@ async function archivarVenta(id, opts = {}) {
               .update({ archivado: true, archivadoPor: vt.archivadoPor, archivadoEn: now })
               .catch(e => console.error('[archivar] FS error:', e));
           }
+          // Fix: también escribir a RTDB para evitar que el listener revierta el archivado
+          if (RTDB_DUAL_WRITE && rtdb) {
+            rtdb.ref('db/ventas/' + String(id)).update({ archivado: true, archivadoPor: vt.archivadoPor, archivadoEn: now })
+              .catch(e => console.error('[archivar] RTDB error:', e));
+          }
           // Auto-archivar cobranza vinculada (solo si no skipCobranza)
           if (!skipCobranza) {
             const cobVinculada = (db.cobranza||[]).filter(c => c.ventaId === id && !c.archivado);
