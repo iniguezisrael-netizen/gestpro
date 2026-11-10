@@ -5618,6 +5618,11 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
   }
   const estadoAnterior = vt.estado;
   vt.estado = nuevoEstado;
+  if (nuevoEstado === 'Reportado') {
+    vt.reportadoPor = session.rol==='admin'?'Administrador':session.rol==='secretaria'?'Secretaria':'Auxiliar';
+  } else if (estadoAnterior === 'Reportado') {
+    vt.reportadoPor = null;
+  }
   // Si pasan a Pagada y tenía saldo, limpiar el saldo (el usuario confirma que ya cobró)
   if (nuevoEstado === 'Pagada' && vt.saldo > 0) {
     _confirm(`El pedido tiene un saldo de $${fmt(vt.saldo)}. ¿Ya se cobró? Esto marcará el saldo en $0.`,
