@@ -8200,7 +8200,9 @@ function _vtNombreCredito(vt) {
   return (vt && vt.ctEmpresa && vt.ctEmpresa !== 'No aplica') ? vt.ctEmpresa : (vt && vt.cliente) || '';
 }
 function vtCreditoAutorizado(vt) {
-  return clienteCreditoAutorizado(_vtNombreCredito(vt));
+  const nombre = _vtNombreCredito(vt);
+  if (!nombre || nombre.trim().toLowerCase() === 'particular') return false;
+  return clienteCreditoAutorizado(nombre);
 }
 function autorizarCreditoCliente(nombre) {
   const k = clienteKey(nombre);
