@@ -252,8 +252,6 @@
   .badge-blue   { background: #dbeafe; color: #1e40af; }
   .badge-orange  { background: #ffedd5; color: #c2410c; }
   .badge-purple  { background: #ede9fe; color: #5b21b6; }
-  .badge-reportado { background:#fdf4ff; color:#7e22ce; border:1px solid #d8b4fe; display:inline-flex; flex-direction:column; align-items:center; gap:0; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; line-height:1.3 }
-  .badge-reportado .rp-rol { font-size:0.65rem; font-weight:400; opacity:.7 }
   .badge-gray   { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
   /* MODAL */
@@ -972,22 +970,18 @@ if (FIREBASE_ENABLED) {
     // ──────────────────────────────────────────────────────────────────────
     firestore = firebase.firestore();
     try { rtdb = firebase.database(); } catch(e) { console.warn('RTDB init error:', e); }
-    // Persistencia offline multi-pestaña (IndexedDB) — API no deprecada para Firebase 10.x.
-    // settings() debe llamarse antes de cualquier operación de Firestore.
-    try {
-      firestore.settings({
-        localCache: firebase.firestore.persistentLocalCache({
-          tabManager: firebase.firestore.persistentMultipleTabManager()
-        })
+    // Persistencia offline: Firestore guarda las escrituras localmente y las envía
+    // automáticamente cuando regresa la conexión. synchronizeTabs:true permite
+    // que múltiples pestañas compartan el mismo caché offline.
+    firestore.enablePersistence({ synchronizeTabs: true })
+      .then(() => console.log('Firestore: persistencia offline activada ✓'))
+      .catch(err => {
+        if (err.code === 'failed-precondition') {
+          console.warn('Firestore offline: múltiples pestañas activas, persistencia en una sola.');
+        } else if (err.code === 'unimplemented') {
+          console.warn('Firestore offline: este navegador no soporta persistencia IndexedDB.');
+        }
       });
-      console.log('Firestore: persistencia offline activada ✓');
-    } catch(err) {
-      if (err.code === 'failed-precondition') {
-        console.warn('Firestore offline: múltiples pestañas activas, persistencia en una sola.');
-      } else if (err.code === 'unimplemented') {
-        console.warn('Firestore offline: este navegador no soporta persistencia IndexedDB.');
-      }
-    }
     try { auth = firebase.auth(); } catch(eA) { console.error('Error Firebase Auth:', eA); auth = null; }
     // Storage y Functions se cargan en background — inicializar cuando estén disponibles
     function _tryInitStorage() {
@@ -1671,43 +1665,6 @@ async function _rtdbWriteCollection(colName, arr) {
   } catch(e) { console.warn('[rtdb-write]', colName, e); }
 }
 
-// Verifica en Firestore si las cajas abiertas tienen más movimientos que RTDB.
-// Se llama en background (setTimeout) después de la carga rápida desde RTDB para detectar
-// escrituras a Firestore que no llegaron a RTDB (p.ej. navegador cerrado a media escritura).
-async function _verificarCajasAbiertas() {
-  if (!firestore || !rtdb || !RTDB_DUAL_WRITE) return;
-  // Fix 7: TTL 1 hora — solo verificar una vez por hora para evitar reads Firestore en cada login
-  const _VCAJ_KEY = 'gp_vcajas_ts';
-  try {
-    const _last = parseInt(localStorage.getItem(_VCAJ_KEY) || '0', 10);
-    if (Date.now() - _last < 60 * 60 * 1000) return;
-    localStorage.setItem(_VCAJ_KEY, String(Date.now()));
-  } catch(_) {}
-  try {
-    const cajasAbiertas = (db.cajas || []).filter(c => !c.cerrada);
-    if (!cajasAbiertas.length) return;
-    let actualizado = false;
-    for (const cajaLocal of cajasAbiertas) {
-      const snap = await firestore.collection('cajas').doc(String(cajaLocal.id)).get();
-      if (!snap.exists) continue;
-      const cajaFS = snap.data();
-      const movsFS   = (cajaFS.movimientos   || []).length;
-      const movsLocal = (cajaLocal.movimientos || []).length;
-      if (movsFS > movsLocal) {
-        // Firestore tiene más movimientos que RTDB — sincronizar
-        const idx = db.cajas.findIndex(c => String(c.id) === String(cajaLocal.id));
-        if (idx >= 0) db.cajas[idx] = cajaFS;
-        await rtdb.ref('db/cajas/' + String(cajaLocal.id)).set(cajaFS);
-        console.log('[sync-caja] Caja ' + cajaLocal.id + ' sincronizada: ' + movsLocal + ' → ' + movsFS + ' movimientos ✓');
-        actualizado = true;
-      }
-    }
-    if (actualizado && currentPage === 'caja') {
-      if (typeof renderCaja === 'function') renderCaja();
-    }
-  } catch(e) { console.warn('[sync-caja]', e); }
-}
-
 async function _rtdbDeleteFromCollection(colName, id) {
   if (!rtdb || !RTDB_DUAL_WRITE) return;
   try {
@@ -2055,18 +2012,12 @@ async function _procesarColecciones(cols, results) {
 // Cargar tombstones desde Firestore y mezclar con los locales
 async function _loadTombstonesFirestore() {
   if (!FIREBASE_ENABLED || !firestore) return;
-  // Fix 5: TTL 30 min — si los tombstones se cargaron del servidor recientemente, omitir lectura Firestore
-  const _TS_SRV_KEY = 'gp_tombstones_srv_ts';
-  const _TS_TTL = 30 * 60 * 1000;
-  let _skipFS = false;
-  try { _skipFS = (Date.now() - parseInt(localStorage.getItem(_TS_SRV_KEY) || '0', 10)) < _TS_TTL; } catch(_) {}
-  if (!_skipFS) {
   try {
     // Caché primero: los tombstones cambian poco, evitar lectura de servidor en cada login
     let doc;
     try { doc = await firestore.collection('_meta').doc('tombstones').get({ source: 'cache' }); } catch(_) {}
     if (!doc || !doc.exists) doc = await firestore.collection('_meta').doc('tombstones').get();
-    if (!doc.exists) { try { localStorage.setItem(_TS_SRV_KEY, String(Date.now())); } catch(_) {} return; }
+    if (!doc.exists) return;
     const data = doc.data() || {};
     let changed = false;
     Object.keys(data).forEach(col => {
@@ -2082,9 +2033,7 @@ async function _loadTombstonesFirestore() {
       });
     });
     if (changed) try { localStorage.setItem(_FS_TOMBSTONES_KEY, JSON.stringify(_fsTombstones)); } catch(e) {}
-    try { localStorage.setItem(_TS_SRV_KEY, String(Date.now())); } catch(_) {} // Fix 5: marcar timestamp
   } catch(e) { console.warn('[tombstone] carga desde FS error:', e); }
-  } // end if (!_skipFS)
   // Merge adicional desde RTDB (para cuando el listener de RTDB reemplaza al de Firestore)
   if (rtdb) {
     try {
@@ -2130,14 +2079,6 @@ async function loadFromFirebase() {
           FS_COLLECTIONS.forEach(col => {
             const raw = _rAll[col];
             if (raw && typeof raw === 'object') {
-              // Fix 9: FS_ARRAY_COLS (ej. clientesCredito) usa {data:{items:[]}} sin .id
-              // El filtro .id != null las excluía → db.clientesCredito quedaba vacío al arrancar
-              if (FS_ARRAY_COLS.includes(col)) {
-                const _d = raw.data;
-                const _arr = (_d && Array.isArray(_d.items)) ? _d.items.filter(x => x != null) : [];
-                if (_arr.length) { db[col] = _arr; save('gp_' + col, db[col]); }
-                return;
-              }
               const items = Object.values(raw).filter(x => x && x.id != null);
               if (items.length) { _rCols.push(col); _rData.push(items); }
             }
@@ -2150,12 +2091,12 @@ async function loadFromFirebase() {
             if (currentPage) renderPage(currentPage);
             if (session && session.rol === 'admin') _iniciarRespaldoAutomatico();
             setTimeout(() => window._checkRecordatorios && window._checkRecordatorios(), 1500);
-            _refillIdPool().catch(() => {}); // Fix 6: _refillIdPool ya incluye la lectura/escritura de nextId — fsReadNextId() era redundante
+            const _rNextId = await fsReadNextId();
+            if (_rNextId !== null && _rNextId > nextId) { nextId = _rNextId; save('gp_nextid', nextId); }
+            _refillIdPool().catch(() => {});
             const _rFotos = _COLS_CON_FOTOS.some(col => (db[col]||[]).some(it => (it.fotos||[]).some(f => f && f.startsWith('data:'))));
             if (_rFotos) await sincronizarFotosPendientes();
             console.log('[RTDB] ' + _rCols.length + ' cols cargadas ✓ — 0 lecturas Firestore');
-            // Background: verificar cajas abiertas vs Firestore (detecta escrituras RTDB perdidas)
-            setTimeout(() => _verificarCajasAbiertas().catch(() => {}), 2000);
             return;
           }
         }
@@ -2277,17 +2218,10 @@ function _startRTDBListenerForCol(colName) {
     // Parsear formato RTDB → array
     let items;
     if (_isArray) {
-      // Fix 8: FS_ARRAY_COLS (ej. clientesCredito) guarda strings, no objetos con .id
-      // El filtro anterior eliminaba TODOS los items → db.clientesCredito quedaba vacío → créditos perdidos
-      const _arrItems = Array.isArray(raw.items) ? raw.items.filter(x => x != null) : [];
-      if (!_arrItems.length && (db[colName] || []).length > 0) return; // no sobreescribir con vacío
-      try { db[colName] = _arrItems.slice(); save('gp_' + colName, db[colName]); _touchColTs(colName); } catch(e) {}
-      _syncInitialized[colName] = true;
-      clearTimeout(_syncRenderTimer);
-      _syncRenderTimer = setTimeout(() => { if (currentPage) renderPage(currentPage); }, _RENDER_DEBOUNCE);
-      return; // saltar merge/tombstone/serverSnapshot — diseñados para objetos, no strings
+      items = (raw.items || []).filter(x => x && x.id != null);
+    } else {
+      items = Object.values(raw).filter(x => x && typeof x === 'object' && x.id != null);
     }
-    items = Object.values(raw).filter(x => x && typeof x === 'object' && x.id != null);
     // Tombstones: filtrar eliminados
     const colTombstones = _fsTombstones[colName] || {};
     items = items.filter(x => !colTombstones[String(x.id)]);
@@ -2386,7 +2320,6 @@ function _startSingleCollectionListener(colName) {
 
   // ── Colecciones estáticas: una sola lectura, sin listener permanente ────────
   if (FS_STATIC_COLS.includes(colName)) {
-    if ((db[colName] || []).length > 0) { _syncInitialized[colName] = true; return; }
     firestore.collection(colName).get({ source: 'cache' }).then(snap => {
       if (snap.empty) return firestore.collection(colName).get();
       return snap;
@@ -5482,12 +5415,10 @@ function _vtRowsHTML() {
       : can(['admin','secretaria','auxiliar']) && vt.estado !== 'Cancelada' ? `
       <select onchange="_cambiarEstadoVtInline(${vt.id},this.value)" onclick="event.stopPropagation()"
         style="padding:3px 6px;border-radius:12px;font-size:0.78rem;font-weight:600;border:none;cursor:pointer;outline:none;
-          ${vt.estado==='Pagada'?'background:#dcfce7;color:#15803d':vt.estado==='Terminada'?'background:#ede9fe;color:#5b21b6':vt.estado==='En Proceso'?'background:#dbeafe;color:#1e40af':vt.estado==='Reportado'?'background:#fdf4ff;color:#7e22ce':'background:#fef3c7;color:#92400e'}">
-        ${(can(['admin'])?['Pendiente','En Proceso','Terminada','Entregado','Pagada','Reportado','Cancelada']:['Pendiente','En Proceso','Terminada','Entregado','Pagada','Reportado']).map(s=>`<option value="${s}" ${vt.estado===s?'selected':''}>${s}</option>`).join('')}
-      </select>
-      ${vt.estado==='Reportado'&&vt.reportadoPor?`<div style="font-size:0.65rem;color:#7e22ce;text-align:center;margin-top:1px;opacity:0.75">${esc(vt.reportadoPor)}</div>`:''}
-      ` :
-      `<span class="badge ${vt.estado==='Pagada'?'badge-green':vt.estado==='Terminada'?'badge-purple':vt.estado==='Reportado'?'badge-reportado':vt.estado==='Listo para entrega'?'badge-orange':vt.estado==='En Proceso'?'badge-blue':vt.estado==='Pendiente'?'badge-yellow':'badge-red'}">${vt.estado}</span>`
+          ${vt.estado==='Pagada'?'background:#dcfce7;color:#15803d':vt.estado==='Terminada'?'background:#ede9fe;color:#5b21b6':vt.estado==='En Proceso'?'background:#dbeafe;color:#1e40af':'background:#fef3c7;color:#92400e'}">
+        ${(can(['admin'])?['Pendiente','En Proceso','Terminada','Entregado','Pagada','Cancelada']:['Pendiente','En Proceso','Terminada','Entregado','Pagada']).map(s=>`<option value="${s}" ${vt.estado===s?'selected':''}>${s}</option>`).join('')}
+      </select>` :
+      `<span class="badge ${vt.estado==='Pagada'?'badge-green':vt.estado==='Terminada'?'badge-purple':vt.estado==='Listo para entrega'?'badge-orange':vt.estado==='En Proceso'?'badge-blue':vt.estado==='Pendiente'?'badge-yellow':'badge-red'}">${vt.estado}</span>`
     }</td>
     ${mostrandoArchivo ? `<td style="font-size:0.82rem;color:#0f766e;white-space:nowrap">${esc(vt.archivadoPor||'—')}${vt.archivadoEn?`<br><span style="color:#94a3b8">${fechaLarga(vt.archivadoEn.slice(0,10))}</span>`:''}</td>` : ''}
     <td style="display:flex;gap:4px">
@@ -5617,7 +5548,7 @@ function renderVentas(force) {
             <td>${vt.folioPedido?`<strong>${esc(vt.folioPedido.replace(/^NOTA DE VENTA-(\d+)$/i,'NV $1'))}</strong>`:`#${vt.id}`}</td>
             <td style="white-space:nowrap">${fechaCorta(vt.fecha)}</td><td>${esc(vt.cliente)}</td>
             <td><strong>$${fmt(vt.total)}</strong></td>
-            <td>${vt.estado==='Reportado'?`<span class="badge badge-reportado">🚩 Reportado${vt.reportadoPor?`<span class="rp-rol">${esc(vt.reportadoPor)}</span>`:''}</span>`:`<span class="badge ${vt.estado==='Pagada'||vt.estado==='Entregado'?'badge-green':vt.estado==='Cancelada'?'badge-red':vt.estado==='Listo para entrega'?'badge-orange':vt.estado==='En Proceso'?'badge-blue':'badge-yellow'}">${vt.estado}</span>`}</td>
+            <td><span class="badge ${vt.estado==='Pagada'||vt.estado==='Entregado'?'badge-green':vt.estado==='Cancelada'?'badge-red':vt.estado==='Listo para entrega'?'badge-orange':vt.estado==='En Proceso'?'badge-blue':'badge-yellow'}">${vt.estado}</span></td>
             <td><button class="btn btn-danger btn-sm" onclick="eliminarVentaPermanente(${vt.id})" title="Eliminar permanentemente">🗑️ Eliminar</button></td>
           </tr>`).join('') : `<tr><td colspan="8" class="td-empty">Sin registros.</td></tr>`}
         </table></div>
@@ -5640,8 +5571,8 @@ function renderVentas(force) {
 function _showVtEstadoDD(el) {
   document.querySelectorAll('.vt-est-dd').forEach(m => m.remove());
   const isAdmin = session.rol === 'admin';
-  const estados = ['', 'Pendiente', 'En Proceso', 'Terminada', 'Entregado', 'Pagada', 'Reportado'].concat(isAdmin ? ['Cancelada'] : []);
-  const labels = {'':'Todos','Pendiente':'Pendiente','En Proceso':'En Proceso','Terminada':'Terminada','Entregado':'Entregado','Pagada':'Pagada','Reportado':'Reportado','Cancelada':'Cancelada'};
+  const estados = ['', 'Pendiente', 'En Proceso', 'Terminada', 'Entregado', 'Pagada'].concat(isAdmin ? ['Cancelada'] : []);
+  const labels = {'':'Todos','Pendiente':'Pendiente','En Proceso':'En Proceso','Terminada':'Terminada','Entregado':'Entregado','Pagada':'Pagada','Cancelada':'Cancelada'};
   const current = window._ventasFiltroEstado || '';
   const rect = el.getBoundingClientRect();
   const menu = document.createElement('div');
@@ -5686,12 +5617,6 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
     }
   }
   const estadoAnterior = vt.estado;
-  const estadoAnterior = vt.estado;
-  if (nuevoEstado === 'Reportado') {
-    vt.reportadoPor = session.rol==='admin'?'Administrador':session.rol==='secretaria'?'Secretaria':'Auxiliar';
-  } else if (estadoAnterior === 'Reportado') {
-    vt.reportadoPor = null;
-  }
   vt.estado = nuevoEstado;
   // Si pasan a Pagada y tenía saldo, limpiar el saldo (el usuario confirma que ya cobró)
   if (nuevoEstado === 'Pagada' && vt.saldo > 0) {
@@ -12602,10 +12527,8 @@ function _cajaMovAdd(caja, mov) {
   } else if (FIREBASE_ENABLED) {
     _hasPendingSync = true; _markPendingSync('cajas');
   }
-  // RTDB dual-write directo — no depende de que el caller llame saveDb('cajas').
-  // Escribe SOLO la caja modificada (no la colección completa) para que sea más rápido y no
-  // se pierda si el navegador se cierra antes de que termine una escritura grande.
-  if (RTDB_DUAL_WRITE && rtdb) rtdb.ref('db/cajas/' + String(caja.id)).set(caja).catch(() => {});
+  // RTDB dual-write directo — no depende de que el caller llame saveDb('cajas')
+  if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection('cajas', db.cajas).catch(() => {});
 }
 
 function _cajaMovRemove(caja, movId) {
@@ -14603,7 +14526,6 @@ function cancelarCfdi() {
 async function _sincronizarFacturas() {
   if (!FIREBASE_ENABLED || !firestore) return;
   if (window._facturasSyncDone) return; // ya sincronizó esta sesión
-  if ((db.facturas || []).length > 0) { window._facturasSyncDone = true; return; } // Fix 4: ya en memoria, sin leer Firestore
   window._facturasSyncDone = true;
   try {
     // Caché primero: 0 lecturas de servidor si IndexedDB tiene datos (igual que fsReadCollection)
