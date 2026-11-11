@@ -9963,20 +9963,20 @@ function _czRowsHTML() {
     .filter(c => !window._cotizFiltroUsuario || _normCzUser(c.usuario) === window._cotizFiltroUsuario)
     .filter(c => { if(!_czFf)return true; if(_czFf==='hoy')return c.fecha===_czH; if(_czFf==='semana')return c.fecha>=_czSI; if(_czFf==='mes')return c.fecha>=_czMI; if(_czFf==='mesant')return c.fecha>=_czMAsde&&c.fecha<=_czMAhasta; return true; })
     .filter(c => { if(!window._czSearch)return true; const _czSW=_normSearch(window._czSearch).split(' ').filter(Boolean); if(!_czSW.length)return true; const _czSH=_normSearch([String(c.folio||c.id), c.cliente,c.ctEmpresa,c.ctCelular,c.ctTelFijo].filter(v=>v&&v!=='No aplica').join(' ')); return _czSW.every(w=>_czSH.includes(w)); })
-    .filter(c => { const fr=window._czFiltroRec||''; if(!fr)return true; if(fr==='vencidas')return c.recFecha && !c.recHecho && c.recFecha <= today(); if(fr==='proximas')return c.recFecha && !c.recHecho && c.recFecha > today(); return true; });
+    .filter(c => { const fr=window._czFiltroRec||''; if(!fr)return true; if(fr==='mios')return (c.recUsuario||c.usuario)===session.nombre&&c.recFecha&&!c.recHecho; if(fr==='vencidas')return c.recFecha && !c.recHecho && c.recFecha <= today(); if(fr==='proximas')return c.recFecha && !c.recHecho && c.recFecha > today(); return true; });
   window._czTotalFilt = _czAll.length;
   const _czPage = _pg('cotiz', _czAll);
   const rows = _czAll.length ? _czPage.map(c => {
     const esMiRec = (c.recUsuario || c.usuario) === session.nombre;
-    const mostrarRec = puedeVerRec && (esAdmin ? (window._adminVerTodos || esMiRec) : esMiRec);
+    const _czFiltroRecVal = window._czFiltroRec || '';
+    const mostrarRec = puedeVerRec && (esAdmin ? (_czFiltroRecVal === 'mios' ? esMiRec : true) : esMiRec);
     const recVencido = mostrarRec && c.recFecha && !c.recHecho && c.recFecha < today() && !(c.recSnoozeHasta && c.recSnoozeHasta > Date.now());
     const recHoy     = mostrarRec && c.recFecha && !c.recHecho && c.recFecha === today() && !(c.recSnoozeHasta && c.recSnoozeHasta > Date.now());
     const recPend    = mostrarRec && c.recFecha && !c.recHecho && c.recFecha > today();
     const buscable = [c.cliente, c.ctEmpresa, c.ctCelular, c.ctTelFijo].filter(v=>v && v!=='No aplica').join(' ').toLowerCase();
     return `<tr data-search="${esc(buscable)}" style="${recVencido?'background:#fff1f2':recHoy?'background:#fffbeb':''}">
       ${esAdmin ? `<td><input type="checkbox" class="cz-chk" data-id="${c.id}" /></td>` : ''}
-      <td style="white-space:nowrap">#${c.folio||c.id}</td><td style="white-space:nowrap">${fechaCorta(c.fecha)}</td><td><strong>${esc(c.cliente)}</strong>${c.ctEmpresa&&c.ctEmpresa!=='No aplica'?`<div style="font-size:0.78rem;color:#64748b;margin-top:2px">🏢 ${esc(c.ctEmpresa)}</div>`:''}</td>
-      ${puedeVerRec ? `<td>${mostrarRec && c.recFecha && !recPend ? `
+      <td style="white-space:nowrap">#${c.folio||c.id}</td><td style="white-space:nowrap">${fechaCorta(c.fecha)}</td><td><strong>${esc(c.cliente)}</strong>${c.ctEmpresa&&c.ctEmpresa!=='No aplica'?`<div style="font-size:0.78rem;color:#64748b;margin-top:2px">🏢 ${esc(c.ctEmpresa)}</div>`:``}${puedeVerRec?`<div style="margin-top:4px">${mostrarRec && c.recFecha && !recPend ? `
         <div style="font-size:0.72rem">
           <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap">
             <span class="badge ${recVencido?'badge-red':recHoy?'badge-yellow':'badge-blue'}" style="font-size:0.68rem">${recVencido?'⚠️ Vencido':recHoy?'📅 Hoy':'🔔 '+fechaCorta(c.recFecha)}</span>
@@ -9984,18 +9984,16 @@ function _czRowsHTML() {
             <button onclick="editarRecordatorio(${c.id})" title="Editar" style="background:none;border:none;cursor:pointer;font-size:0.7rem;color:#94a3b8;padding:0;line-height:1" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#94a3b8'">✏️</button>
           </div>
           ${!c.recHecho?`<button onclick="marcarRecHecho(${c.id})" style="margin-top:3px;background:#16a34a;color:white;border:none;border-radius:5px;padding:1px 6px;font-size:0.68rem;cursor:pointer">✓ Hecho</button>`:`<button onclick="desmarcarRecHecho(${c.id})" style="margin-top:3px;background:#e2e8f0;color:#475569;border:none;border-radius:5px;padding:1px 6px;font-size:0.68rem;cursor:pointer" title="Clic para desmarcar">✓ Listo</button>`}
-        </div>` : `<button onclick="editarRecordatorio(${c.id})" title="Agregar recordatorio" style="background:none;border:1px dashed #cbd5e1;cursor:pointer;font-size:0.68rem;color:#94a3b8;padding:2px 5px;border-radius:5px;white-space:nowrap" onmouseover="this.style.borderColor='#3b82f6';this.style.color='#3b82f6'" onmouseout="this.style.borderColor='#cbd5e1';this.style.color='#94a3b8'">+ Rec.</button>`}
-      </td>` : ''}
+        </div>` : `<button onclick="editarRecordatorio(${c.id})" title="Agregar recordatorio" style="background:none;border:1px dashed #cbd5e1;cursor:pointer;font-size:0.68rem;color:#94a3b8;padding:2px 5px;border-radius:5px;white-space:nowrap" onmouseover="this.style.borderColor='#3b82f6';this.style.color='#3b82f6'" onmouseout="this.style.borderColor='#cbd5e1';this.style.color='#94a3b8'">+ Rec.</button>`}</div>`:''}</td>
       <td><button class="btn btn-outline btn-sm" onclick="verCotiz(${c.id})">⋯</button></td>
     </tr>`;
-  }).join('') : `<tr><td colspan="${puedeVerRec?(esAdmin?9:8):(esAdmin?8:7)}" class="td-empty">Sin cotizaciones registradas.</td></tr>`;
+  }).join('') : `<tr><td colspan="${esAdmin?8:7}" class="td-empty">Sin cotizaciones registradas.</td></tr>`;
 
   return `<div class="table-wrap"><table id="tbl-cotiz">
     <tr>
       ${esAdmin ? `<th style="width:28px"><input type="checkbox" title="Seleccionar todas" onchange="document.querySelectorAll('.cz-chk').forEach(c=>c.checked=this.checked)" /></th>` : ''}
       <th>#</th><th>Fecha</th><th>Cliente / Empresa</th>
-      ${puedeVerRec?`<th style="white-space:nowrap">🔔<select onchange="window._czFiltroRec=this.value;window._pgState['cotiz']=0;renderCotizaciones()" style="font-size:0.75rem;margin-left:2px;padding:1px 3px;border:1px solid #cbd5e1;border-radius:5px;background:#fff;color:#334155;cursor:pointer;max-width:80px"><option value="" ${!(window._czFiltroRec||'')?'selected':''}>Todas</option><option value="vencidas" ${(window._czFiltroRec||'')==='vencidas'?'selected':''}>⚠️ Vencidas</option><option value="proximas" ${(window._czFiltroRec||'')==='proximas'?'selected':''}>🔔 Próximas</option></select></th>`:''}
-      <th>Acciones</th>
+            <th>Acciones</th>
     </tr>
     ${rows}
   </table></div>
@@ -10008,7 +10006,6 @@ function renderCotizaciones(force) {
   const puedeVerRec = can(['admin','secretaria','auxiliar']);
   // Almacén no ve recordatorios; secretaria/auxiliar solo ven los suyos
   // Admin puede togglear entre "mis recordatorios" y "todos"
-  if (typeof window._adminVerTodos === 'undefined') window._adminVerTodos = false;
   const esAdmin = session.rol === 'admin';
   if (typeof window._cotizFiltroUsuario === 'undefined') window._cotizFiltroUsuario = '';
   if (typeof window._czFiltroRec === 'undefined') window._czFiltroRec = '';
@@ -10062,9 +10059,9 @@ function renderCotizaciones(force) {
       </div>
       <div class="search-bar"><input type="text" placeholder="Buscar por cliente, empresa o celular..." value="${esc(window._czSearch||'')}" oninput="_czSearchInput(this.value)" /></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
-        ${['','hoy','semana','mes','mesant'].map(f=>{const a=(window._czFiltroFecha||'')===f;return `<button onclick="window._czFiltroFecha='${f}';window._pgState['cotiz']=0;renderCotizaciones(true)" style="padding:3px 12px;border-radius:20px;font-size:0.77rem;font-weight:600;border:1.5px solid ${a?'var(--primary)':'var(--border)'};background:${a?'var(--primary)':'transparent'};color:${a?'white':'var(--text-light)'};cursor:pointer">${f===''?'Todas':f==='hoy'?'📅 Hoy':f==='semana'?'Esta semana':f==='mes'?'Este mes':'Mes pasado'}</button>`;}).join('')}
-        ${_czUsuarios.length > 1 ? `<select onchange="window._cotizFiltroUsuario=this.value;window._pgState['cotiz']=0;renderCotizaciones(true)" title="Filtrar por usuario" style="font-size:0.77rem;padding:2px 8px;border-radius:20px;font-weight:600;border:1.5px solid ${window._cotizFiltroUsuario?'var(--primary)':'var(--border)'};background:${window._cotizFiltroUsuario?'var(--primary)':'transparent'};color:${window._cotizFiltroUsuario?'white':'var(--text-light)'};cursor:pointer"><option value="">👤 Todos</option>${_czUsuarios.map(u=>`<option value="${esc(u)}" ${window._cotizFiltroUsuario===u?'selected':''}>${esc(u)}</option>`).join('')}</select>` : ''}
-        ${esAdmin && puedeVerRec ? `<button onclick="window._adminVerTodos=!window._adminVerTodos;renderCotizaciones(true)" style="padding:3px 12px;border-radius:20px;font-size:0.77rem;font-weight:600;border:1.5px solid ${window._adminVerTodos?'#7c3aed':'var(--border)'};background:${window._adminVerTodos?'#7c3aed':'transparent'};color:${window._adminVerTodos?'white':'var(--text-light)'};cursor:pointer" title="${window._adminVerTodos?'Viendo recordatorios de todos':'Ver recordatorios de todos los usuarios'}">${window._adminVerTodos?'🔔 Todos los rec.':'🔔 Solo míos'}</button>` : ''}
+        <select onchange="window._czFiltroFecha=this.value;window._pgState['cotiz']=0;renderCotizaciones(true)" style="font-size:0.77rem;padding:3px 10px;border-radius:20px;font-weight:600;border:1.5px solid ${(window._czFiltroFecha||'')?'var(--primary)":'var(--border)'};background:${(window._czFiltroFecha||'')?'var(--primary)":'transparent'};color:${(window._czFiltroFecha||'')?'white":'var(--text-light)'};cursor:pointer"><option value="" ${!(window._czFiltroFecha||'')?'selected':''}>📅 Todas las fechas</option><option value="hoy" ${(window._czFiltroFecha||'')=='hoy'?'selected':''}>Hoy</option><option value="semana" ${(window._czFiltroFecha||'')=='semana'?'selected':''}>Esta semana</option><option value="mes" ${(window._czFiltroFecha||'')=='mes'?'selected':''}>Este mes</option><option value="mesant" ${(window._czFiltroFecha||'')=='mesant'?'selected':''}>Mes pasado</option></select>
+        ${_czUsuarios.length > 1 ? `<select onchange="window._cotizFiltroUsuario=this.value;window._pgState['cotiz']=0;renderCotizaciones(true)" title="Filtrar por usuario" style="font-size:0.77rem;padding:3px 10px;border-radius:20px;font-weight:600;border:1.5px solid ${window._cotizFiltroUsuario?'var(--primary)":'var(--border)'};background:${window._cotizFiltroUsuario?'var(--primary)":'transparent'};color:${window._cotizFiltroUsuario?'white":'var(--text-light)'};cursor:pointer"><option value="">👤 Todos</option>${_czUsuarios.map(u=>`<option value="${esc(u)}" ${window._cotizFiltroUsuario===u?'selected':''}}>${esc(u)}</option>`).join('')}</select>` : ''}
+        ${puedeVerRec ? `<select onchange="window._czFiltroRec=this.value;window._pgState['cotiz']=0;renderCotizaciones(true)" style="font-size:0.77rem;padding:3px 10px;border-radius:20px;font-weight:600;border:1.5px solid ${(window._czFiltroRec||'')?'var(--primary)":'var(--border)'};background:${(window._czFiltroRec||'')?'var(--primary)":'transparent'};color:${(window._czFiltroRec||'')?'white":'var(--text-light)'};cursor:pointer"><option value="" ${!(window._czFiltroRec||'')?'selected':''}>🔔 Recordatorios</option>${esAdmin?`<option value="mios" ${(window._czFiltroRec||'')=='mios'?'selected':''}>Solo míos</option>`:''}<option value="vencidas" ${(window._czFiltroRec||'')=='vencidas'?'selected':''}>⚠️ Vencidas</option><option value="proximas" ${(window._czFiltroRec||'')=='proximas'?'selected':''}>🔔 Próximas</option></select>` : ''}
       </div>
       <div id="cotizaciones-rows-wrap">${_czRowsHTML()}</div>
     </div>`;
