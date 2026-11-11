@@ -24245,8 +24245,8 @@ function _buscarGlobal(q) {
     if (can(['admin','secretaria','auxiliar'])) {
       (db.ventas || []).filter(vt => !vt.papelera && (esAdmin || !vt.archivado)).forEach(vt => {
         if (match([vt.cliente || vt.ctNombre || '', String(vt.folioPedido || ''), vt.celular || vt.ctCelular || ''].join(' '))) {
-          const _vLabel = (vt.archivado ? '📁 ' : '') + '#' + (vt.folioPedido || vt.id) + ' — ' + (vt.cliente || vt.ctNombre || '');
-          res.push({ tipo: '💰 Venta', label: _vLabel, sec: 'ventas', id: vt.id, fn: 'verVenta' });
+          const _vLabel = '#' + (vt.folioPedido || vt.id) + ' — ' + (vt.cliente || vt.ctNombre || '');
+          res.push({ tipo: '💰 Venta', label: _vLabel, sec: 'ventas', id: vt.id, fn: 'verVenta', archivado: !!vt.archivado });
         }
       });
     }
@@ -24275,8 +24275,8 @@ function _buscarGlobal(q) {
     if (can(['admin','secretaria','auxiliar'])) {
       (db.cobranza || []).filter(c => esAdmin || !c.archivado).forEach(c => {
         if (match([c.cliente || '', c.pedido || '', c.factura || '', c.encargado || ''].join(' '))) {
-          const _cLabel = (c.archivado ? '📁 ' : '') + (c.cliente || '') + (c.pedido ? ' · ' + c.pedido : '');
-          res.push({ tipo: '💳 Cobranza', label: _cLabel, sec: 'cobranza', id: c.id, fn: 'openCobranzaDetalle' });
+          const _cLabel = (c.cliente || '') + (c.pedido ? ' · ' + c.pedido : '');
+          res.push({ tipo: '💳 Cobranza', label: _cLabel, sec: 'cobranza', id: c.id, fn: 'openCobranzaDetalle', archivado: !!c.archivado });
         }
       });
     }
@@ -24362,7 +24362,7 @@ function _buscarGlobal(q) {
                display:flex;gap:10px;align-items:center;transition:background .1s"
         onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
         <span style="font-size:0.73rem;white-space:nowrap;color:var(--text-light);min-width:90px">${r.tipo}</span>
-        <span style="font-size:0.88rem;font-weight:500">${esc(r.label)}</span>
+        <span style="font-size:0.88rem;font-weight:500;display:flex;align-items:center;gap:6px">${r.archivado?'<span style="font-size:0.68rem;font-weight:600;padding:1px 7px;border-radius:4px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;white-space:nowrap">Archivado</span>':''}${esc(r.label)}</span>
       </div>`).join('') + _archCzRow;
     showModal('Resultados para "' + esc(v) + '"', lista, [{ label: 'Cerrar', cls: 'btn-secondary', action: closeModal }]);
   }, 280);
