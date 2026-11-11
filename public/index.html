@@ -14788,7 +14788,13 @@ function _dataUrlToBlobUrl(dataUrl) {
 function verPdfFactura(id) {
   const f = db.facturas.find(x=>x.id===id);
   if (!f) return;
-  if (f.pdfUrl) {
+  if (f.pdfUrl || f.tienePdf) {
+    if (storage) {
+      storage.ref().child(`facturas/${f.id}/factura.pdf`).getDownloadURL()
+        .then(url => { f.pdfUrl = url; const win = window.open(url, '_blank'); if (!win) _info('Tu navegador bloqueó la ventana emergente. Permítela e intenta de nuevo.'); })
+        .catch(() => { if (f.pdfUrl) { const win = window.open(f.pdfUrl, '_blank'); if (!win) _info('Tu navegador bloqueó la ventana emergente. Permítela e intenta de nuevo.'); } else _info('No se pudo obtener el PDF.'); });
+      return;
+    }
     const win = window.open(f.pdfUrl, '_blank');
     if (!win) _info('Tu navegador bloqueó la ventana emergente. Permítela e intenta de nuevo.');
     return;
