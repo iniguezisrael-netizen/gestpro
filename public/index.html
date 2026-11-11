@@ -1658,11 +1658,27 @@ async function _rtdbWriteCollection(colName, arr) {
       const fotasOk = item.fotos.filter(f => f && !f.startsWith('data:'));
       return fotasOk.length === item.fotos.length ? item : { ...item, fotos: fotasOk };
     });
+    // Fix 12: productos.cantidad — no pisar con estado stale de otro dispositivo.
+    // Si la cantidad no cambió en este dispositivo (igual al _serverSnapshot), excluirla del write
+    // para evitar que un dispositivo con caché viejo sobreescriba el stock correcto en RTDB.
+    let cleanFinal = clean;
+    if (colName === 'productos' && window._serverSnapshot && window._serverSnapshot['productos']) {
+      cleanFinal = clean.map(item => {
+        if (item == null || item.id == null || item.cantidad === undefined) return item;
+        const snap = window._serverSnapshot['productos'][String(item.id)];
+        if (snap && snap.cantidad !== undefined && item.cantidad === snap.cantidad) {
+          // cantidad sin cambios en este dispositivo — no incluir en write para no pisar RTDB
+          const { cantidad, ...sinCantidad } = item;
+          return sinCantidad;
+        }
+        return item;
+      });
+    }
     if (FS_ARRAY_COLS.includes(colName)) {
-      await rtdb.ref('db/' + colName + '/data').set({ items: clean, updatedAt: Date.now() });
+      await rtdb.ref('db/' + colName + '/data').set({ items: cleanFinal, updatedAt: Date.now() });
     } else {
       const dataObj = {};
-      clean.forEach(item => {
+      cleanFinal.forEach(item => {
         if (item != null && item.id != null) dataObj[String(item.id)] = item;
       });
       // null limpia entradas que ya no existen
