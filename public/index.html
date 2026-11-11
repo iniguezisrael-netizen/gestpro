@@ -24088,6 +24088,19 @@ function _gsSelectItem(id) {
 }
 window['_gsSelectItem'] = _gsSelectItem;
 
+function _gsVerFoto(src) {
+  if (!src) return;
+  let ov = document.getElementById('_gs-foto-ov');
+  if (ov) ov.remove();
+  ov = document.createElement('div');
+  ov.id = '_gs-foto-ov';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+  ov.innerHTML = '<img src="'+src+'" style="max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.5)">';
+  ov.addEventListener('click', () => ov.remove());
+  document.body.appendChild(ov);
+}
+window['_gsVerFoto'] = _gsVerFoto;
+
 function _gsExtractCode(val) {
   // Si el valor escaneado es una URL con ?consig=, extraer solo el folio
   try {
@@ -24119,7 +24132,7 @@ function _gsScanHint(val) {
     if(drop) drop.style.display='none';
     const u=document.getElementById('gs-uni'); if(u&&!u.value) u.value=item.unidad||'';
     const foto=item.fotos&&item.fotos[0]
-      ?'<img src="'+esc(item.fotos[0])+'" style="width:34px;height:34px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0">'
+      ?'<img src="'+esc(item.fotos[0])+'" onclick="_gsVerFoto(this.src)" style="width:34px;height:34px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;cursor:zoom-in">'
       :'';
     hint.style.display='flex'; hint.style.alignItems='center';
     hint.innerHTML=foto+'<span>&#9989; <strong>'+esc(item.nombre)+'</strong> &mdash; stock: '+(item.cantidad??0)+' '+esc(item.unidad||'')+'</span>';
@@ -24148,7 +24161,7 @@ function _gsScanHint(val) {
       drop.style.display='block';
       drop.innerHTML=matches.map(i=>{
         const foto=i.fotos&&i.fotos[0]
-          ?'<img src="'+esc(i.fotos[0])+'" style="width:30px;height:30px;object-fit:cover;border-radius:4px;flex-shrink:0">'
+          ?'<img src="'+esc(i.fotos[0])+'" onmousedown="event.stopPropagation();_gsVerFoto(this.src)" style="width:30px;height:30px;object-fit:cover;border-radius:4px;flex-shrink:0;cursor:zoom-in">'
           :'<span style="width:30px;height:30px;border-radius:4px;background:var(--bg-alt);display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0">📦</span>';
         return '<div data-item-id="'+i.id+'" onmousedown="_gsSelectItem('+i.id+')" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);font-size:0.85rem">'
           +foto+'<div style="min-width:0;flex:1"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(i.nombre)+'</div>'
