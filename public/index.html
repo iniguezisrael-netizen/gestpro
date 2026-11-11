@@ -4147,7 +4147,7 @@ function renderInventario(tipo, _tab, _skipSync) {
         <span class="card-title">${title}</span>
         ${(canEdit || canRecibir || tipo==='materia') ? `<div style="display:flex;gap:8px">
           ${tipo==='materia' && can(['admin'])?`<button class="btn btn-sm" style="background:#10b981;color:#fff" onclick="importarCatalogoMateriales()">🔄 Actualizar</button>`:''}
-          ${canRecibir?`<button class="btn btn-sm" style="background:#0f766e;color:white" onclick="recibirConBarcode()">📦 Recibir con código</button>`:''}
+          ${canRecibir?`<button class="btn btn-sm" style="background:var(--primary);color:white" onclick="openScanGlobalModal()">📦 Entregar/Devolver</button>`:''}
           ${canEdit?`<button class="btn btn-primary btn-sm" onclick="openItemModal('${tipo}')">+ Agregar</button>`:''}
         </div>` : ''}
       </div>
@@ -24247,6 +24247,32 @@ function _gsGuardar() {
 }
 
 document.addEventListener('DOMContentLoaded', _updateDarkBtn);
+
+// ── SCANNER GLOBAL: abre modal Entrega/Devolución desde cualquier pestaña ──
+(function() {
+  let _gBuf = '', _gTimer = null;
+  document.addEventListener('keydown', function _globalScanHID(e) {
+    // Si el modal ya está abierto, el handler propio del modal lo maneja
+    if (document.getElementById('modal-scan-global')) return;
+    // Si el foco está en cualquier input/textarea/select, NO interferir
+    const active = document.activeElement;
+    const tag = active ? active.tagName.toLowerCase() : '';
+    if (['input','textarea','select'].includes(tag)) return;
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      if (_gBuf.length >= 3) {
+        const cod = _gBuf;
+        clearTimeout(_gTimer); _gBuf = '';
+        openScanGlobalModal(cod);
+      } else { _gBuf = ''; }
+      return;
+    }
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      _gBuf += e.key;
+      clearTimeout(_gTimer);
+      _gTimer = setTimeout(() => { _gBuf = ''; }, 300);
+    }
+  });
+})();
 
 // ── COPIAR AL PORTAPAPELES ──────────────────────────────────────────
 function _copiar(text, label) {
