@@ -241,6 +241,15 @@ async function _leerTodasLasColecciones() {
       backup.collections[col] = [];
     }
   }
+  // RTDB: exportar snapshot completo (siempre full — no hay incremental por _updatedAt)
+  try {
+    const rtdbSnap = await admin.database().ref('/').once('value');
+    backup.rtdb = rtdbSnap.val() || {};
+    console.log('[dailyBackup] RTDB exportado, keys:', Object.keys(backup.rtdb).length);
+  } catch (e) {
+    console.warn('[dailyBackup] Error leyendo RTDB:', e.message);
+    backup.rtdb = {};
+  }
   return backup;
 }
 
@@ -283,6 +292,15 @@ async function _leerColeccionesIncrementales(lastBackupAtMs, baseBackup) {
       console.warn(`[dailyBackup] Error incremental ${col}:`, e.message);
       if (!backup.collections[col]) backup.collections[col] = [];
     }
+  }
+  // RTDB: exportar snapshot completo (siempre full — no hay incremental por _updatedAt)
+  try {
+    const rtdbSnap = await admin.database().ref('/').once('value');
+    backup.rtdb = rtdbSnap.val() || {};
+    console.log('[dailyBackup] RTDB exportado, keys:', Object.keys(backup.rtdb).length);
+  } catch (e) {
+    console.warn('[dailyBackup] Error leyendo RTDB:', e.message);
+    backup.rtdb = {};
   }
   return backup;
 }
