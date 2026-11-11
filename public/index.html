@@ -20968,7 +20968,7 @@ function renderAgenda() {
       return `<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><button onclick="window._recMonthOff=(window._recMonthOff||0)-1;renderAgenda()" class="btn btn-outline btn-sm">‹</button><span style="font-size:0.82rem;font-weight:600;color:#64748b;text-transform:capitalize">${mn}</span><button onclick="window._recMonthOff=(window._recMonthOff||0)+1;renderAgenda()" class="btn btn-outline btn-sm">›</button>${window._recMonthOff?`<button onclick="window._recMonthOff=0;renderAgenda()" class="btn btn-outline btn-sm">Hoy</button>`:''}</div><div class="rec-month-grid">${hdrRow}${cells}</div></div>`;
     }
     // ── Render ──────────────────────────────────────────────────────────────
-    const _tab = window._recTabView || 'lista';
+    const _tab = _q ? 'lista' : (window._recTabView || 'lista'); // Si hay búsqueda activa, forzar lista para buscar en todas las fechas
     const _tabContent = _tab==='semana'?_buildSemana():_tab==='mes'?_buildMes():_listaHTML;
     const _userNameToUid = {};
     _persUsuarios.forEach(u => { _userNameToUid[u.n] = u.id; });
