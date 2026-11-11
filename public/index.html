@@ -1087,9 +1087,6 @@ const FS_ARRAY_COLS = ['clientesCredito'];
 // Colecciones estáticas: se leen una sola vez con getDocs (no onSnapshot).
 // Raramente cambian; si se modifican en otro dispositivo, el cambio se verá al recargar.
 const FS_STATIC_COLS = ['catalogoMateriales','checadorConfig','catConsig','vehiculos','facturas','recordatoriosPersonales'];
-// Colecciones escritas SOLO a RTDB (no a Firestore). Evita escrituras masivas al límite
-// diario de Firestore (20K free). RTDB es la fuente primaria; Firestore queda como archivo.
-const FS_RTDB_ONLY_COLS = ['materia','productos','consignacion','ventas','cotizaciones','cajas','reparaciones','bodegas','entregas','facturas','cobranza','vehiculos','produccion','catalogoMateriales','clientesCredito','clientes','herramientas','herramientasAsignadas','herramientasHistorial','agenda','ordenesCompra','proveedores','checadas','checadorConfig','entregaInsumos','reportesEntrega','reportesProduccion','catConsig','recordatoriosPersonales'];
 
 // ── IDs conocidos en Firestore por colección ─────────────────────────────────
 // Solo para colecciones con documentos individuales (no FS_ARRAY_COLS).
@@ -1123,8 +1120,6 @@ async function fsWriteCollection(colName, arr) {
   // Dual-write a RTDB (fire-and-forget) — igual que saveDb. Garantiza que llamadas
   // directas a fsWriteCollection también actualicen RTDB (fuente primaria en loadFromFirebase).
   if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection(colName, clean).catch(() => {});
-  // Fix escrituras: colecciones RTDB-only no escriben a Firestore (ahorro ~28K ops/día)
-  if (FS_RTDB_ONLY_COLS.includes(colName)) return;
 
   try {
     // ── Formato array: colecciones grandes (materia, catalogoMateriales) ──────
@@ -2036,15 +2031,6 @@ async function _procesarColecciones(cols, results) {
           }
           return { ...x, baja: true, bajaFecha: _loc.bajaFecha, bajaMotivo: _loc.bajaMotivo, bajaUsuario: _loc.bajaUsuario };
         }
-        // Archivado override: si local tiene archivado:true y el servidor no, preservarlo y re-parchear RTDB
-        if (_loc?.archivado === true && !x.archivado) {
-          if (RTDB_DUAL_WRITE && rtdb) {
-            rtdb.ref('db/' + c + '/' + String(x.id))
-              .update({ archivado: true, archivadoPor: _loc.archivadoPor||null, archivadoEn: _loc.archivadoEn||null })
-              .catch(() => {});
-          }
-          return { ...x, archivado: true, archivadoPor: _loc.archivadoPor, archivadoEn: _loc.archivadoEn };
-        }
         return x;
       });
       const serverIds = new Set(serverItemsMerged.map(x => x && x.id).filter(Boolean));
@@ -2154,6 +2140,7 @@ async function loadFromFirebase() {
               }
               const items = Object.values(raw).filter(x => x && x.id != null);
               // Fix 10: Recalcular anticipo/saldo desde pagos al cargar ventas desde RTDB
+              // Previene que datos viejos de RTDB sobreescriban campos calculados en Firestore
               if (col === 'ventas') {
                 items.forEach(v => {
                   const sp = (v.pagos||[]).reduce((s,p)=>s+(p.monto||0),0);
@@ -5714,6 +5701,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
     }
   }
   const estadoAnterior = vt.estado;
+  const estadoAnterior = vt.estado;
   if (nuevoEstado === 'Reportado') {
     vt.reportadoPor = session.rol==='admin'?'Administrador':session.rol==='secretaria'?'Secretaria':'Auxiliar';
   } else if (estadoAnterior === 'Reportado') {
@@ -5758,7 +5746,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
             vt.estado = 'Entregado'; vt.saldo = 0; vt.anticipo = vt.total || vt.anticipo;
             const _ciAdm = (db.consignacion||[]).find(c=>String(c.ventaId)===String(vt.id));
             if (_ciAdm) _ciAdm.estado = 'Vendido';
-            if (vt._nuevaLogicaProd === true) { _descontarProdVenta(vt.items); vt._nuevaLogicaProd = false; }
+            if (vt._nuevaLogicaProd !== false) { _descontarProdVenta(vt.items); vt._nuevaLogicaProd = false; }
             saveDb(['ventas','consignacion','productos']);
             showToast(`✅ ${vt.folioPedido||('#'+vt.id)} → Entregado`);
             renderVentas();
@@ -5805,7 +5793,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
     showToast('📋 Registrado en Cobranza automáticamente');
   }
   // Descontar stock de productos terminados al entregar (independiente de si tiene crédito o no)
-  if (nuevoEstado === 'Entregado' && vt._nuevaLogicaProd === true) {
+  if (nuevoEstado === 'Entregado' && vt._nuevaLogicaProd !== false) {
     _descontarProdVenta(vt.items);
     vt._nuevaLogicaProd = false;
   }
@@ -7357,8 +7345,6 @@ const _RE_ITEMS = [
   { key:'partes',      label:'Subir partes o piezas del cliente' },
   { key:'llanta',      label:'Orificio llanta refacción' },
   { key:'ventaneria',  label:'Ventanería que deslice' },
-  { key:'aire',        label:'Revisión de sistema de aire' },
-  { key:'muelles',     label:'Muelles y amortiguadores puestos' },
   { key:'barra',       label:'Entregar 1 barra estabilizadora (si le corresponde)', remolque:true },
   { key:'ac',          label:'Revisar aire acondicionado',                          remolque:true },
   { key:'mueble',      label:'Cantidad y acomodo de mueble',                        remolque:true },
@@ -8174,11 +8160,6 @@ async function archivarVenta(id, opts = {}) {
               .update({ archivado: true, archivadoPor: vt.archivadoPor, archivadoEn: now })
               .catch(e => console.error('[archivar] FS error:', e));
           }
-          // Fix: también escribir a RTDB para evitar que el listener revierta el archivado
-          if (RTDB_DUAL_WRITE && rtdb) {
-            rtdb.ref('db/ventas/' + String(id)).update({ archivado: true, archivadoPor: vt.archivadoPor, archivadoEn: now })
-              .catch(e => console.error('[archivar] RTDB error:', e));
-          }
           // Auto-archivar cobranza vinculada (solo si no skipCobranza)
           if (!skipCobranza) {
             const cobVinculada = (db.cobranza||[]).filter(c => c.ventaId === id && !c.archivado);
@@ -8216,9 +8197,7 @@ function _vtNombreCredito(vt) {
   return (vt && vt.ctEmpresa && vt.ctEmpresa !== 'No aplica') ? vt.ctEmpresa : (vt && vt.cliente) || '';
 }
 function vtCreditoAutorizado(vt) {
-  const nombre = _vtNombreCredito(vt);
-  if (!nombre || nombre.trim().toLowerCase() === 'particular') return false;
-  return clienteCreditoAutorizado(nombre);
+  return clienteCreditoAutorizado(_vtNombreCredito(vt));
 }
 function autorizarCreditoCliente(nombre) {
   const k = clienteKey(nombre);
@@ -9968,20 +9947,20 @@ function _czRowsHTML() {
     .filter(c => !window._cotizFiltroUsuario || _normCzUser(c.usuario) === window._cotizFiltroUsuario)
     .filter(c => { if(!_czFf)return true; if(_czFf==='hoy')return c.fecha===_czH; if(_czFf==='semana')return c.fecha>=_czSI; if(_czFf==='mes')return c.fecha>=_czMI; if(_czFf==='mesant')return c.fecha>=_czMAsde&&c.fecha<=_czMAhasta; return true; })
     .filter(c => { if(!window._czSearch)return true; const _czSW=_normSearch(window._czSearch).split(' ').filter(Boolean); if(!_czSW.length)return true; const _czSH=_normSearch([String(c.folio||c.id), c.cliente,c.ctEmpresa,c.ctCelular,c.ctTelFijo].filter(v=>v&&v!=='No aplica').join(' ')); return _czSW.every(w=>_czSH.includes(w)); })
-    .filter(c => { const fr=window._czFiltroRec||''; if(!fr)return true; if(fr==='mios')return (c.recUsuario||c.usuario)===session.nombre&&c.recFecha&&!c.recHecho; if(fr==='vencidas')return c.recFecha && !c.recHecho && c.recFecha <= today(); if(fr==='proximas')return c.recFecha && !c.recHecho && c.recFecha > today(); return true; });
+    .filter(c => { const fr=window._czFiltroRec||''; if(!fr)return true; if(fr==='vencidas')return c.recFecha && !c.recHecho && c.recFecha <= today(); if(fr==='proximas')return c.recFecha && !c.recHecho && c.recFecha > today(); return true; });
   window._czTotalFilt = _czAll.length;
   const _czPage = _pg('cotiz', _czAll);
   const rows = _czAll.length ? _czPage.map(c => {
     const esMiRec = (c.recUsuario || c.usuario) === session.nombre;
-    const _czFiltroRecVal = window._czFiltroRec || '';
-    const mostrarRec = puedeVerRec && (esAdmin ? (_czFiltroRecVal === 'mios' ? esMiRec : true) : esMiRec);
+    const mostrarRec = puedeVerRec && (esAdmin ? (window._adminVerTodos || esMiRec) : esMiRec);
     const recVencido = mostrarRec && c.recFecha && !c.recHecho && c.recFecha < today() && !(c.recSnoozeHasta && c.recSnoozeHasta > Date.now());
     const recHoy     = mostrarRec && c.recFecha && !c.recHecho && c.recFecha === today() && !(c.recSnoozeHasta && c.recSnoozeHasta > Date.now());
     const recPend    = mostrarRec && c.recFecha && !c.recHecho && c.recFecha > today();
     const buscable = [c.cliente, c.ctEmpresa, c.ctCelular, c.ctTelFijo].filter(v=>v && v!=='No aplica').join(' ').toLowerCase();
     return `<tr data-search="${esc(buscable)}" style="${recVencido?'background:#fff1f2':recHoy?'background:#fffbeb':''}">
       ${esAdmin ? `<td><input type="checkbox" class="cz-chk" data-id="${c.id}" /></td>` : ''}
-      <td style="white-space:nowrap">#${c.folio||c.id}</td><td style="white-space:nowrap">${fechaCorta(c.fecha)}</td><td><strong>${esc(c.cliente)}</strong>${c.ctEmpresa&&c.ctEmpresa!=='No aplica'?`<div style="font-size:0.78rem;color:#64748b;margin-top:2px">🏢 ${esc(c.ctEmpresa)}</div>`:``}${puedeVerRec?`<div style="margin-top:4px">${mostrarRec && c.recFecha && !recPend ? `
+      <td style="white-space:nowrap">#${c.folio||c.id}</td><td style="white-space:nowrap">${fechaCorta(c.fecha)}</td><td><strong>${esc(c.cliente)}</strong>${c.ctEmpresa&&c.ctEmpresa!=='No aplica'?`<div style="font-size:0.78rem;color:#64748b;margin-top:2px">🏢 ${esc(c.ctEmpresa)}</div>`:''}</td>
+      ${puedeVerRec ? `<td>${mostrarRec && c.recFecha && !recPend ? `
         <div style="font-size:0.72rem">
           <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap">
             <span class="badge ${recVencido?'badge-red':recHoy?'badge-yellow':'badge-blue'}" style="font-size:0.68rem">${recVencido?'⚠️ Vencido':recHoy?'📅 Hoy':'🔔 '+fechaCorta(c.recFecha)}</span>
@@ -9989,16 +9968,18 @@ function _czRowsHTML() {
             <button onclick="editarRecordatorio(${c.id})" title="Editar" style="background:none;border:none;cursor:pointer;font-size:0.7rem;color:#94a3b8;padding:0;line-height:1" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#94a3b8'">✏️</button>
           </div>
           ${!c.recHecho?`<button onclick="marcarRecHecho(${c.id})" style="margin-top:3px;background:#16a34a;color:white;border:none;border-radius:5px;padding:1px 6px;font-size:0.68rem;cursor:pointer">✓ Hecho</button>`:`<button onclick="desmarcarRecHecho(${c.id})" style="margin-top:3px;background:#e2e8f0;color:#475569;border:none;border-radius:5px;padding:1px 6px;font-size:0.68rem;cursor:pointer" title="Clic para desmarcar">✓ Listo</button>`}
-        </div>` : `<button onclick="editarRecordatorio(${c.id})" title="Agregar recordatorio" style="background:none;border:1px dashed #cbd5e1;cursor:pointer;font-size:0.68rem;color:#94a3b8;padding:2px 5px;border-radius:5px;white-space:nowrap" onmouseover="this.style.borderColor='#3b82f6';this.style.color='#3b82f6'" onmouseout="this.style.borderColor='#cbd5e1';this.style.color='#94a3b8'">+ Rec.</button>`}</div>`:''}</td>
+        </div>` : `<button onclick="editarRecordatorio(${c.id})" title="Agregar recordatorio" style="background:none;border:1px dashed #cbd5e1;cursor:pointer;font-size:0.68rem;color:#94a3b8;padding:2px 5px;border-radius:5px;white-space:nowrap" onmouseover="this.style.borderColor='#3b82f6';this.style.color='#3b82f6'" onmouseout="this.style.borderColor='#cbd5e1';this.style.color='#94a3b8'">+ Rec.</button>`}
+      </td>` : ''}
       <td><button class="btn btn-outline btn-sm" onclick="verCotiz(${c.id})">⋯</button></td>
     </tr>`;
-  }).join('') : `<tr><td colspan="${esAdmin?8:7}" class="td-empty">Sin cotizaciones registradas.</td></tr>`;
+  }).join('') : `<tr><td colspan="${puedeVerRec?(esAdmin?9:8):(esAdmin?8:7)}" class="td-empty">Sin cotizaciones registradas.</td></tr>`;
 
   return `<div class="table-wrap"><table id="tbl-cotiz">
     <tr>
       ${esAdmin ? `<th style="width:28px"><input type="checkbox" title="Seleccionar todas" onchange="document.querySelectorAll('.cz-chk').forEach(c=>c.checked=this.checked)" /></th>` : ''}
       <th>#</th><th>Fecha</th><th>Cliente / Empresa</th>
-            <th>Acciones</th>
+      ${puedeVerRec?`<th style="white-space:nowrap">🔔<select onchange="window._czFiltroRec=this.value;window._pgState['cotiz']=0;renderCotizaciones()" style="font-size:0.75rem;margin-left:2px;padding:1px 3px;border:1px solid #cbd5e1;border-radius:5px;background:#fff;color:#334155;cursor:pointer;max-width:80px"><option value="" ${!(window._czFiltroRec||'')?'selected':''}>Todas</option><option value="vencidas" ${(window._czFiltroRec||'')==='vencidas'?'selected':''}>⚠️ Vencidas</option><option value="proximas" ${(window._czFiltroRec||'')==='proximas'?'selected':''}>🔔 Próximas</option></select></th>`:''}
+      <th>Acciones</th>
     </tr>
     ${rows}
   </table></div>
@@ -10011,6 +9992,7 @@ function renderCotizaciones(force) {
   const puedeVerRec = can(['admin','secretaria','auxiliar']);
   // Almacén no ve recordatorios; secretaria/auxiliar solo ven los suyos
   // Admin puede togglear entre "mis recordatorios" y "todos"
+  if (typeof window._adminVerTodos === 'undefined') window._adminVerTodos = false;
   const esAdmin = session.rol === 'admin';
   if (typeof window._cotizFiltroUsuario === 'undefined') window._cotizFiltroUsuario = '';
   if (typeof window._czFiltroRec === 'undefined') window._czFiltroRec = '';
@@ -10064,9 +10046,9 @@ function renderCotizaciones(force) {
       </div>
       <div class="search-bar"><input type="text" placeholder="Buscar por cliente, empresa o celular..." value="${esc(window._czSearch||'')}" oninput="_czSearchInput(this.value)" /></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
-        <select onchange="window._czFiltroFecha=this.value;window._pgState['cotiz']=0;renderCotizaciones(true)" style="font-size:0.77rem;padding:3px 10px;border-radius:20px;font-weight:600;border:1.5px solid ${(window._czFiltroFecha||'')?'var(--primary)':'var(--border)'};background:${(window._czFiltroFecha||'')?'var(--primary)':'transparent'};color:${(window._czFiltroFecha||'')?'white':'var(--text-light)'};cursor:pointer"><option value="" ${!(window._czFiltroFecha||'')?'selected':''}>📅 Todas las fechas</option><option value="hoy" ${(window._czFiltroFecha||'')=='hoy'?'selected':''}>Hoy</option><option value="semana" ${(window._czFiltroFecha||'')=='semana'?'selected':''}>Esta semana</option><option value="mes" ${(window._czFiltroFecha||'')=='mes'?'selected':''}>Este mes</option><option value="mesant" ${(window._czFiltroFecha||'')=='mesant'?'selected':''}>Mes pasado</option></select>
-        ${_czUsuarios.length > 1 ? `<select onchange="window._cotizFiltroUsuario=this.value;window._pgState['cotiz']=0;renderCotizaciones(true)" title="Filtrar por usuario" style="font-size:0.77rem;padding:3px 10px;border-radius:20px;font-weight:600;border:1.5px solid ${window._cotizFiltroUsuario?'var(--primary)':'var(--border)'};background:${window._cotizFiltroUsuario?'var(--primary)':'transparent'};color:${window._cotizFiltroUsuario?'white':'var(--text-light)'};cursor:pointer"><option value="">👤 Todos</option>${_czUsuarios.map(u=>`<option value="${esc(u)}" ${window._cotizFiltroUsuario===u?'selected':''}>${esc(u)}</option>`).join('')}</select>` : ''}
-        ${puedeVerRec ? `<select onchange="window._czFiltroRec=this.value;window._pgState['cotiz']=0;renderCotizaciones(true)" style="font-size:0.77rem;padding:3px 10px;border-radius:20px;font-weight:600;border:1.5px solid ${(window._czFiltroRec||'')?'var(--primary)':'var(--border)'};background:${(window._czFiltroRec||'')?'var(--primary)':'transparent'};color:${(window._czFiltroRec||'')?'white':'var(--text-light)'};cursor:pointer"><option value="" ${!(window._czFiltroRec||'')?'selected':''}>🔔 Recordatorios</option>${esAdmin?`<option value="mios" ${(window._czFiltroRec||'')=='mios'?'selected':''}>Solo míos</option>`:''}<option value="vencidas" ${(window._czFiltroRec||'')=='vencidas'?'selected':''}>⚠️ Vencidas</option><option value="proximas" ${(window._czFiltroRec||'')=='proximas'?'selected':''}>🔔 Próximas</option></select>` : ''}
+        ${['','hoy','semana','mes','mesant'].map(f=>{const a=(window._czFiltroFecha||'')===f;return `<button onclick="window._czFiltroFecha='${f}';window._pgState['cotiz']=0;renderCotizaciones(true)" style="padding:3px 12px;border-radius:20px;font-size:0.77rem;font-weight:600;border:1.5px solid ${a?'var(--primary)':'var(--border)'};background:${a?'var(--primary)':'transparent'};color:${a?'white':'var(--text-light)'};cursor:pointer">${f===''?'Todas':f==='hoy'?'📅 Hoy':f==='semana'?'Esta semana':f==='mes'?'Este mes':'Mes pasado'}</button>`;}).join('')}
+        ${_czUsuarios.length > 1 ? `<select onchange="window._cotizFiltroUsuario=this.value;window._pgState['cotiz']=0;renderCotizaciones(true)" title="Filtrar por usuario" style="font-size:0.77rem;padding:2px 8px;border-radius:20px;font-weight:600;border:1.5px solid ${window._cotizFiltroUsuario?'var(--primary)':'var(--border)'};background:${window._cotizFiltroUsuario?'var(--primary)':'transparent'};color:${window._cotizFiltroUsuario?'white':'var(--text-light)'};cursor:pointer"><option value="">👤 Todos</option>${_czUsuarios.map(u=>`<option value="${esc(u)}" ${window._cotizFiltroUsuario===u?'selected':''}>${esc(u)}</option>`).join('')}</select>` : ''}
+        ${esAdmin && puedeVerRec ? `<button onclick="window._adminVerTodos=!window._adminVerTodos;renderCotizaciones(true)" style="padding:3px 12px;border-radius:20px;font-size:0.77rem;font-weight:600;border:1.5px solid ${window._adminVerTodos?'#7c3aed':'var(--border)'};background:${window._adminVerTodos?'#7c3aed':'transparent'};color:${window._adminVerTodos?'white':'var(--text-light)'};cursor:pointer" title="${window._adminVerTodos?'Viendo recordatorios de todos':'Ver recordatorios de todos los usuarios'}">${window._adminVerTodos?'🔔 Todos los rec.':'🔔 Solo míos'}</button>` : ''}
       </div>
       <div id="cotizaciones-rows-wrap">${_czRowsHTML()}</div>
     </div>`;
@@ -14793,13 +14775,7 @@ function _dataUrlToBlobUrl(dataUrl) {
 function verPdfFactura(id) {
   const f = db.facturas.find(x=>x.id===id);
   if (!f) return;
-  if (f.pdfUrl || f.tienePdf) {
-    if (storage) {
-      storage.ref().child(`facturas/${f.id}/factura.pdf`).getDownloadURL()
-        .then(url => { f.pdfUrl = url; const win = window.open(url, '_blank'); if (!win) _info('Tu navegador bloqueó la ventana emergente. Permítela e intenta de nuevo.'); })
-        .catch(() => { if (f.pdfUrl) { const win = window.open(f.pdfUrl, '_blank'); if (!win) _info('Tu navegador bloqueó la ventana emergente. Permítela e intenta de nuevo.'); } else _info('No se pudo obtener el PDF.'); });
-      return;
-    }
+  if (f.pdfUrl) {
     const win = window.open(f.pdfUrl, '_blank');
     if (!win) _info('Tu navegador bloqueó la ventana emergente. Permítela e intenta de nuevo.');
     return;
@@ -20976,14 +20952,14 @@ function renderAgenda() {
       return `<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><button onclick="window._recMonthOff=(window._recMonthOff||0)-1;renderAgenda()" class="btn btn-outline btn-sm">‹</button><span style="font-size:0.82rem;font-weight:600;color:#64748b;text-transform:capitalize">${mn}</span><button onclick="window._recMonthOff=(window._recMonthOff||0)+1;renderAgenda()" class="btn btn-outline btn-sm">›</button>${window._recMonthOff?`<button onclick="window._recMonthOff=0;renderAgenda()" class="btn btn-outline btn-sm">Hoy</button>`:''}</div><div class="rec-month-grid">${hdrRow}${cells}</div></div>`;
     }
     // ── Render ──────────────────────────────────────────────────────────────
-    const _tab = _q ? 'lista' : (window._recTabView || 'lista'); // Si hay búsqueda activa, forzar lista para buscar en todas las fechas
+    const _tab = window._recTabView || 'lista';
     const _tabContent = _tab==='semana'?_buildSemana():_tab==='mes'?_buildMes():_listaHTML;
     const _userNameToUid = {};
     _persUsuarios.forEach(u => { _userNameToUid[u.n] = u.id; });
     const _allFilterUsers = [...new Set([..._recUsuarios,..._persUsuarios.map(u=>u.n)])].filter(n=>n!==session.nombre).sort();
     const _curFiltVal = !window._recAgAdminFilter?'':window._recAgAdminFilter===session.nombre?`${session.nombre}|${session.uid}`:`${window._recAgAdminFilter}|${window._persAdminFilter}`;
     const _adminFilter = esAdmin?`<select onchange="var p=this.value.split('|');window._recAgAdminFilter=p[0]||'';window._persAdminFilter=p[1]||'';renderAgenda()" style="font-size:0.72rem;padding:3px 7px;border:1px solid var(--border,#e2e8f0);border-radius:6px;background:var(--card,#fff);color:var(--text,#374151)"><option value="" ${!_curFiltVal?'selected':''}>🔔 Todos</option><option value="${session.nombre}|${session.uid}" ${_curFiltVal===session.nombre+'|'+session.uid?'selected':''}>Solo míos</option>${_allFilterUsers.map(n=>{const uid=_userNameToUid[n]||'';const v=n+'|'+uid;return`<option value="${v}" ${_curFiltVal===v?'selected':''}>${esc(n)}</option>`}).join('')}</select>`:'';
-    return `${_syncBanner}<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="window._recSearchQ=this.value;const _cp=this.selectionStart;renderAgenda();const _si=document.querySelector('.rec-search-bar input');if(_si){_si.focus();try{_si.setSelectionRange(_cp,_cp);}catch(e){}}" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
+    return `${_syncBanner}<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="window._recSearchQ=this.value;renderAgenda()" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
   })() : `<div class="card" style="text-align:center;padding:30px;color:#94a3b8">Sin acceso a recordatorios.</div>`;
 
   if (window._recSecOpen === undefined) {
@@ -24253,8 +24229,8 @@ function _buscarGlobal(q) {
     if (can(['admin','secretaria','auxiliar'])) {
       (db.ventas || []).filter(vt => !vt.papelera && (esAdmin || !vt.archivado)).forEach(vt => {
         if (match([vt.cliente || vt.ctNombre || '', String(vt.folioPedido || ''), vt.celular || vt.ctCelular || ''].join(' '))) {
-          const _vLabel = '#' + (vt.folioPedido || vt.id) + ' — ' + (vt.cliente || vt.ctNombre || '');
-          res.push({ tipo: '💰 Venta', label: _vLabel, sec: 'ventas', id: vt.id, fn: 'verVenta', archivado: !!vt.archivado });
+          const _vLabel = (vt.archivado ? '📁 ' : '') + '#' + (vt.folioPedido || vt.id) + ' — ' + (vt.cliente || vt.ctNombre || '');
+          res.push({ tipo: '💰 Venta', label: _vLabel, sec: 'ventas', id: vt.id, fn: 'verVenta' });
         }
       });
     }
@@ -24283,8 +24259,8 @@ function _buscarGlobal(q) {
     if (can(['admin','secretaria','auxiliar'])) {
       (db.cobranza || []).filter(c => esAdmin || !c.archivado).forEach(c => {
         if (match([c.cliente || '', c.pedido || '', c.factura || '', c.encargado || ''].join(' '))) {
-          const _cLabel = (c.cliente || '') + (c.pedido ? ' · ' + c.pedido : '');
-          res.push({ tipo: '💳 Cobranza', label: _cLabel, sec: 'cobranza', id: c.id, fn: 'openCobranzaDetalle', archivado: !!c.archivado });
+          const _cLabel = (c.archivado ? '📁 ' : '') + (c.cliente || '') + (c.pedido ? ' · ' + c.pedido : '');
+          res.push({ tipo: '💳 Cobranza', label: _cLabel, sec: 'cobranza', id: c.id, fn: 'openCobranzaDetalle' });
         }
       });
     }
@@ -24339,7 +24315,7 @@ function _buscarGlobal(q) {
           [
             { label: '📦 Buscar en archivo de cotizaciones', cls: 'btn-primary', action: () => {
                 closeModal();
-                navigate('cotizaciones');
+                nav('cotizaciones');
                 setTimeout(() => {
                   verArchivoCotiz();
                   setTimeout(() => { const si = document.getElementById('cz-arch-search'); if (si) { si.value = _vQ; _czArchFilter(); } }, 350);
@@ -24358,7 +24334,7 @@ function _buscarGlobal(q) {
     // Si no hubo cotizaciones activas en resultados, agregar fila de acceso al archivo
     window._bgLastQ = v; // para que el onclick del archivo pueda leer la query
     const _archCzRow = (!_czEncontradas && _puedeArchCz) ? `
-      <div onclick="closeModal();navigate('cotizaciones');setTimeout(()=>{verArchivoCotiz();setTimeout(()=>{const _si=document.getElementById('cz-arch-search');if(_si){_si.value=window._bgLastQ||'';_czArchFilter();}},350);},420)"
+      <div onclick="closeModal();nav('cotizaciones');setTimeout(()=>{verArchivoCotiz();setTimeout(()=>{const _si=document.getElementById('cz-arch-search');if(_si){_si.value=window._bgLastQ||'';_czArchFilter();}},350);},420)"
         style="padding:10px 14px;cursor:pointer;border-top:2px solid #dbeafe;display:flex;gap:10px;align-items:center;background:#f0f7ff"
         onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#f0f7ff'">
         <span style="font-size:0.73rem;white-space:nowrap;color:#3b82f6;min-width:90px">📦 Archivo</span>
@@ -24370,7 +24346,7 @@ function _buscarGlobal(q) {
                display:flex;gap:10px;align-items:center;transition:background .1s"
         onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
         <span style="font-size:0.73rem;white-space:nowrap;color:var(--text-light);min-width:90px">${r.tipo}</span>
-        <span style="font-size:0.88rem;font-weight:500;display:flex;align-items:center;gap:6px">${r.archivado?'<span style="font-size:0.68rem;font-weight:600;padding:1px 7px;border-radius:4px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;white-space:nowrap">Archivado</span>':''}${esc(r.label)}</span>
+        <span style="font-size:0.88rem;font-weight:500">${esc(r.label)}</span>
       </div>`).join('') + _archCzRow;
     showModal('Resultados para "' + esc(v) + '"', lista, [{ label: 'Cerrar', cls: 'btn-secondary', action: closeModal }]);
   }, 280);
@@ -24382,7 +24358,7 @@ function _irResultGlobal(i) {
   if (inp) inp.value = '';
   closeModal();
   if (r.sec) {
-    navigate(r.sec);
+    nav(r.sec);
     if (r.fn && r.id != null) setTimeout(() => { if (window[r.fn]) window[r.fn](r.id); }, 400);
   }
 }
@@ -24647,7 +24623,7 @@ function logActividad(accion, detalle) {
 
   function _mostrarPopupRecordatorios(items, esAdmin) {
     const existente = document.getElementById('_rec-panel');
-    if (existente) return; // Panel ya visible — no recrear para evitar que desaparezca sin acción del usuario
+    if (existente) existente.remove();
 
     // Inyectar estilos del panel si no existen
     if (!document.getElementById('_rec-styles')) {
