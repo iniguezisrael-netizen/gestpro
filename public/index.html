@@ -14775,12 +14775,18 @@ function _dataUrlToBlobUrl(dataUrl) {
   return URL.createObjectURL(new Blob([bytes], { type: mime }));
 }
 
-function verPdfFactura(id) {
+async function verPdfFactura(id) {
   const f = db.facturas.find(x=>x.id===id);
   if (!f) return;
   if (f.pdfUrl) {
-    const win = window.open(f.pdfUrl, '_blank');
-    if (!win) _info('Tu navegador bloqueó la ventana emergente. Permítela e intenta de nuevo.');
+    try {
+      const freshUrl = await firebase.storage().refFromURL(f.pdfUrl).getDownloadURL();
+      const win = window.open(freshUrl, '_blank');
+      if (!win) _info('Tu navegador bloqueó la ventana emergente. Permítela e intenta de nuevo.');
+    } catch(e) {
+      const win = window.open(f.pdfUrl, '_blank');
+      if (!win) _info('Tu navegador bloqueó la ventana emergente. Permítela e intenta de nuevo.');
+    }
     return;
   }
   // Compatibilidad con facturas antiguas guardadas en localStorage
