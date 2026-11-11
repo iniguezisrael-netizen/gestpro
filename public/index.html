@@ -24144,7 +24144,7 @@ function _gsScanHint(val) {
         const foto=i.fotos&&i.fotos[0]
           ?'<img src="'+esc(i.fotos[0])+'" style="width:30px;height:30px;object-fit:cover;border-radius:4px;flex-shrink:0">'
           :'<span style="width:30px;height:30px;border-radius:4px;background:var(--bg-alt);display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0">📦</span>';
-        return '<div data-item-id="'+i.id+'" onmousedown="_gsSelectItem('+i.id+')" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);font-size:0.85rem" onmouseover="this.style.background='var(--bg-alt)'" onmouseout="this.style.background=''">'
+        return '<div data-item-id="'+i.id+'" onmousedown="_gsSelectItem('+i.id+')" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);font-size:0.85rem">'
           +foto+'<div style="min-width:0;flex:1"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(i.nombre)+'</div>'
           +'<div style="font-size:0.73rem;color:var(--text-muted)">'+(i.codigo||'')+(i.codigo?' · ':'')+' stock: '+(i.cantidad??0)+' '+esc(i.unidad||'')+'</div></div></div>';
       }).join('');
