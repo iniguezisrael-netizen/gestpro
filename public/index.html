@@ -24331,7 +24331,7 @@ function _buscarGlobal(q) {
           [
             { label: '📦 Buscar en archivo de cotizaciones', cls: 'btn-primary', action: () => {
                 closeModal();
-                nav('cotizaciones');
+                navigate('cotizaciones');
                 setTimeout(() => {
                   verArchivoCotiz();
                   setTimeout(() => { const si = document.getElementById('cz-arch-search'); if (si) { si.value = _vQ; _czArchFilter(); } }, 350);
@@ -24350,7 +24350,7 @@ function _buscarGlobal(q) {
     // Si no hubo cotizaciones activas en resultados, agregar fila de acceso al archivo
     window._bgLastQ = v; // para que el onclick del archivo pueda leer la query
     const _archCzRow = (!_czEncontradas && _puedeArchCz) ? `
-      <div onclick="closeModal();nav('cotizaciones');setTimeout(()=>{verArchivoCotiz();setTimeout(()=>{const _si=document.getElementById('cz-arch-search');if(_si){_si.value=window._bgLastQ||'';_czArchFilter();}},350);},420)"
+      <div onclick="closeModal();navigate('cotizaciones');setTimeout(()=>{verArchivoCotiz();setTimeout(()=>{const _si=document.getElementById('cz-arch-search');if(_si){_si.value=window._bgLastQ||'';_czArchFilter();}},350);},420)"
         style="padding:10px 14px;cursor:pointer;border-top:2px solid #dbeafe;display:flex;gap:10px;align-items:center;background:#f0f7ff"
         onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#f0f7ff'">
         <span style="font-size:0.73rem;white-space:nowrap;color:#3b82f6;min-width:90px">📦 Archivo</span>
@@ -24374,7 +24374,7 @@ function _irResultGlobal(i) {
   if (inp) inp.value = '';
   closeModal();
   if (r.sec) {
-    nav(r.sec);
+    navigate(r.sec);
     if (r.fn && r.id != null) setTimeout(() => { if (window[r.fn]) window[r.fn](r.id); }, 400);
   }
 }
