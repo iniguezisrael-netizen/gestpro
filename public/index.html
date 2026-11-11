@@ -24639,7 +24639,7 @@ function logActividad(accion, detalle) {
 
   function _mostrarPopupRecordatorios(items, esAdmin) {
     const existente = document.getElementById('_rec-panel');
-    if (existente) existente.remove();
+    if (existente) return; // Panel ya visible — no recrear para evitar que desaparezca sin acción del usuario
 
     // Inyectar estilos del panel si no existen
     if (!document.getElementById('_rec-styles')) {
