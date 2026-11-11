@@ -5753,7 +5753,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
             vt.estado = 'Entregado'; vt.saldo = 0; vt.anticipo = vt.total || vt.anticipo;
             const _ciAdm = (db.consignacion||[]).find(c=>String(c.ventaId)===String(vt.id));
             if (_ciAdm) _ciAdm.estado = 'Vendido';
-            if (vt._nuevaLogicaProd !== false) { _descontarProdVenta(vt.items); vt._nuevaLogicaProd = false; }
+            if (vt._nuevaLogicaProd === true) { _descontarProdVenta(vt.items); vt._nuevaLogicaProd = false; }
             saveDb(['ventas','consignacion','productos']);
             showToast(`✅ ${vt.folioPedido||('#'+vt.id)} → Entregado`);
             renderVentas();
@@ -5800,7 +5800,7 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
     showToast('📋 Registrado en Cobranza automáticamente');
   }
   // Descontar stock de productos terminados al entregar (independiente de si tiene crédito o no)
-  if (nuevoEstado === 'Entregado' && vt._nuevaLogicaProd !== false) {
+  if (nuevoEstado === 'Entregado' && vt._nuevaLogicaProd === true) {
     _descontarProdVenta(vt.items);
     vt._nuevaLogicaProd = false;
   }
