@@ -2031,6 +2031,15 @@ async function _procesarColecciones(cols, results) {
           }
           return { ...x, baja: true, bajaFecha: _loc.bajaFecha, bajaMotivo: _loc.bajaMotivo, bajaUsuario: _loc.bajaUsuario };
         }
+        // Archivado override: si local tiene archivado:true y el servidor no, preservarlo y re-parchear RTDB
+        if (_loc?.archivado === true && !x.archivado) {
+          if (RTDB_DUAL_WRITE && rtdb) {
+            rtdb.ref('db/' + c + '/' + String(x.id))
+              .update({ archivado: true, archivadoPor: _loc.archivadoPor||null, archivadoEn: _loc.archivadoEn||null })
+              .catch(() => {});
+          }
+          return { ...x, archivado: true, archivadoPor: _loc.archivadoPor, archivadoEn: _loc.archivadoEn };
+        }
         return x;
       });
       const serverIds = new Set(serverItemsMerged.map(x => x && x.id).filter(Boolean));
