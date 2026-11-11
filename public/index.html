@@ -14518,8 +14518,7 @@ async function guardarFactura() {
         _doGuardarFactura();
         return;
       }
-      // El registro ya tiene todos los archivos disponibles → pedir confirmación
-      _confirm(`Esta factura (UUID: ${d.uuid.substring(0,18)}...) ya está guardada con todos sus archivos. ¿Guardar de todas formas como nuevo registro?`, () => _doGuardarFactura(), null, {ok:'Guardar de todas formas'});
+      // Ya existe completa — no hacer nada
       return;
     }
   }
@@ -14548,6 +14547,7 @@ async function _doGuardarFactura() {
       else if (!storage) { _fx.tienePdf = true; _actualizado = true; } // sin storage: solo marcar
     }
     if (_actualizado) { saveDb('facturas'); cancelarCfdi(); renderFacturas(); _info('✅ Factura complementada: se agregó el archivo faltante al registro existente'); return; }
+    return; // ya existe completa — no crear duplicado
   }
   const id = sid();
   const factura = {
