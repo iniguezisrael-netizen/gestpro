@@ -23947,11 +23947,11 @@ function openScanGlobalModal(codigoInicial) {
       <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;gap:8px">
           <button id="gs-btn-entregar" onclick="_gsTipo(false)"
-            style="flex:1;padding:10px;border-radius:8px;border:2px solid var(--primary);background:var(--primary);color:white;font-weight:600;cursor:pointer;font-size:0.9rem">&#128228; Entregar</button>
+            style="flex:1;padding:10px;border-radius:8px;border:2px solid var(--primary);background:var(--primary);color:white;font-weight:700;cursor:pointer;font-size:0.9rem;transition:all 0.15s">&#128228; Entregar</button>
           <button id="gs-btn-devolver" onclick="_gsTipo(true)"
-            style="flex:1;padding:10px;border-radius:8px;border:2px solid var(--border);background:var(--bg-alt);color:var(--text);font-weight:600;cursor:pointer;font-size:0.9rem">&#128229; Devolver</button>
-          <button onclick="(function(){var c=window._gsLastCodigo||'';_gsClose();recibirConBarcode(c);})()"
-            style="flex:1;padding:10px;border-radius:8px;border:2px solid #0f766e;background:#0f766e;color:white;font-weight:600;cursor:pointer;font-size:0.9rem">&#128230; Recibir con c&#xF3;digo</button>
+            style="flex:1;padding:7px 8px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-weight:400;cursor:pointer;font-size:0.78rem;opacity:0.65;transition:all 0.15s">&#128229; Devolver</button>
+          <button id="gs-btn-recibir" onclick="(function(){var c=window._gsLastCodigo||'';_gsClose();recibirConBarcode(c);})()"
+            style="flex:1;padding:7px 8px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-weight:400;cursor:pointer;font-size:0.78rem;opacity:0.65;transition:all 0.15s">&#128230; Recibir c&#xF3;digo</button>
         </div>
         <div>
           <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Pedido *</label>
@@ -23960,13 +23960,17 @@ function openScanGlobalModal(codigoInicial) {
         </div>
         <div>
           <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Escanear material</label>
-          <div style="display:flex;gap:6px">
-            <input type="text" id="gs-scan" placeholder="Código, nombre o escanea…" autocomplete="off" inputmode="none"
-              style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;background:var(--bg);color:var(--text)"
-              oninput="_gsScanHint(this.value)"
-              onkeydown="if(event.key===String.fromCharCode(13)){event.preventDefault();_gsAgregar();}">
-            <button onclick="abrirEscanerCamara(function(t){var s=document.getElementById('gs-scan');if(s){s.value=t;_gsScanHint(t);setTimeout(_gsAgregar,80);}}, 'barras')"
-              style="padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-alt);cursor:pointer;font-size:1.1rem" title="Cámara">&#128247;</button>
+          <div style="position:relative">
+            <div style="display:flex;gap:6px">
+              <input type="text" id="gs-scan" placeholder="Código, nombre o escanea…" autocomplete="off" inputmode="text"
+                style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;background:var(--bg);color:var(--text)"
+                oninput="_gsScanHint(this.value)"
+                onkeydown="_gsScanKeydown(event)"
+                onblur="setTimeout(()=>{const d=document.getElementById('gs-scan-dropdown');if(d)d.style.display='none';},200)">
+              <button onclick="abrirEscanerCamara(function(t){var s=document.getElementById('gs-scan');if(s){s.value=t;_gsScanHint(t);setTimeout(_gsAgregar,80);}}, 'barras')"
+                style="padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-alt);cursor:pointer;font-size:1.1rem" title="Cámara">&#128247;</button>
+            </div>
+            <div id="gs-scan-dropdown" style="display:none;position:absolute;left:0;right:0;top:calc(100% + 2px);background:var(--bg);border:1.5px solid var(--primary);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:10002;max-height:210px;overflow-y:auto"></div>
           </div>
           <div id="gs-scan-hint" style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;min-height:20px;display:flex;align-items:center;gap:6px">&nbsp;</div>
         </div>
@@ -24038,13 +24042,45 @@ function openScanGlobalModal(codigoInicial) {
 
 function _gsTipo(dev) {
   window._gsDevolucion = dev;
-  const bE=document.getElementById('gs-btn-entregar'), bD=document.getElementById('gs-btn-devolver');
+  const bE=document.getElementById('gs-btn-entregar'), bD=document.getElementById('gs-btn-devolver'), bR=document.getElementById('gs-btn-recibir');
   if (!bE||!bD) return;
-  const ON  = 'flex:1;padding:10px;border-radius:8px;border:2px solid var(--primary);background:var(--primary);color:white;font-weight:600;cursor:pointer;font-size:0.9rem';
-  const OFF = 'flex:1;padding:10px;border-radius:8px;border:2px solid var(--border);background:var(--bg-alt);color:var(--text);font-weight:600;cursor:pointer;font-size:0.9rem';
+  const ON  = 'flex:1;padding:10px;border-radius:8px;border:2px solid var(--primary);background:var(--primary);color:white;font-weight:700;cursor:pointer;font-size:0.9rem;transition:all 0.15s';
+  const OFF = 'flex:1;padding:7px 8px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-weight:400;cursor:pointer;font-size:0.78rem;opacity:0.65;transition:all 0.15s';
   bE.style.cssText = dev ? OFF : ON;
   bD.style.cssText = dev ? ON  : OFF;
+  if (bR) bR.style.cssText = OFF;
 }
+
+function _gsScanKeydown(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    // Enter SIEMPRE llama _gsAgregar() — el scanner HID manda Enter al final
+    // El dropdown solo se selecciona con clic/tap, nunca con Enter automático
+    const drop=document.getElementById('gs-scan-dropdown');
+    if (drop) drop.style.display='none';
+    _gsAgregar();
+  } else if (e.key === 'Escape') {
+    const drop=document.getElementById('gs-scan-dropdown');
+    if (drop) drop.style.display='none';
+  }
+}
+window['_gsScanKeydown'] = _gsScanKeydown;
+
+function _gsSelectItem(id) {
+  const item=(db.materia||[]).find(i=>i.id===id);
+  if (!item) return;
+  const s=document.getElementById('gs-scan'); if(s) s.value=item.nombre;
+  const u=document.getElementById('gs-uni'); if(u) u.value=item.unidad||'';
+  const drop=document.getElementById('gs-scan-dropdown'); if(drop) drop.style.display='none';
+  const hint=document.getElementById('gs-scan-hint');
+  if (hint) {
+    const foto=item.fotos&&item.fotos[0]?'<img src="'+esc(item.fotos[0])+'" style="width:34px;height:34px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0">':'';
+    hint.style.display='flex'; hint.style.alignItems='center';
+    hint.innerHTML=foto+'<span>&#9989; <strong>'+esc(item.nombre)+'</strong> &mdash; stock: '+( item.cantidad??0)+' '+esc(item.unidad||'')+'</span>';
+  }
+  setTimeout(()=>{ const q=document.getElementById('gs-qty'); if(q){q.focus();q.select();} },60);
+}
+window['_gsSelectItem'] = _gsSelectItem;
 
 function _gsExtractCode(val) {
   // Si el valor escaneado es una URL con ?consig=, extraer solo el folio
@@ -24058,34 +24094,64 @@ function _gsExtractCode(val) {
 
 function _gsScanHint(val) {
   const hint=document.getElementById('gs-scan-hint');
-  if (!hint||!val.trim()) { if(hint) hint.innerHTML='&nbsp;'; return; }
+  const drop=document.getElementById('gs-scan-dropdown');
+  if (!hint||!val.trim()) {
+    if(hint) hint.innerHTML='&nbsp;';
+    if(drop) drop.style.display='none';
+    return;
+  }
   const code = _gsExtractCode(val);
-  // Si se extrajo un código limpio de la URL, actualizar el campo visualmente
   if (code !== val.trim()) {
     const s=document.getElementById('gs-scan'); if(s) s.value=code;
   }
+  // Coincidencia exacta en materia
   const item=(db.materia||[]).find(i=>
     (i.barcode&&i.barcode.trim().toLowerCase()===code.toLowerCase())||
     (i.codigo &&i.codigo.trim().toLowerCase() ===code.toLowerCase())||
     (i.nombre &&i.nombre.trim().toLowerCase() ===code.toLowerCase()));
   if (item) {
+    if(drop) drop.style.display='none';
     const u=document.getElementById('gs-uni'); if(u&&!u.value) u.value=item.unidad||'';
     const foto=item.fotos&&item.fotos[0]
       ?'<img src="'+esc(item.fotos[0])+'" style="width:34px;height:34px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0">'
       :'';
     hint.style.display='flex'; hint.style.alignItems='center';
-    hint.innerHTML=foto+'<span>&#9989; <strong>'+esc(item.nombre)+'</strong> &mdash; stock: '+item.cantidad+' '+esc(item.unidad||'')+'</span>';
+    hint.innerHTML=foto+'<span>&#9989; <strong>'+esc(item.nombre)+'</strong> &mdash; stock: '+(item.cantidad??0)+' '+esc(item.unidad||'')+'</span>';
     return;
   }
-  // Buscar también en consignación por folio o barcode
+  // Coincidencia exacta en consignación
   const consig=(db.consignacion||[]).find(i=>
     (i.folio&&i.folio.trim().toLowerCase()===code.toLowerCase())||
     (i.barcode&&i.barcode.trim().toLowerCase()===code.toLowerCase()));
   if (consig) {
+    if(drop) drop.style.display='none';
     hint.style.display='flex'; hint.style.alignItems='center';
     hint.innerHTML='<span>&#9989; <strong>'+esc(consig.producto||consig.nombre||consig.folio||code)+'</strong>'+(consig.folio?' &mdash; Folio: '+esc(consig.folio):'')+'</span>';
     return;
   }
+  // Dropdown autocomplete (2+ chars)
+  if (drop && code.length >= 2) {
+    const q=code.toLowerCase();
+    const matches=(db.materia||[]).filter(i=>
+      (i.nombre&&i.nombre.toLowerCase().includes(q))||
+      (i.codigo&&i.codigo.toLowerCase().includes(q))||
+      (i.barcode&&i.barcode.toLowerCase().includes(q))
+    ).slice(0,8);
+    if (matches.length > 0) {
+      hint.innerHTML='&nbsp;';
+      drop.style.display='block';
+      drop.innerHTML=matches.map(i=>{
+        const foto=i.fotos&&i.fotos[0]
+          ?'<img src="'+esc(i.fotos[0])+'" style="width:30px;height:30px;object-fit:cover;border-radius:4px;flex-shrink:0">'
+          :'<span style="width:30px;height:30px;border-radius:4px;background:var(--bg-alt);display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0">📦</span>';
+        return '<div data-item-id="'+i.id+'" onmousedown="_gsSelectItem('+i.id+')" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);font-size:0.85rem" onmouseover="this.style.background='var(--bg-alt)'" onmouseout="this.style.background=''">'
+          +foto+'<div style="min-width:0;flex:1"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(i.nombre)+'</div>'
+          +'<div style="font-size:0.73rem;color:var(--text-muted)">'+(i.codigo||'')+(i.codigo?' · ':'')+' stock: '+(i.cantidad??0)+' '+esc(i.unidad||'')+'</div></div></div>';
+      }).join('');
+      return;
+    }
+  }
+  if(drop) drop.style.display='none';
   hint.style.display='';
   hint.innerHTML='<span style="color:#ef4444">&#9888; No encontrado &mdash; se registrará como texto libre</span>';
 }
