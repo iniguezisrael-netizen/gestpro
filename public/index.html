@@ -1661,19 +1661,7 @@ async function _rtdbWriteCollection(colName, arr) {
     // Fix 12: productos.cantidad — no pisar con estado stale de otro dispositivo.
     // Si la cantidad no cambió en este dispositivo (igual al _serverSnapshot), excluirla del write
     // para evitar que un dispositivo con caché viejo sobreescriba el stock correcto en RTDB.
-    let cleanFinal = clean;
-    if (colName === 'productos' && window._serverSnapshot && window._serverSnapshot['productos']) {
-      cleanFinal = clean.map(item => {
-        if (item == null || item.id == null || item.cantidad === undefined) return item;
-        const snap = window._serverSnapshot['productos'][String(item.id)];
-        if (snap && snap.cantidad !== undefined && item.cantidad === snap.cantidad) {
-          // cantidad sin cambios en este dispositivo — no incluir en write para no pisar RTDB
-          const { cantidad, ...sinCantidad } = item;
-          return sinCantidad;
-        }
-        return item;
-      });
-    }
+    const cleanFinal = clean; // Fix 12 revertido: stripping causaba campo undefined en RTDB con .set()
     if (FS_ARRAY_COLS.includes(colName)) {
       await rtdb.ref('db/' + colName + '/data').set({ items: cleanFinal, updatedAt: Date.now() });
     } else {
@@ -4187,7 +4175,7 @@ function renderInventario(tipo, _tab, _skipSync) {
             ? `<img class="foto-thumb" src="${i.fotos[0]}" loading="lazy" onclick="openLightboxItem(${i.id},'${tipo}')" title="Ver fotos" />`
             : `<div class="foto-placeholder">📷</div>`;
           const _apt = tipo === 'productos' ? _apartadosProd(i.id) : 0;
-          const _disp = tipo === 'productos' ? Math.max(0, i.cantidad - _apt) : i.cantidad;
+          const _disp = tipo === 'productos' ? Math.max(0, (i.cantidad ?? 0) - _apt) : (i.cantidad ?? 0);
           const badge = tipo === 'productos'
             ? (_disp === 0 && _apt > 0
                 ? `<span class="badge badge-yellow">Sin disponibles</span>`
@@ -4203,7 +4191,7 @@ function renderInventario(tipo, _tab, _skipSync) {
             <td><strong>${esc(i.nombre)}</strong>${tipo==='productos'&&i.ubicacion?`<br><span style="font-size:0.75rem;color:#64748b">📍 ${esc(i.ubicacion)}</span>`:''}</td>
             ${tipo === 'materia' ? `<td><code style="font-size:0.78rem">${esc(i.codigo||'-')}</code></td>` : ''}
             ${tipo === 'materia' ? `<td><code style="font-size:0.78rem">${esc(i.barcode||'-')}</code></td>` : `<td style="cursor:pointer;color:var(--primary);font-weight:500" onclick="_filtrarCatClick(this,'tbl-'+tipo)" title="Filtrar por esta categoría">${esc(i.categoria)}</td>`}
-            ${verCantidad ? `<td><strong>${i.cantidad}</strong> ${esc(i.unidad)}</td>` : ''}
+            ${verCantidad ? `<td><strong>${i.cantidad ?? 0}</strong> ${esc(i.unidad)}</td>` : ''}
             ${tipo === 'productos' ? `
               <td style="text-align:center">${_apt > 0 ? `<span style="font-weight:600;color:#b45309">${_apt}</span>` : '<span style="color:#94a3b8">—</span>'}</td>
               <td style="text-align:center"><strong style="color:${_disp===0?'#dc2626':_disp<=1?'#b45309':'#059669'}">${_disp}</strong></td>` : ''}
