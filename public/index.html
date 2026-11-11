@@ -1087,6 +1087,9 @@ const FS_ARRAY_COLS = ['clientesCredito'];
 // Colecciones estáticas: se leen una sola vez con getDocs (no onSnapshot).
 // Raramente cambian; si se modifican en otro dispositivo, el cambio se verá al recargar.
 const FS_STATIC_COLS = ['catalogoMateriales','checadorConfig','catConsig','vehiculos','facturas','recordatoriosPersonales'];
+// Colecciones escritas SOLO a RTDB (no a Firestore). Evita escrituras masivas al límite
+// diario de Firestore (20K free). RTDB es la fuente primaria; Firestore queda como archivo.
+const FS_RTDB_ONLY_COLS = ['materia','productos','consignacion','ventas','cotizaciones','cajas','reparaciones','bodegas','entregas','facturas','cobranza','vehiculos','produccion','catalogoMateriales','clientesCredito','clientes','herramientas','herramientasAsignadas','herramientasHistorial','agenda','ordenesCompra','proveedores','checadas','checadorConfig','entregaInsumos','reportesEntrega','reportesProduccion','catConsig','recordatoriosPersonales'];
 
 // ── IDs conocidos en Firestore por colección ─────────────────────────────────
 // Solo para colecciones con documentos individuales (no FS_ARRAY_COLS).
@@ -1120,6 +1123,8 @@ async function fsWriteCollection(colName, arr) {
   // Dual-write a RTDB (fire-and-forget) — igual que saveDb. Garantiza que llamadas
   // directas a fsWriteCollection también actualicen RTDB (fuente primaria en loadFromFirebase).
   if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection(colName, clean).catch(() => {});
+  // Fix escrituras: colecciones RTDB-only no escriben a Firestore (ahorro ~28K ops/día)
+  if (FS_RTDB_ONLY_COLS.includes(colName)) return;
 
   try {
     // ── Formato array: colecciones grandes (materia, catalogoMateriales) ──────
