@@ -19706,7 +19706,7 @@ function generarPDFCotiz(c) {
   const _doBuild = () => {
     try {
       console.log('[PDF] iniciando _cargarLogoYBuildPDF...');
-      _cargarLogoYBuildPDF(c, null, null, true);
+      _cargarLogoYBuildPDF(c, null, null, false);
     } catch(e) {
       console.error('[PDF] Error al generar:', e);
       alert('Error PDF: ' + e.message + '\n\nUsando impresión del navegador como alternativa.');
