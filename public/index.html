@@ -1129,6 +1129,7 @@ async function fsWriteCollection(colName, arr) {
   // Dual-write a RTDB (fire-and-forget) — igual que saveDb. Garantiza que llamadas
   // directas a fsWriteCollection también actualicen RTDB (fuente primaria en loadFromFirebase).
   if (RTDB_DUAL_WRITE && rtdb) _rtdbWriteCollection(colName, clean).catch(() => {});
+  if (!FIRESTORE_WRITE_ENABLED) return; // ← Cuando false: RTDB ya escrito arriba, Firestore se salta
 
   try {
     // ── Formato array: colecciones grandes (materia, catalogoMateriales) ──────
@@ -1656,6 +1657,7 @@ const _colListenerDeferred = new Set(); // colecciones esperando su listener rea
 // Escribe en RTDB en paralelo con Firestore (fire-and-forget).
 // Firestore sigue siendo la fuente de verdad hasta completar la migración.
 const RTDB_DUAL_WRITE = true;
+const FIRESTORE_WRITE_ENABLED = true; // ← false = solo escribe en RTDB (fase migración)
 
 async function _rtdbWriteCollection(colName, arr) {
   if (!rtdb || !RTDB_DUAL_WRITE) return;
