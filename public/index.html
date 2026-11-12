@@ -177,7 +177,16 @@
   .card-header > div, .card-header > span + div { display: flex; gap: 6px; flex-wrap: wrap; }
   /* ── Recordatorios Outlook-style ───────────────────────────── */
   .rec-wrap { background:var(--card,#fff); border-radius:10px; padding:14px 16px; }
-  .rec-search-bar { display:flex;align-items:center;gap:8px;margin-bottom:10px;background:var(--bg,#f8fafc);border:1px solid var(--border,#e2e8f0);border-radius:7px;padding:5px 10px; }
+  .rec-search-bar { display:flex;align-items:center;gap:8px;margin-bottom:10px;background:var(--bg,#f8fafc);border:1px solid var(--border,#e2e8f0);border-radius:7px;padding:5px 10px;position:relative; }
+  .rec-search-dd { position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card,#fff);border:1px solid var(--border,#e2e8f0);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.13);z-index:300;max-height:320px;overflow-y:auto; }
+  .rec-sug-item { padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border,#f1f5f9);display:flex;align-items:baseline;gap:6px;flex-wrap:wrap; }
+  .rec-sug-item:last-child { border-bottom:none; }
+  .rec-sug-item:hover { background:var(--hover,#f1f5f9); }
+  .rec-sug-nombre { font-weight:600;font-size:0.85rem;color:var(--text,#1e293b); }
+  .rec-sug-sub { font-size:0.78rem;color:#64748b; }
+  .rec-sug-nota { font-size:0.74rem;color:#94a3b8;flex-basis:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+  .rec-sug-badge { margin-left:auto;font-size:0.65rem;background:#dbeafe;color:#1e40af;border-radius:4px;padding:1px 6px;font-weight:500;white-space:nowrap; }
+  .rec-sug-badge.pers { background:#ede9fe;color:#7c3aed; }
   .rec-search-bar input { flex:1;border:none;background:transparent;outline:none;font-size:0.82rem;color:var(--text,#1e293b); }
   .rec-search-bar input::placeholder { color:#94a3b8; }
   .rec-tabs { display:flex;gap:2px;margin-bottom:12px;border-bottom:2px solid var(--border,#e2e8f0);padding-bottom:0; }
@@ -20943,7 +20952,7 @@ function renderAgenda() {
     const _allFilterUsers = [...new Set([..._recUsuarios,..._persUsuarios.map(u=>u.n)])].filter(n=>n!==session.nombre).sort();
     const _curFiltVal = !window._recAgAdminFilter?'':window._recAgAdminFilter===session.nombre?`${session.nombre}|${session.uid}`:`${window._recAgAdminFilter}|${window._persAdminFilter}`;
     const _adminFilter = esAdmin?`<select onchange="var p=this.value.split('|');window._recAgAdminFilter=p[0]||'';window._persAdminFilter=p[1]||'';renderAgenda()" style="font-size:0.72rem;padding:3px 7px;border:1px solid var(--border,#e2e8f0);border-radius:6px;background:var(--card,#fff);color:var(--text,#374151)"><option value="" ${!_curFiltVal?'selected':''}>🔔 Todos</option><option value="${session.nombre}|${session.uid}" ${_curFiltVal===session.nombre+'|'+session.uid?'selected':''}>Solo míos</option>${_allFilterUsers.map(n=>{const uid=_userNameToUid[n]||'';const v=n+'|'+uid;return`<option value="${v}" ${_curFiltVal===v?'selected':''}>${esc(n)}</option>`}).join('')}</select>`:'';
-    return `${_syncBanner}<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="_recSearchInput(this)" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
+    return `${_syncBanner}<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="_recSearchInput(this)" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}<div id="rec-search-dd" class="rec-search-dd" style="display:none"></div></div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
   })() : `<div class="card" style="text-align:center;padding:30px;color:#94a3b8">Sin acceso a recordatorios.</div>`;
 
   if (window._recSecOpen === undefined) {
@@ -24101,8 +24110,40 @@ function _repItemPrecio(el,idx){repItems[idx].price=+el.value||0;renderRepItems(
 function _abonoVueltoCalc(){const m=parseFloat(document.getElementById('abono-monto').value)||0;const r=parseFloat(document.getElementById('abono-recibido').value)||0;const row=document.getElementById('abono-vuelto-row');if(r>0&&m>0){const vv=r-m;row.style.display='flex';const el=document.getElementById('abono-vuelto-val');el.textContent=(vv<0?'-':'')+'$'+Math.abs(vv).toFixed(2);el.style.color=vv<0?'#dc2626':'#15803d';}else{row.style.display='none';}}
 function _emInput(el){_emShowSugs(el.value);_emAutoFill();}
 function _numericOnly(el){el.value=el.value.replace(/[^0-9]/g,'');}
-function _recSearchInput(el){window._recSearchQ=el.value;const p=el.selectionStart;renderAgenda();requestAnimationFrame(()=>{const e=document.querySelector('.rec-search-bar input');if(e){e.focus();e.setSelectionRange(p,p);}});}
+function _recSearchInput(el){const q=el.value;window._recSearchQ=q;const p=el.selectionStart;renderAgenda();requestAnimationFrame(()=>{const e=document.querySelector('.rec-search-bar input');if(e){e.focus();e.setSelectionRange(p,p);}if(q.trim().length>=1)_recSugsShow(q);});}
 function _agSearchInput(el){_agAutoFill(el.value);_agShowSugs(el.value);}
+function _recSugsShow(q){
+  const dd=document.getElementById('rec-search-dd');
+  if(!dd)return;
+  if(!q||q.trim().length<1){dd.style.display='none';return;}
+  const qs=(q||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  const hits=[];
+  const esc2=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  (window._allSeg||[]).filter(c=>!c.recHecho&&(c.recFecha||c.recSnoozeHasta)).forEach(c=>{
+    const hay=[c.cliente,c.ctEmpresa,c.recNota].map(s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()).join(' ');
+    if(hay.includes(qs))hits.push({tipo:'seg',id:c.id,nombre:c.cliente||'',sub:c.ctEmpresa||'',nota:c.recNota||''});
+  });
+  (window._allPers||[]).filter(p=>!p.completado).forEach(p=>{
+    const hay=[p.titulo,p.descripcion].map(s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()).join(' ');
+    if(hay.includes(qs))hits.push({tipo:'pers',id:p.id,nombre:p.titulo||'',sub:'',nota:p.descripcion||''});
+  });
+  if(!hits.length){dd.innerHTML='<div style="padding:10px 12px;color:#94a3b8;font-size:0.82rem">Sin resultados</div>';dd.style.display='block';return;}
+  dd.innerHTML=hits.slice(0,10).map(m=>`<div class="rec-sug-item" onclick="event.stopPropagation();_recSugSelect('${m.tipo}','${m.id}')"><span class="rec-sug-nombre">${esc2(m.nombre)}</span>${m.sub?`<span class="rec-sug-sub">${esc2(m.sub)}</span>`:''}<span class="rec-sug-badge${m.tipo==='pers'?' pers':''}">${m.tipo==='seg'?'seguimiento':'personal'}</span>${m.nota?`<span class="rec-sug-nota">${esc2(m.nota.slice(0,55))}</span>`:''}</div>`).join('');
+  dd.style.display='block';
+  const closeDD=function(ev){if(!ev.target.closest||(!ev.target.closest('.rec-search-dd')&&!ev.target.closest('.rec-search-bar'))){dd.style.display='none';document.removeEventListener('click',closeDD);}};
+  setTimeout(()=>document.addEventListener('click',closeDD),0);
+}
+function _recSugSelect(tipo,id){
+  window._recSearchQ='';
+  const dd=document.getElementById('rec-search-dd');
+  if(dd)dd.style.display='none';
+  const inp=document.querySelector('.rec-search-bar input');
+  if(inp)inp.value='';
+  renderAgenda();
+  if(tipo==='seg')verCotiz(id);
+  else openPersonalRecModal(id);
+}
+
 function _ocEstadoChange(el,id){cambiarEstadoOC(id,el.value);el.className='badge '+_ocEstadoClass(el.value);}
 function _eiItemQty(el,i){_eiItems[i].cantidad=parseFloat(el.value)||1;}
 function _gsInputBlur(){setTimeout(()=>{const d=document.getElementById('gs-scan-dropdown');if(d)d.style.display='none';},200);}
