@@ -8203,7 +8203,9 @@ function clienteCreditoAutorizado(nombre) {
   return (db.clientesCredito || []).includes(clienteKey(nombre));
 }
 function _vtNombreCredito(vt) {
-  return (vt && vt.ctEmpresa && vt.ctEmpresa !== 'No aplica') ? vt.ctEmpresa : (vt && vt.cliente) || '';
+  const _EXCLUIR_CREDITO = ['no aplica', 'particular', 'publico en general', 'público en general'];
+  const emp = (vt && vt.ctEmpresa || '').trim();
+  return (emp && !_EXCLUIR_CREDITO.includes(emp.toLowerCase())) ? emp : (vt && vt.cliente) || '';
 }
 function vtCreditoAutorizado(vt) {
   return clienteCreditoAutorizado(_vtNombreCredito(vt));
