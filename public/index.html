@@ -5031,7 +5031,7 @@ function openConsigModal(id) {
       <div class="form-group" style="position:relative"><label>Categoría</label>
         <input id="c-categoria" value="${esc(c?c.categoria||'':'')}" placeholder="Ej. Camper, Remolque..." autocomplete="off"
           oninput="_cCatFilter(this)" onfocus="_cCatFilter(this)"
-          onblur="setTimeout(()=>{const d=document.getElementById('c-cat-dd');if(d)d.style.display='none'},200)" />
+          onblur="_cCatBlur()" />
         <div id="c-cat-dd" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #cbd5e1;border-radius:6px;max-height:180px;overflow-y:auto;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.15)"></div>
       </div>
     </div>
@@ -5499,7 +5499,7 @@ function _vtRowsHTML() {
     <td>${vt.estado === 'Entregado'
       ? `<span class="badge badge-green" title="Estado bloqueado — archivar para quitar">✅ Entregado</span>`
       : can(['admin','secretaria','auxiliar']) && vt.estado !== 'Cancelada' ? `
-      <select onchange="_cambiarEstadoVtInline(${vt.id},this.value)" onclick="event.stopPropagation()"
+      <select onchange="_vtEstadoChange(this,${vt.id})" onclick="event.stopPropagation()"
         style="padding:3px 6px;border-radius:12px;font-size:0.78rem;font-weight:600;border:none;cursor:pointer;outline:none;
           ${vt.estado==='Pagada'?'background:#dcfce7;color:#15803d':vt.estado==='Terminada'?'background:#ede9fe;color:#5b21b6':vt.estado==='En Proceso'?'background:#dbeafe;color:#1e40af':vt.estado==='Reportado'?'background:#fdf4ff;color:#7e22ce':'background:#fef3c7;color:#92400e'}">
         ${(can(['admin'])?['Pendiente','En Proceso','Terminada','Entregado','Pagada','Reportado','Cancelada']:['Pendiente','En Proceso','Terminada','Entregado','Pagada','Reportado']).map(s=>`<option value="${s}" ${vt.estado===s?'selected':''}>${s}</option>`).join('')}
@@ -5643,7 +5643,7 @@ function renderVentas(force) {
       ` : `
         <div class="search-bar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <input type="text" placeholder="Buscar por cliente, # pedido, cotización o fecha..." value="${esc(window._ventasSearch||'')}" oninput="_vtSearchInput(this.value)" style="flex:1;min-width:160px" />
-          <input type="text" placeholder="Buscar por producto..." value="${esc(window._ventasSearchConcepto||'')}" oninput="window._ventasSearchConcepto=this.value;window._pgState['ventas']=0;const w=document.getElementById('ventas-rows-wrap');if(w)w.innerHTML=_vtRowsHTML();" style="flex:1;min-width:140px" />
+          <input type="text" placeholder="Buscar por producto..." value="${esc(window._ventasSearchConcepto||'')}" oninput="_vtSearchInput(this)" style="flex:1;min-width:140px" />
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
           ${['','hoy','semana','mes','mesant'].map(f=>{const a=(window._vtFiltroFecha||'')===f;return `<button onclick="window._vtFiltroFecha='${f}';window._pgState['ventas']=0;renderVentas(true)" style="padding:3px 12px;border-radius:20px;font-size:0.77rem;font-weight:600;border:1.5px solid ${a?'var(--primary)':'var(--border)'};background:${a?'var(--primary)':'transparent'};color:${a?'white':'var(--text-light)'};cursor:pointer">${f===''?'Todas':f==='hoy'?'📅 Hoy':f==='semana'?'Esta semana':f==='mes'?'Este mes':'Mes pasado'}</button>`;}).join('')}
@@ -5858,12 +5858,7 @@ function _abonarParaEntregar(ventaId) {
           <label style="color:#15803d">💵 Efectivo recibido ($)</label>
           <input id="apt-recibido" type="number" min="0" step="0.01" placeholder="0.00"
             style="font-size:1.05rem;font-weight:600"
-            oninput="(function(){
-              const m=parseFloat(document.getElementById('apt-monto').value)||0;
-              const r=parseFloat(document.getElementById('apt-recibido').value)||0;
-              const row=document.getElementById('apt-vuelto-row');
-              if(r>0&&m>0){const vv=r-m;row.style.display='flex';const el=document.getElementById('apt-vuelto-val');el.textContent=(vv<0?'-':'')+'$'+Math.abs(vv).toFixed(2);el.style.color=vv<0?'#dc2626':'#15803d';}else{row.style.display='none';}
-            })()" />
+            oninput="_aptVueltoCalc()" />
         </div>
         <div id="apt-vuelto-row" style="display:none;align-items:center;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 12px">
           <span style="font-size:13px;color:#374151;font-weight:500">Cambio a devolver</span>
@@ -6061,11 +6056,11 @@ function openVentaModal() {
     <div id="venta-total" style="text-align:right;font-weight:700;font-size:1.1rem;margin-top:8px;color:var(--primary)"></div>
     <div style="display:flex;align-items:center;gap:16px;margin-top:6px;flex-wrap:wrap">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;color:#64748b;user-select:none">
-        <input type="checkbox" id="v-pendiente-cotizar" style="width:16px;height:16px" onchange="if(this.checked)document.getElementById('v-garantia').checked=false;document.getElementById('venta-total').style.opacity=this.checked?'0.3':'1'" />
+        <input type="checkbox" id="v-pendiente-cotizar" style="width:16px;height:16px" onchange="_vPendCotizarChange(this)" />
         Precio pendiente de cotizar (sin total definido)
       </label>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;color:#16a34a;font-weight:600;user-select:none">
-        <input type="checkbox" id="v-garantia" style="width:16px;height:16px;accent-color:#16a34a" onchange="if(this.checked){document.getElementById('v-pendiente-cotizar').checked=false;document.getElementById('venta-total').style.opacity='1'}" />
+        <input type="checkbox" id="v-garantia" style="width:16px;height:16px;accent-color:#16a34a" onchange="_vGarantiaChange(this)" />
         🛡️ Garantía (sin cobro al cliente)
       </label>
     </div>
@@ -6086,7 +6081,7 @@ function openVentaModal() {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
       <div class="form-group" style="margin:0"><label>Anticipo ($)</label>
-        <input id="v-anticipo" type="number" min="0" step="0.01" value="0" placeholder="0.00" oninput="calcSaldoVenta();document.getElementById('v-forma-pago-wrap').style.display=(+this.value>0)?'':'none'" />
+        <input id="v-anticipo" type="number" min="0" step="0.01" value="0" placeholder="0.00" oninput="_vAnticipoInput(this)" />
       </div>
       <div class="form-group" style="margin:0"><label>Saldo Pendiente</label>
         <input id="v-saldo" type="number" readonly style="background:#f1f5f9;font-weight:700;color:var(--danger)" value="0.00" />
@@ -6100,7 +6095,7 @@ function openVentaModal() {
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
         <div class="form-group" style="margin:0"><label>Pago recibido ($)</label>
-          <input id="v-pago-recibido" type="number" min="0" step="0.01" placeholder="0.00" oninput="(function(){const a=+document.getElementById('v-anticipo').value||0;const p=+this.value||0;const c=document.getElementById('v-cambio');if(c)c.value=p>=a?'$'+((p-a).toFixed(2)):'—';}).call(this)" />
+          <input id="v-pago-recibido" type="number" min="0" step="0.01" placeholder="0.00" oninput="_vPagoRecibidoInput(this)" />
         </div>
         <div class="form-group" style="margin:0"><label>Cambio a dar</label>
           <input id="v-cambio" readonly placeholder="—" style="background:#f0fdf4;font-weight:700;color:#16a34a" />
@@ -6464,7 +6459,7 @@ function updateVentaItems() {
     <tr style="background:var(--bg)"><th style="padding:6px">Producto / Concepto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr>
     ${ventaItems.map((i,idx) => `<tr style="border-top:1px solid var(--border)">
       <td style="padding:4px 6px"><input type="text" value="${esc(i.producto)}" style="width:100%;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="ventaItems[${idx}].producto=this.value" />${i._consigFolio?`<div style="font-size:0.68rem;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:3px;padding:1px 5px;margin-top:2px;display:inline-block">📋 ${esc(i._consigFolio)}</div>`:''}</td>
-      <td><input type="number" min="0.01" step="any" value="${i.cantidad}" style="width:60px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="ventaItems[${idx}].cantidad=+this.value||1;updateVentaItems()" />${i.unidad?` <span style="font-size:0.75rem;color:#64748b">${esc(i.unidad)}</span>`:''}</td>
+      <td><input type="number" min="0.01" step="any" value="${i.cantidad}" style="width:60px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="_vtItemQty(this,${idx})" />${i.unidad?` <span style="font-size:0.75rem;color:#64748b">${esc(i.unidad)}</span>`:''}</td>
       <td style="padding:6px;color:#64748b">$${fmt(i.precio)}</td>
       <td style="padding:6px;font-weight:600">$${fmt(i.cantidad*i.precio)}</td>
       <td><button onclick="ventaItems.splice(${idx},1);updateVentaItems()" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button></td>
@@ -6719,7 +6714,7 @@ function editarPedido(id, folio) {
     <div id="ep-items-list"></div>
     <div id="ep-total" style="text-align:right;font-weight:700;font-size:1.1rem;margin-top:8px;color:var(--primary)"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
-        <div class="form-group" style="margin:0"><label>Anticipo ($) ${can(['admin'])?'':'<span style=\"font-size:0.72rem;color:#94a3b8\">(solo admin)</span>'}</label><input id="ep-anticipo" type="number" min="0" step="0.01" value="${esc(vt.anticipo!=null?vt.anticipo:'')}" placeholder="0.00" ${can(['admin'])?'':'readonly style=\"background:#f1f5f9;color:#94a3b8\"'} oninput="(function(){const t=ventaItems.reduce((s,i)=>s+i.cantidad*i.precio,0);const a=+this.value||0;const sl=document.getElementById('ep-saldo-disp');if(sl)sl.value=Math.max(0,t-a).toFixed(2);}).call(this)" /></div>
+        <div class="form-group" style="margin:0"><label>Anticipo ($) ${can(['admin'])?'':'<span style=\"font-size:0.72rem;color:#94a3b8\">(solo admin)</span>'}</label><input id="ep-anticipo" type="number" min="0" step="0.01" value="${esc(vt.anticipo!=null?vt.anticipo:'')}" placeholder="0.00" ${can(['admin'])?'':'readonly style=\"background:#f1f5f9;color:#94a3b8\"'} oninput="_epAnticipoInput(this)" /></div>
         <div class="form-group" style="margin:0"><label>Saldo Pendiente</label><input id="ep-saldo-disp" readonly style="background:#f1f5f9;font-weight:700;color:var(--danger)" value="${esc(vt.saldo!=null?vt.saldo.toFixed(2):'0.00')}" /></div>
       </div>
       <div class="form-group" style="margin-top:12px"><label>Estado</label>
@@ -6865,8 +6860,8 @@ function updateEditPedidoItems() {
     <tr style="background:var(--bg)"><th style="padding:6px">Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr>
     ${ventaItems.map((i,idx) => { const _ip = !!i.pendienteCotizar; return `<tr style="border-top:1px solid var(--border)${_ip?';background:#f0f9ff':''}">
       <td style="padding:4px 6px"><input value="${esc(i.producto)}" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.85rem${_ip?';color:#0369a1;font-weight:600':''}" onchange="ventaItems[${idx}].producto=this.value" /></td>
-      <td style="padding:4px 6px"><input type="number" value="${i.cantidad}" min="1" style="width:60px;border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.85rem" onchange="ventaItems[${idx}].cantidad=+this.value;updateEditPedidoItems()" /></td>
-      <td style="padding:4px 6px">${_ip ? `<input type="number" disabled placeholder="—" style="width:90px;border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.85rem;background:#f8fafc;color:#64748b">` : `<input type="number" value="${i.precio}" min="0" step="0.01" style="width:90px;border:1px solid ${i.precio===0?'var(--danger)':'var(--border)'};border-radius:6px;padding:4px 6px;font-size:0.85rem;font-weight:600" onchange="ventaItems[${idx}].precio=+this.value;updateEditPedidoItems()">`}</td>
+      <td style="padding:4px 6px"><input type="number" value="${i.cantidad}" min="1" style="width:60px;border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.85rem" onchange="_epItemQty(this,${idx})" /></td>
+      <td style="padding:4px 6px">${_ip ? `<input type="number" disabled placeholder="—" style="width:90px;border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.85rem;background:#f8fafc;color:#64748b">` : `<input type="number" value="${i.precio}" min="0" step="0.01" style="width:90px;border:1px solid ${i.precio===0?'var(--danger)':'var(--border)'};border-radius:6px;padding:4px 6px;font-size:0.85rem;font-weight:600" onchange="_epItemPrecio(this,${idx})">`}</td>
       <td style="padding:4px 6px;font-weight:600">${_ip ? `<span style="color:#0369a1;font-size:0.82rem;font-weight:700">—</span>` : `$${fmt(i.cantidad*i.precio)}`}</td>
       <td style="padding:4px 6px;white-space:nowrap">${_ip ? `<button onclick="_epTogglePendiente(${idx})" style="display:inline-flex;align-items:center;gap:3px;font-size:0.75rem;font-weight:600;padding:2px 7px;border-radius:5px;border:1.5px solid #bae6fd;background:#f0f9ff;color:#0369a1;cursor:pointer;margin-right:4px">📋 Pendiente</button>` : ''}<button onclick="ventaItems.splice(${idx},1);updateEditPedidoItems()" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button></td>
     </tr>`; }).join('')}
@@ -8575,27 +8570,14 @@ function registrarPago(id, folio) {
           <label style="font-size:0.8rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.04em">Monto del pago</label>
           <input id="pago-monto" type="number" min="0.01" step="0.01" placeholder="0.00"
             style="font-size:1.3rem;font-weight:700;border:none;outline:none;width:100%;padding:4px 0;background:transparent;color:#0f172a"
-            oninput="(function(){
-              const m=parseFloat(this.value)||0;
-              const r=parseFloat(document.getElementById('pago-recibido').value)||0;
-              const row=document.getElementById('pago-vuelto-row');
-              const bloque=document.getElementById('pago-efectivo-bloque');
-              const esEf=document.getElementById('pago-forma').value==='efectivo';
-              if(esEf&&bloque){bloque.style.display='';} 
-              if(esEf&&r>0&&m>0){const v=r-m;row.style.display='flex';const el=document.getElementById('pago-vuelto-val');el.textContent=(v<0?'−':'')+'$'+Math.abs(v).toFixed(2);el.style.color=v<0?'#dc2626':'#15803d';}else{row.style.display='none';}
-            }).call(this)" />
+            oninput="_pagoMontoInput(this)" />
           <div style="font-size:0.82rem;color:#64748b;margin-top:2px">Saldo pendiente: <strong style="color:#dc2626">$${fmt(saldoActual)}</strong></div>
         </div>
         <div id="pago-efectivo-bloque" style="padding:12px 14px;border-bottom:1px solid #e2e8f0;background:#f8fafc">
           <label style="font-size:0.8rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.04em">Efectivo recibido</label>
           <input id="pago-recibido" type="number" min="0" step="0.01" placeholder="0.00"
             style="font-size:1.15rem;font-weight:600;border:none;outline:none;width:100%;padding:4px 0;background:transparent;color:#0f172a"
-            oninput="(function(){
-              const m=parseFloat(document.getElementById('pago-monto').value)||0;
-              const r=parseFloat(this.value)||0;
-              const row=document.getElementById('pago-vuelto-row');
-              if(r>0&&m>0){const v=r-m;row.style.display='flex';const el=document.getElementById('pago-vuelto-val');el.textContent=(v<0?'−':'')+'$'+Math.abs(v).toFixed(2);el.style.color=v<0?'#dc2626':'#15803d';}else{row.style.display='none';}
-            }).call(this)" />
+            oninput="_pagoRecibidoInput(this)" />
         </div>
         <div id="pago-vuelto-row" style="display:none;align-items:center;justify-content:space-between;padding:10px 14px;background:#f0fdf4">
           <span style="font-size:0.85rem;font-weight:600;color:#15803d;text-transform:uppercase;letter-spacing:.04em">Cambio a devolver</span>
@@ -9981,7 +9963,7 @@ function _czRowsHTML() {
     <tr>
       ${esAdmin ? `<th style="width:28px"><input type="checkbox" title="Seleccionar todas" onchange="document.querySelectorAll('.cz-chk').forEach(c=>c.checked=this.checked)" /></th>` : ''}
       <th>#</th><th>Fecha</th><th>Cliente / Empresa</th>
-      ${puedeVerRec?`<th style="white-space:nowrap">🔔<select onchange="window._czFiltroRec=this.value;window._pgState['cotiz']=0;renderCotizaciones()" style="font-size:0.75rem;margin-left:2px;padding:1px 3px;border:1px solid #cbd5e1;border-radius:5px;background:#fff;color:#334155;cursor:pointer;max-width:80px"><option value="" ${!(window._czFiltroRec||'')?'selected':''}>Todas</option><option value="vencidas" ${(window._czFiltroRec||'')==='vencidas'?'selected':''}>⚠️ Vencidas</option><option value="proximas" ${(window._czFiltroRec||'')==='proximas'?'selected':''}>🔔 Próximas</option></select></th>`:''}
+      ${puedeVerRec?`<th style="white-space:nowrap">🔔<select onchange="_czFiltroRecChange(this)" style="font-size:0.75rem;margin-left:2px;padding:1px 3px;border:1px solid #cbd5e1;border-radius:5px;background:#fff;color:#334155;cursor:pointer;max-width:80px"><option value="" ${!(window._czFiltroRec||'')?'selected':''}>Todas</option><option value="vencidas" ${(window._czFiltroRec||'')==='vencidas'?'selected':''}>⚠️ Vencidas</option><option value="proximas" ${(window._czFiltroRec||'')==='proximas'?'selected':''}>🔔 Próximas</option></select></th>`:''}
       <th>Acciones</th>
     </tr>
     ${rows}
@@ -10050,7 +10032,7 @@ function renderCotizaciones(force) {
       <div class="search-bar"><input type="text" placeholder="Buscar por cliente, empresa o celular..." value="${esc(window._czSearch||'')}" oninput="_czSearchInput(this.value)" /></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
         ${['','hoy','semana','mes','mesant'].map(f=>{const a=(window._czFiltroFecha||'')===f;return `<button onclick="window._czFiltroFecha='${f}';window._pgState['cotiz']=0;renderCotizaciones(true)" style="padding:3px 12px;border-radius:20px;font-size:0.77rem;font-weight:600;border:1.5px solid ${a?'var(--primary)':'var(--border)'};background:${a?'var(--primary)':'transparent'};color:${a?'white':'var(--text-light)'};cursor:pointer">${f===''?'Todas':f==='hoy'?'📅 Hoy':f==='semana'?'Esta semana':f==='mes'?'Este mes':'Mes pasado'}</button>`;}).join('')}
-        ${_czUsuarios.length > 1 ? `<select onchange="window._cotizFiltroUsuario=this.value;window._pgState['cotiz']=0;renderCotizaciones(true)" title="Filtrar por usuario" style="font-size:0.77rem;padding:2px 8px;border-radius:20px;font-weight:600;border:1.5px solid ${window._cotizFiltroUsuario?'var(--primary)':'var(--border)'};background:${window._cotizFiltroUsuario?'var(--primary)':'transparent'};color:${window._cotizFiltroUsuario?'white':'var(--text-light)'};cursor:pointer"><option value="">👤 Todos</option>${_czUsuarios.map(u=>`<option value="${esc(u)}" ${window._cotizFiltroUsuario===u?'selected':''}>${esc(u)}</option>`).join('')}</select>` : ''}
+        ${_czUsuarios.length > 1 ? `<select onchange="_czUsuarioChange(this)" title="Filtrar por usuario" style="font-size:0.77rem;padding:2px 8px;border-radius:20px;font-weight:600;border:1.5px solid ${window._cotizFiltroUsuario?'var(--primary)':'var(--border)'};background:${window._cotizFiltroUsuario?'var(--primary)':'transparent'};color:${window._cotizFiltroUsuario?'white':'var(--text-light)'};cursor:pointer"><option value="">👤 Todos</option>${_czUsuarios.map(u=>`<option value="${esc(u)}" ${window._cotizFiltroUsuario===u?'selected':''}>${esc(u)}</option>`).join('')}</select>` : ''}
         ${esAdmin && puedeVerRec ? `<button onclick="window._adminVerTodos=!window._adminVerTodos;renderCotizaciones(true)" style="padding:3px 12px;border-radius:20px;font-size:0.77rem;font-weight:600;border:1.5px solid ${window._adminVerTodos?'#7c3aed':'var(--border)'};background:${window._adminVerTodos?'#7c3aed':'transparent'};color:${window._adminVerTodos?'white':'var(--text-light)'};cursor:pointer" title="${window._adminVerTodos?'Viendo recordatorios de todos':'Ver recordatorios de todos los usuarios'}">${window._adminVerTodos?'🔔 Todos los rec.':'🔔 Solo míos'}</button>` : ''}
       </div>
       <div id="cotizaciones-rows-wrap">${_czRowsHTML()}</div>
@@ -10758,10 +10740,10 @@ function updateCotizItems() {
     <tr style="background:var(--bg)"><th style="padding:6px">Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr>
     ${cotizItems.map((i,idx) => `<tr style="border-top:1px solid var(--border)">
       <td style="padding:4px 6px"><input type="text" value="${esc(i.producto)}" style="width:100%;min-width:120px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="cotizItems[${idx}].producto=this.value" />${i.pendiente?` <span style="font-size:0.72rem;background:#fef9c3;color:#92400e;border-radius:4px;padding:1px 5px;font-weight:600">Por cotizar</span>`:''}</td>
-      <td><input type="number" min="0.01" step="any" value="${i.cantidad}" style="width:60px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="cotizItems[${idx}].cantidad=+this.value||1;updateCotizItems()" />${i.unidad?` <span style="font-size:0.75rem;color:#64748b">${esc(i.unidad)}</span>`:''}</td>
+      <td><input type="number" min="0.01" step="any" value="${i.cantidad}" style="width:60px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="_czItemQty(this,${idx})" />${i.unidad?` <span style="font-size:0.75rem;color:#64748b">${esc(i.unidad)}</span>`:''}</td>
       <td>${i.pendiente
         ? `<span style="font-size:0.78rem;color:#d97706;font-weight:600">Pendiente</span>`
-        : `<input type="number" min="0" step="any" value="${i.precio}" style="width:80px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="cotizItems[${idx}].precio=+this.value||0;updateCotizItems()" />`}
+        : `<input type="number" min="0" step="any" value="${i.precio}" style="width:80px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="_czItemPrecio(this,${idx})" />`}
       </td>
       <td style="padding:6px;font-weight:600">${i.pendiente ? '—' : '$'+fmt(i.cantidad*i.precio)}</td>
       <td><button onclick="cotizItems.splice(${idx},1);updateCotizItems()" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button></td>
@@ -11073,8 +11055,8 @@ function updatePedidoItems() {
     <tr style="background:var(--bg)"><th style="padding:5px">Concepto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr>
     ${pedidoItems.map((i,idx)=>`<tr style="border-top:1px solid var(--border)">
       <td style="padding:5px">${esc(i.producto)}</td>
-      <td><input type="number" min="0.01" step="any" value="${i.cantidad}" style="width:60px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.82rem" onchange="pedidoItems[${idx}].cantidad=+this.value||1;updatePedidoItems()" /></td>
-      <td><input type="number" min="0" step="any" value="${i.precio}" style="width:80px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.82rem" onchange="pedidoItems[${idx}].precio=+this.value||0;updatePedidoItems()" /></td>
+      <td><input type="number" min="0.01" step="any" value="${i.cantidad}" style="width:60px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.82rem" onchange="_pdItemQty(this,${idx})" /></td>
+      <td><input type="number" min="0" step="any" value="${i.precio}" style="width:80px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.82rem" onchange="_pdItemPrecio(this,${idx})" /></td>
       <td style="padding:5px;font-weight:600">$${fmt(i.cantidad*i.precio)}</td>
       <td><button onclick="pedidoItems.splice(${idx},1);updatePedidoItems()" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button></td>
     </tr>`).join('')}
@@ -14966,8 +14948,8 @@ function renderRepItems() {
     <tr style="background:var(--bg)"><th style="padding:5px">Material</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr>
     ${repItems.map((i,idx)=>`<tr style="border-top:1px solid var(--border)">
       <td style="padding:5px">${esc(i.desc||'')}</td>
-      <td><input type="number" min="0.01" step="any" value="${i.qty}" style="width:60px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.82rem" onchange="repItems[${idx}].qty=+this.value||1;renderRepItems();calcTotalRep()" /></td>
-      <td><input type="number" min="0" step="any" value="${i.price}" style="width:80px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.82rem" onchange="repItems[${idx}].price=+this.value||0;renderRepItems();calcTotalRep()" /></td>
+      <td><input type="number" min="0.01" step="any" value="${i.qty}" style="width:60px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.82rem" onchange="_repItemQty(this,${idx})" /></td>
+      <td><input type="number" min="0" step="any" value="${i.price}" style="width:80px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.82rem" onchange="_repItemPrecio(this,${idx})" /></td>
       <td style="padding:5px;font-weight:600">$${fmt(i.qty*i.price)}</td>
       <td><button onclick="repItems.splice(${idx},1);renderRepItems();calcTotalRep()" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button></td>
     </tr>`).join('')}
@@ -15340,18 +15322,7 @@ function openAbonoModal(id) {
           <label style="color:#15803d">💵 Efectivo recibido ($)</label>
           <input id="abono-recibido" type="number" min="0" step="0.01" placeholder="0.00"
             style="font-size:1.05rem;font-weight:600"
-            oninput="(function(){
-              const m=parseFloat(document.getElementById('abono-monto').value)||0;
-              const r=parseFloat(document.getElementById('abono-recibido').value)||0;
-              const row=document.getElementById('abono-vuelto-row');
-              if(r>0&&m>0){
-                const vv=r-m;
-                row.style.display='flex';
-                const el=document.getElementById('abono-vuelto-val');
-                el.textContent=(vv<0?'-':'')+'$'+Math.abs(vv).toFixed(2);
-                el.style.color=vv<0?'#dc2626':'#15803d';
-              }else{row.style.display='none';}
-            })()" />
+            oninput="_abonoVueltoCalc()" />
         </div>
         <div id="abono-vuelto-row" style="display:none;align-items:center;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 12px">
           <span style="font-size:13px;color:#374151;font-weight:500">Cambio a devolver</span>
@@ -16214,7 +16185,7 @@ function entregarMaterialProduccion() {
       <label>Material</label>
       <div style="display:flex;gap:8px">
         <input id="em-material" class="form-control" placeholder="Escribe o escanea el material..." style="flex:1" autocomplete="off"
-          oninput="(function(v){_emShowSugs(v);_emAutoFill();})(this.value)"
+          oninput="_emInput(this)"
           onkeydown="if(event.key==='Enter'){event.preventDefault();_emHideSugs();_emAgregarALista();}if(event.key==='Escape')_emHideSugs();" />
         <button type="button" class="btn btn-outline btn-sm" onclick="abrirEscanerCamara(t => { const inp=document.getElementById('em-material'); if(inp){ inp.value=t; _emAutoFill(); } }, 'barras')" title="Escanear código de barras">📷 Escanear</button>
       </div>
@@ -19484,7 +19455,7 @@ function enviarWhatsApp(id) {
         <label>Número de WhatsApp</label>
         <input id="wa-tel-manual" type="tel" placeholder="Ej. 3781234567"
           style="font-size:1.1rem;letter-spacing:2px"
-          oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+          oninput="_numericOnly(this)"
           maxlength="12" />
         <small style="color:#94a3b8">10 d\u00edgitos sin lada de pa\u00eds. Se agrega M\u00e9xico (+52) autom\u00e1ticamente.</small>
       </div>
@@ -19557,7 +19528,7 @@ function enviarWhatsAppVenta(id) {
         <label>N\u00famero de WhatsApp</label>
         <input id="wa-venta-tel" type="tel" placeholder="Ej. 3781234567"
           style="font-size:1.1rem;letter-spacing:2px"
-          oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+          oninput="_numericOnly(this)"
           maxlength="12" />
         <small style="color:#94a3b8">10 d\u00edgitos sin lada. Se agrega M\u00e9xico (+52) autom\u00e1ticamente.</small>
       </div>
@@ -20915,13 +20886,17 @@ function renderAgenda() {
       ...segsSnz.map(c=>({ts:c.recSnoozeHasta||0,html:_segRowSnz(c)})),
       ...persSnz.map(p=>({ts:p.snoozeHasta||0,html:_persRow(p,'s')}))
     ].sort((a,b)=>a.ts-b.ts).map(x=>x.html);
-    const _listaHTML = (segsV.length||persV.length||_proxRows.length||_pospRows.length)
+    const _listaBuilt = (segsV.length||persV.length||_proxRows.length||_pospRows.length)
       ? [
         _grp('Vencidos','#dc2626',[...segsV.map(c=>_segRowV(c)),...persV.map(p=>_persRow(p,'v'))],true),
         _grp('Próximos','#2563eb',_proxRows,segsV.length===0&&persV.length===0),
         _grp('Pospuestos','#7c3aed',_pospRows,false)
       ].filter(Boolean).join('')
-      : '<div style="text-align:center;padding:30px;color:#94a3b8;font-size:0.85rem">Sin recordatorios pendientes.</div>';
+      : '';
+    const _listaHTML = _listaBuilt
+      || (_q
+          ? `<div style="text-align:center;padding:30px;color:#94a3b8;font-size:0.85rem">🔍 Sin resultados para "<b>${esc(_q)}</b>"</div>`
+          : '<div style="text-align:center;padding:30px;color:#94a3b8;font-size:0.85rem">Sin recordatorios pendientes.</div>');
     // ── Semana ──────────────────────────────────────────────────────────────
     function _buildSemana() {
       const base = new Date(hoy+'T00:00:00');
@@ -20968,7 +20943,7 @@ function renderAgenda() {
     const _allFilterUsers = [...new Set([..._recUsuarios,..._persUsuarios.map(u=>u.n)])].filter(n=>n!==session.nombre).sort();
     const _curFiltVal = !window._recAgAdminFilter?'':window._recAgAdminFilter===session.nombre?`${session.nombre}|${session.uid}`:`${window._recAgAdminFilter}|${window._persAdminFilter}`;
     const _adminFilter = esAdmin?`<select onchange="var p=this.value.split('|');window._recAgAdminFilter=p[0]||'';window._persAdminFilter=p[1]||'';renderAgenda()" style="font-size:0.72rem;padding:3px 7px;border:1px solid var(--border,#e2e8f0);border-radius:6px;background:var(--card,#fff);color:var(--text,#374151)"><option value="" ${!_curFiltVal?'selected':''}>🔔 Todos</option><option value="${session.nombre}|${session.uid}" ${_curFiltVal===session.nombre+'|'+session.uid?'selected':''}>Solo míos</option>${_allFilterUsers.map(n=>{const uid=_userNameToUid[n]||'';const v=n+'|'+uid;return`<option value="${v}" ${_curFiltVal===v?'selected':''}>${esc(n)}</option>`}).join('')}</select>`:'';
-    return `${_syncBanner}<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="window._recSearchQ=this.value;const _p=this.selectionStart;renderAgenda();requestAnimationFrame(()=>{const e=document.querySelector('.rec-search-bar input');if(e){e.focus();e.setSelectionRange(_p,_p)}})" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
+    return `${_syncBanner}<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="_recSearchInput(this)" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}</div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
   })() : `<div class="card" style="text-align:center;padding:30px;color:#94a3b8">Sin acceso a recordatorios.</div>`;
 
   if (window._recSecOpen === undefined) {
@@ -21424,7 +21399,7 @@ function openAgendaModal(id, prefill) {
       <div class="form-group" style="grid-column:1/-1">
         <label>Cliente *</label>
         <input id="ag-cliente" class="form-control" value="${esc(c?.cliente||prefill?.cliente||'')}" placeholder="Nombre del cliente" autocomplete="off"
-          oninput="_agAutoFill(this.value);_agShowSugs(this.value)"
+          oninput="_agSearchInput(this)"
           onkeydown="if(event.key==='Escape')_agHideSugs();" />
       </div>
       <div class="form-group">
@@ -21794,7 +21769,7 @@ function renderCompras() {
             <td><strong style="color:var(--primary);white-space:nowrap">${_ocFolio(o)}</strong></td>
             <td>${esc(o.proveedor||'—')}</td>
             <td style="white-space:nowrap">${fechaCorta(o.fecha)}</td>
-            <td><select class="badge ${_ocEstadoClass(o.estado||'Borrador')}" style="border:none;cursor:pointer;font-weight:600;font-size:11px;border-radius:20px;padding:2px 8px;background:inherit" onchange="cambiarEstadoOC(${o.id},this.value);this.className='badge '+_ocEstadoClass(this.value)">${['Borrador','En proceso','Enviada','Recibida','Cancelada'].map(s=>`<option value="${s}" ${(o.estado||'Borrador')===s?'selected':''}>${s}</option>`).join('')}</select></td>
+            <td><select class="badge ${_ocEstadoClass(o.estado||'Borrador')}" style="border:none;cursor:pointer;font-weight:600;font-size:11px;border-radius:20px;padding:2px 8px;background:inherit" onchange="_ocEstadoChange(this,${o.id})">${['Borrador','En proceso','Enviada','Recibida','Cancelada'].map(s=>`<option value="${s}" ${(o.estado||'Borrador')===s?'selected':''}>${s}</option>`).join('')}</select></td>
             <td><strong style="white-space:nowrap">$${fmt(o.total||0)}</strong></td>
             <td><button class="btn btn-outline btn-sm" onclick="verCompra(${o.id})">⋯ Ver</button></td>
           </tr>`).join('')}
@@ -21927,13 +21902,13 @@ function openCompraModal(id) {
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div class="form-group" style="margin:0"><label>Tel. Fijo</label><input id="oc-pv-tel" type="tel" value="${esc(oc?.provTelFijo||'')}" placeholder="Tel. fijo" /></div>
-          <div class="form-group" style="margin:0"><label>WhatsApp / Celular</label><input id="oc-pv-wa" type="tel" value="${esc(oc?.provWhatsApp||'')}" placeholder="Celular" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')" /></div>
+          <div class="form-group" style="margin:0"><label>WhatsApp / Celular</label><input id="oc-pv-wa" type="tel" value="${esc(oc?.provWhatsApp||'')}" placeholder="Celular" maxlength="10" oninput="_numericOnly(this)" /></div>
         </div>
         <div class="form-group" style="margin:0"><label>Correo Electrónico</label><input id="oc-pv-correo" type="email" value="${esc(oc?.provCorreo||'')}" placeholder="correo@ejemplo.com" /></div>
         <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
           <div class="form-group" style="margin:0"><label>Dirección</label><input id="oc-pv-dir" value="${esc(oc?.provDireccion||'')}" placeholder="Calle y número" /></div>
           <div class="form-group" style="margin:0"><label>Colonia</label><input id="oc-pv-colonia" value="${esc(oc?.provColonia||'')}" placeholder="Colonia" /></div>
-          <div class="form-group" style="margin:0"><label>C.P.</label><input id="oc-pv-cp" value="${esc(oc?.provCP||'')}" placeholder="C.P." maxlength="5" oninput="this.value=this.value.replace(/[^0-9]/g,'')" /></div>
+          <div class="form-group" style="margin:0"><label>C.P.</label><input id="oc-pv-cp" value="${esc(oc?.provCP||'')}" placeholder="C.P." maxlength="5" oninput="_numericOnly(this)" /></div>
         </div>
         <div class="form-group" style="margin:0"><label>RFC</label><input id="oc-pv-rfc" value="${esc(oc?.provRFC||'')}" placeholder="Ej. XAXX010101000" style="text-transform:uppercase" /></div>
       </div>
@@ -22075,7 +22050,7 @@ function _enviarOCWhatsApp(id) {
         <label>Número de WhatsApp</label>
         <input id="oc-wa-tel" type="tel" placeholder="Ej. 3781234567"
           style="font-size:1.1rem;letter-spacing:2px"
-          oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+          oninput="_numericOnly(this)"
           maxlength="10" />
         <small style="color:#94a3b8">10 dígitos sin lada de país. Se agrega México (+52) automáticamente.</small>
       </div>
@@ -23720,7 +23695,7 @@ function renderEiItems() {
         <td><input type="text" value="${esc(it.descripcion)}" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:3px 6px"
           onchange="_eiItems[${i}].descripcion=this.value"></td>
         <td><input type="number" value="${it.cantidad}" min="0.01" step="any" style="width:70px;border:1px solid var(--border);border-radius:5px;padding:3px 6px"
-          onchange="_eiItems[${i}].cantidad=parseFloat(this.value)||1"></td>
+          onchange="_eiItemQty(this,${i})"></td>
         <td><input type="text" value="${esc(it.unidad||'')}" placeholder="pzas" style="width:70px;border:1px solid var(--border);border-radius:5px;padding:3px 6px"
           onchange="_eiItems[${i}].unidad=this.value"></td>
         <td><button class="btn btn-danger btn-sm" onclick="_eiItems.splice(${i},1);renderEiItems()">✕</button></td>
@@ -23972,7 +23947,7 @@ function openScanGlobalModal(codigoInicial) {
                 style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;background:var(--bg);color:var(--text)"
                 oninput="_gsScanHint(this.value)"
                 onkeydown="_gsScanKeydown(event)"
-                onblur="setTimeout(()=>{const d=document.getElementById('gs-scan-dropdown');if(d)d.style.display='none';},200)">
+                onblur="_gsInputBlur()">
               <button onclick="abrirEscanerCamara(function(t){var s=document.getElementById('gs-scan');if(s){s.value=t;_gsScanHint(t);setTimeout(_gsAgregar,80);}}, 'barras')"
                 style="padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-alt);cursor:pointer;font-size:1.1rem" title="Cámara">&#128247;</button>
             </div>
@@ -23985,13 +23960,13 @@ function openScanGlobalModal(codigoInicial) {
             <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Cantidad</label>
             <input type="number" id="gs-qty" value="1" min="0.01" step="any"
               style="width:100%;padding:9px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;background:var(--bg);color:var(--text)"
-              onkeydown="if(event.key===String.fromCharCode(13)){event.preventDefault();_gsAgregar();}">
+              onkeydown="_gsInputKeydown(event)">
           </div>
           <div style="flex:1">
             <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Unidad</label>
             <input type="text" id="gs-uni" placeholder="pza, m, kg…"
               style="width:100%;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;background:var(--bg);color:var(--text)"
-              onkeydown="if(event.key===String.fromCharCode(13)){event.preventDefault();_gsAgregar();}">
+              onkeydown="_gsInputKeydown(event)">
           </div>
           <button onclick="_gsAgregar()"
             style="padding:9px 14px;border:none;border-radius:8px;background:var(--primary);color:white;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">&#10133; Agregar</button>
@@ -24100,6 +24075,39 @@ function _gsVerFoto(src) {
   document.body.appendChild(ov);
 }
 window['_gsVerFoto'] = _gsVerFoto;
+// ── HANDLERS EXTRAÍDOS ─────────────────────────────────────────────────────
+function _cCatBlur(){setTimeout(()=>{const d=document.getElementById('c-cat-dd');if(d)d.style.display='none'},200);}
+function _vtEstadoChange(el,id){_cambiarEstadoVtInline(id,el.value);}
+function _vtSearchInput(el){window._ventasSearchConcepto=el.value;window._pgState['ventas']=0;const w=document.getElementById('ventas-rows-wrap');if(w)w.innerHTML=_vtRowsHTML();}
+function _aptVueltoCalc(){const m=parseFloat(document.getElementById('apt-monto').value)||0;const r=parseFloat(document.getElementById('apt-recibido').value)||0;const row=document.getElementById('apt-vuelto-row');if(r>0&&m>0){const vv=r-m;row.style.display='flex';const el=document.getElementById('apt-vuelto-val');el.textContent=(vv<0?'-':'')+'$'+Math.abs(vv).toFixed(2);el.style.color=vv<0?'#dc2626':'#15803d';}else{row.style.display='none';}}
+function _vPendCotizarChange(el){if(el.checked)document.getElementById('v-garantia').checked=false;document.getElementById('venta-total').style.opacity=el.checked?'0.3':'1';}
+function _vGarantiaChange(el){if(el.checked){document.getElementById('v-pendiente-cotizar').checked=false;document.getElementById('venta-total').style.opacity='1';}}
+function _vAnticipoInput(el){calcSaldoVenta();document.getElementById('v-forma-pago-wrap').style.display=(+el.value>0)?'':'none';}
+function _vPagoRecibidoInput(el){const a=+document.getElementById('v-anticipo').value||0;const p=+el.value||0;const c=document.getElementById('v-cambio');if(c)c.value=p>=a?'$'+((p-a).toFixed(2)):'—';}
+function _vtItemQty(el,idx){ventaItems[idx].cantidad=+el.value||1;updateVentaItems();}
+function _epAnticipoInput(el){const t=ventaItems.reduce((s,i)=>s+i.cantidad*i.precio,0);const a=+el.value||0;const sl=document.getElementById('ep-saldo-disp');if(sl)sl.value=Math.max(0,t-a).toFixed(2);}
+function _epItemQty(el,idx){ventaItems[idx].cantidad=+el.value;updateEditPedidoItems();}
+function _epItemPrecio(el,idx){ventaItems[idx].precio=+el.value;updateEditPedidoItems();}
+function _pagoMontoInput(el){const m=parseFloat(el.value)||0;const r=parseFloat(document.getElementById('pago-recibido').value)||0;const row=document.getElementById('pago-vuelto-row');const bloque=document.getElementById('pago-efectivo-bloque');const esEf=document.getElementById('pago-forma').value==='efectivo';if(esEf&&bloque){bloque.style.display='';}if(esEf&&r>0&&m>0){const v=r-m;row.style.display='flex';const el2=document.getElementById('pago-vuelto-val');el2.textContent=(v<0?'−':'')+'$'+Math.abs(v).toFixed(2);el2.style.color=v<0?'#dc2626':'#15803d';}else{row.style.display='none';}}
+function _pagoRecibidoInput(el){const m=parseFloat(document.getElementById('pago-monto').value)||0;const r=parseFloat(el.value)||0;const row=document.getElementById('pago-vuelto-row');if(r>0&&m>0){const v=r-m;row.style.display='flex';const e2=document.getElementById('pago-vuelto-val');e2.textContent=(v<0?'−':'')+'$'+Math.abs(v).toFixed(2);e2.style.color=v<0?'#dc2626':'#15803d';}else{row.style.display='none';}}
+function _czFiltroRecChange(el){window._czFiltroRec=el.value;window._pgState['cotiz']=0;renderCotizaciones();}
+function _czUsuarioChange(el){window._cotizFiltroUsuario=el.value;window._pgState['cotiz']=0;renderCotizaciones(true);}
+function _czItemQty(el,idx){cotizItems[idx].cantidad=+el.value||1;updateCotizItems();}
+function _czItemPrecio(el,idx){cotizItems[idx].precio=+el.value||0;updateCotizItems();}
+function _pdItemQty(el,idx){pedidoItems[idx].cantidad=+el.value||1;updatePedidoItems();}
+function _pdItemPrecio(el,idx){pedidoItems[idx].precio=+el.value||0;updatePedidoItems();}
+function _repItemQty(el,idx){repItems[idx].qty=+el.value||1;renderRepItems();calcTotalRep();}
+function _repItemPrecio(el,idx){repItems[idx].price=+el.value||0;renderRepItems();calcTotalRep();}
+function _abonoVueltoCalc(){const m=parseFloat(document.getElementById('abono-monto').value)||0;const r=parseFloat(document.getElementById('abono-recibido').value)||0;const row=document.getElementById('abono-vuelto-row');if(r>0&&m>0){const vv=r-m;row.style.display='flex';const el=document.getElementById('abono-vuelto-val');el.textContent=(vv<0?'-':'')+'$'+Math.abs(vv).toFixed(2);el.style.color=vv<0?'#dc2626':'#15803d';}else{row.style.display='none';}}
+function _emInput(el){_emShowSugs(el.value);_emAutoFill();}
+function _numericOnly(el){el.value=el.value.replace(/[^0-9]/g,'');}
+function _recSearchInput(el){window._recSearchQ=el.value;const p=el.selectionStart;renderAgenda();requestAnimationFrame(()=>{const e=document.querySelector('.rec-search-bar input');if(e){e.focus();e.setSelectionRange(p,p);}});}
+function _agSearchInput(el){_agAutoFill(el.value);_agShowSugs(el.value);}
+function _ocEstadoChange(el,id){cambiarEstadoOC(id,el.value);el.className='badge '+_ocEstadoClass(el.value);}
+function _eiItemQty(el,i){_eiItems[i].cantidad=parseFloat(el.value)||1;}
+function _gsInputBlur(){setTimeout(()=>{const d=document.getElementById('gs-scan-dropdown');if(d)d.style.display='none';},200);}
+function _gsInputKeydown(ev){if(ev.key===String.fromCharCode(13)){ev.preventDefault();_gsAgregar();}}
+
 
 function _gsExtractCode(val) {
   // Si el valor escaneado es una URL con ?consig=, extraer solo el folio
