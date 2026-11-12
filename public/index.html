@@ -8316,6 +8316,7 @@ function otorgarCredito(id) {
     requierePass
       ? { label:'🔒 Autorizar y otorgar crédito', cls:'btn-danger', action:()=>_autorizarCredito(id) }
       : { label:'🏦 Otorgar crédito', cls:'btn-primary', action:()=>_aplicarCredito(id) },
+    ...(esAdmin && yaAutorizado ? [{ label:'🚫 Revocar crédito', cls:'btn-outline', style:'color:#dc2626;border-color:#dc2626', action:()=>{ closeModal(); revocarCreditoClienteUI(_nombreCred); } }] : []),
     { label:'Cancelar', cls:'btn-secondary', action:closeModal }
   ]);
 }
