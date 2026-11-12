@@ -24119,11 +24119,11 @@ function _recSugsShow(q){
   const qs=(q||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   const hits=[];
   const esc2=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  (window._allSeg||[]).filter(c=>!c.recHecho&&(c.recFecha||c.recSnoozeHasta)).forEach(c=>{
+  (db.cotizaciones||[]).filter(c=>!c.recHecho&&(c.recFecha||c.recSnoozeHasta)).forEach(c=>{
     const hay=[c.cliente,c.ctEmpresa,c.recNota].map(s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()).join(' ');
     if(hay.includes(qs))hits.push({tipo:'seg',id:c.id,nombre:c.cliente||'',sub:c.ctEmpresa||'',nota:c.recNota||''});
   });
-  (window._allPers||[]).filter(p=>!p.completado).forEach(p=>{
+  (db.recordatoriosPersonales||[]).filter(p=>!p.completado).forEach(p=>{
     const hay=[p.titulo,p.descripcion].map(s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()).join(' ');
     if(hay.includes(qs))hits.push({tipo:'pers',id:p.id,nombre:p.titulo||'',sub:'',nota:p.descripcion||''});
   });
