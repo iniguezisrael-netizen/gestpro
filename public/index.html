@@ -5652,7 +5652,7 @@ function renderVentas(force) {
       ` : `
         <div class="search-bar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <input type="text" placeholder="Buscar por cliente, # pedido, cotización o fecha..." value="${esc(window._ventasSearch||'')}" oninput="_vtSearchInput(this.value)" style="flex:1;min-width:160px" />
-          <input type="text" placeholder="Buscar por producto..." value="${esc(window._ventasSearchConcepto||'')}" oninput="_vtSearchInput(this)" style="flex:1;min-width:140px" />
+          <input type="text" placeholder="Buscar por producto..." value="${esc(window._ventasSearchConcepto||'')}" oninput="_vtSearchConceptoInput(this)" style="flex:1;min-width:140px" />
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
           ${['','hoy','semana','mes','mesant'].map(f=>{const a=(window._vtFiltroFecha||'')===f;return `<button onclick="window._vtFiltroFecha='${f}';window._pgState['ventas']=0;renderVentas(true)" style="padding:3px 12px;border-radius:20px;font-size:0.77rem;font-weight:600;border:1.5px solid ${a?'var(--primary)':'var(--border)'};background:${a?'var(--primary)':'transparent'};color:${a?'white':'var(--text-light)'};cursor:pointer">${f===''?'Todas':f==='hoy'?'📅 Hoy':f==='semana'?'Esta semana':f==='mes'?'Este mes':'Mes pasado'}</button>`;}).join('')}
@@ -24087,7 +24087,7 @@ window['_gsVerFoto'] = _gsVerFoto;
 // ── HANDLERS EXTRAÍDOS ─────────────────────────────────────────────────────
 function _cCatBlur(){setTimeout(()=>{const d=document.getElementById('c-cat-dd');if(d)d.style.display='none'},200);}
 function _vtEstadoChange(el,id){_cambiarEstadoVtInline(id,el.value);}
-function _vtSearchInput(el){window._ventasSearchConcepto=el.value;window._pgState['ventas']=0;const w=document.getElementById('ventas-rows-wrap');if(w)w.innerHTML=_vtRowsHTML();}
+function _vtSearchConceptoInput(el){window._ventasSearchConcepto=el.value;window._pgState['ventas']=0;const w=document.getElementById('ventas-rows-wrap');if(w)w.innerHTML=_vtRowsHTML();}
 function _aptVueltoCalc(){const m=parseFloat(document.getElementById('apt-monto').value)||0;const r=parseFloat(document.getElementById('apt-recibido').value)||0;const row=document.getElementById('apt-vuelto-row');if(r>0&&m>0){const vv=r-m;row.style.display='flex';const el=document.getElementById('apt-vuelto-val');el.textContent=(vv<0?'-':'')+'$'+Math.abs(vv).toFixed(2);el.style.color=vv<0?'#dc2626':'#15803d';}else{row.style.display='none';}}
 function _vPendCotizarChange(el){if(el.checked)document.getElementById('v-garantia').checked=false;document.getElementById('venta-total').style.opacity=el.checked?'0.3':'1';}
 function _vGarantiaChange(el){if(el.checked){document.getElementById('v-pendiente-cotizar').checked=false;document.getElementById('venta-total').style.opacity='1';}}
