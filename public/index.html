@@ -6748,7 +6748,7 @@ function editarPedido(id, folio, _focusCotizar) {
   if (epIvaEl) epIvaEl.checked = true;
   updateEditPedidoItems();
   renderFotosPreviewEp();
-  if (_focusCotizar) {
+  if (_focusCotizar != null) {
     setTimeout(() => {
       const _list = document.getElementById('ep-items-list');
       if (_list) _list.scrollIntoView({ behavior: 'smooth', block: 'center' });
