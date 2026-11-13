@@ -23891,6 +23891,7 @@ bgInput.addEventListener('input', function() {
       if (_gsBuf.length >= 3) { var cod=_gsBuf; _gsBuf=''; clearTimeout(_gsTimer); openScanGlobalModal(cod); }
       return;
     }
+    if (!e.key) return;
     if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
       _gsBuf += e.key;
       clearTimeout(_gsTimer);
@@ -24336,6 +24337,7 @@ document.addEventListener('DOMContentLoaded', _updateDarkBtn);
       } else { _gBuf = ''; }
       return;
     }
+    if (!e.key) return;
     if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
       _gBuf += e.key;
       clearTimeout(_gTimer);

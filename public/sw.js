@@ -6,7 +6,7 @@
 //   - APIs Firebase / Storage: no interceptar (Firebase SDK lo maneja internamente)
 // ============================================================
 
-const CACHE_VERSION = 'campers-v331';
+const CACHE_VERSION = 'campers-v332';
 
 // Recursos que se pre-cachean al instalar el SW
 const PRE_CACHE = [
@@ -25,9 +25,6 @@ const PRE_CACHE = [
   'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
   'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js',
   'https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js',
-  // Fuentes para PDF
-  'https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Bold.ttf',
-  'https://cdn.jsdelivr.net/gh/google/fonts/ofl/poppins/Poppins-Black.ttf',
 ];
 
 // Dominios que NO interceptamos
