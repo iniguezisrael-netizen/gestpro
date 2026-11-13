@@ -19671,12 +19671,9 @@ function _mostrarPDFOverlay(blobUrl, fname) {
 
 function _imprimirPDFOverlay() {
   const frame = document.getElementById('_pdf-overlay-frame');
-  try {
-    frame.contentWindow.focus();
-    frame.contentWindow.print();
-  } catch(e) {
-    window.open(frame.src, '_blank');
-  }
+  window.open(frame.src, '_blank');
+  const ov = document.getElementById('_pdf-overlay');
+  if (ov) ov.remove();
 }
 window['_imprimirPDFOverlay'] = _imprimirPDFOverlay;
 
