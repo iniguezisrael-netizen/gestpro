@@ -7940,7 +7940,7 @@ function verVenta(id, folioParam) {
     ${vt.fotos&&vt.fotos.length?`<div style="margin-bottom:8px"><strong style="font-size:0.82rem;color:#334155">📷 Fotos de referencia:</strong><div class="fotos-preview" style="margin-top:6px">${vt.fotos.map((src,idx)=>`<img src="${src}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:pointer" onclick="openLightboxItem(${vt.id},'ventas')" />`).join('')}</div></div>`:''}
     <table style="width:100%;font-size:0.85rem;border-collapse:collapse">
       <tr style="background:var(--bg)"><th style="padding:8px">Concepto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>
-      ${(vt.items||[]).map(i=>`<tr style="border-top:1px solid var(--border)">
+      ${(vt.items||[]).map((i,idx)=>`<tr style="border-top:1px solid var(--border)">
         <td style="padding:8px">${esc(i.producto)}${i._consigFolio?`<span style="font-size:10px;color:#94a3b8;font-family:monospace;background:#f1f5f9;padding:1px 5px;border-radius:4px;border:1px solid #e2e8f0;margin-left:4px">${esc(i._consigFolio)}</span>`:''}${i.devuelto?`<br><span style="font-size:0.74rem;color:#dc2626">↩️ ${i.devuelto} devuelto(s)</span>`:''}${i.pendienteCotizar?`<br><span style="font-size:0.74rem;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;border-radius:4px;padding:1px 6px;font-weight:600">📋 Pendiente de cotizar</span> <button onclick="closeModal();editarPedido(${vt.id},undefined,${idx})" style="font-size:0.72rem;background:#d97706;color:#fff;border:none;border-radius:4px;padding:2px 8px;font-weight:600;cursor:pointer;margin-left:4px">💰 Fijar precio</button>`:''}</td><td>${i.cantidad}</td>
         <td>$${fmt(i.precio)}</td><td>$${fmt(i.cantidad*i.precio)}</td>
       </tr>`).join('')}
