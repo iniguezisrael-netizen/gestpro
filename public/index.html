@@ -6940,11 +6940,11 @@ function cotizarPrecioRapido(ventaId, itemIdx) {
       </tr>
       ${rows}
     </table>
-    <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <span style="font-size:0.8rem;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:0.4px">IVA:</span>
-      <label style="display:flex;align-items:center;gap:4px;font-size:0.85rem;cursor:pointer"><input type="radio" name="cpr-iva-${ventaId}" value="neto" ${(vt.ivaMode||'neto')==='neto'?'checked':''}>Neto</label>
-      <label style="display:flex;align-items:center;gap:4px;font-size:0.85rem;cursor:pointer"><input type="radio" name="cpr-iva-${ventaId}" value="mas" ${(vt.ivaMode||'neto')==='mas'?'checked':''}>+ IVA 16%</label>
-      <label style="display:flex;align-items:center;gap:4px;font-size:0.85rem;cursor:pointer"><input type="radio" name="cpr-iva-${ventaId}" value="incluido" ${(vt.ivaMode||'neto')==='incluido'?'checked':''}>IVA incluido</label>
+    <div style="display:flex;align-items:center;gap:16px;margin-top:10px;padding:7px 10px;background:#f8fafc;border-radius:8px;border:1.5px solid var(--border)">
+      <span style="font-size:0.82rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.4px">Precio:</span>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:0.9rem;font-weight:600"><input type="radio" name="cpr-iva-${ventaId}" value="neto" ${(vt.ivaMode||'neto')==='neto'?'checked':''} style="width:auto;padding:0;margin:0">NETO sin IVA</label>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:0.9rem;font-weight:600"><input type="radio" name="cpr-iva-${ventaId}" value="incluido" ${(vt.ivaMode||'neto')==='incluido'?'checked':''} style="width:auto;padding:0;margin:0">NETO con IVA</label>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:0.9rem;font-weight:600"><input type="radio" name="cpr-iva-${ventaId}" value="mas" ${(vt.ivaMode||'neto')==='mas'?'checked':''} style="width:auto;padding:0;margin:0">+ IVA</label>
     </div>
     <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
       <button onclick="verVenta(${ventaId})" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:0.85rem;cursor:pointer;color:var(--text)">Cancelar</button>
