@@ -1657,7 +1657,7 @@ const _colListenerDeferred = new Set(); // colecciones esperando su listener rea
 // Escribe en RTDB en paralelo con Firestore (fire-and-forget).
 // Firestore sigue siendo la fuente de verdad hasta completar la migración.
 const RTDB_DUAL_WRITE = true;
-const FIRESTORE_WRITE_ENABLED = true; // ← false = solo escribe en RTDB (fase migración)
+const FIRESTORE_WRITE_ENABLED = false; // ← false = solo escribe en RTDB (fase migración)
 
 async function _rtdbWriteCollection(colName, arr) {
   if (!rtdb || !RTDB_DUAL_WRITE) return;
