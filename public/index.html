@@ -12191,7 +12191,7 @@ function _doPedidoPDF(vt, logoB64, logoW, logoH, fontB64) {
 
 function sinMinimoATodos() {
   // Migración automática: todos los items sin sinMinimo explícito lo reciben
-  const pendientes = (db.materia || []).filter(i => !i.sinMinimo);
+  const pendientes = (db.materia || []).filter(i => i.sinMinimo === undefined || i.sinMinimo === null);
   if (!pendientes.length) return;
   pendientes.forEach(i => { i.sinMinimo = true; });
   saveDb('materia');
