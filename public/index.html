@@ -20285,14 +20285,14 @@ function _buildPDF(c, logoB64, logoW, logoH, fontB64, pdfWin, ventaOverride, aut
       doc.setFont('helvetica','bold'); doc.setTextColor(0,0,0);
       doc.text(autor, M+doc.getTextWidth('Elaboró: '), y);
       // Línea de firma
-      const firmaX=W/2-30, firmaY=y+16;
+      const footY=274;
+      const firmaX=W/2-30, firmaY=Math.min(y+16, footY-22);
       doc.setDrawColor(30,41,59); doc.setLineWidth(0.4);
       doc.line(firmaX, firmaY, firmaX+60, firmaY);
       doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(30,41,59);
       doc.text('Firma de aceptación', W/2, firmaY+5, {align:'center'});
 
       // ── PIE ──
-      const footY=274;
       doc.setDrawColor(226,232,240); doc.setLineWidth(0.4);
       doc.line(M,footY,W-M,footY);
       doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(100,116,139);
