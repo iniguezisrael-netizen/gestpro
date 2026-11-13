@@ -6931,6 +6931,7 @@ function cotizarPrecioRapido(ventaId, itemIdx) {
     </tr>`;
   }).join('');
   showModal('\u{1F4B0} Fijar precio', `
+    <style>input[id^="cpr-precio"]{-moz-appearance:textfield}input[id^="cpr-precio"]::-webkit-inner-spin-button,input[id^="cpr-precio"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}</style>
     <table style="width:100%;border-collapse:collapse">
       <tr style="font-size:0.78rem;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px">
         <th style="padding:6px 8px;text-align:left;font-weight:600">Artículo</th>
@@ -6939,7 +6940,13 @@ function cotizarPrecioRapido(ventaId, itemIdx) {
       </tr>
       ${rows}
     </table>
-    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+    <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:0.8rem;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:0.4px">IVA:</span>
+      <label style="display:flex;align-items:center;gap:4px;font-size:0.85rem;cursor:pointer"><input type="radio" name="cpr-iva-${ventaId}" value="neto" ${(vt.ivaMode||'neto')==='neto'?'checked':''}>Neto</label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:0.85rem;cursor:pointer"><input type="radio" name="cpr-iva-${ventaId}" value="mas" ${(vt.ivaMode||'neto')==='mas'?'checked':''}>+ IVA 16%</label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:0.85rem;cursor:pointer"><input type="radio" name="cpr-iva-${ventaId}" value="incluido" ${(vt.ivaMode||'neto')==='incluido'?'checked':''}>IVA incluido</label>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
       <button onclick="verVenta(${ventaId})" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:0.85rem;cursor:pointer;color:var(--text)">Cancelar</button>
       <button onclick="guardarCotizarPrecioRapido(${ventaId})" style="background:#d97706;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:0.85rem;font-weight:700;cursor:pointer">\u{1F4BE} Guardar</button>
     </div>`);
@@ -6965,7 +6972,7 @@ function guardarCotizarPrecioRapido(ventaId) {
   }
   const stillPending = (vt.items||[]).some(it=>it.pendienteCotizar);
   if (!stillPending) vt.pendienteCotizar = undefined;
-  const ivaModeEp = vt.ivaMode||'neto';
+  const _ivaRadio = document.querySelector(`input[name="cpr-iva-${ventaId}"]:checked`); const ivaModeEp = _ivaRadio ? _ivaRadio.value : (vt.ivaMode||'neto'); vt.ivaMode = ivaModeEp;
   const subtotalEp = round2((vt.items||[]).filter(i=>!i.pendienteCotizar).reduce((s,i)=>s+i.cantidad*i.precio,0));
   const ivaAmtEp = ivaModeEp==='mas' ? round2(subtotalEp*0.16) : (ivaModeEp==='incluido' ? round2(subtotalEp-subtotalEp/1.16) : 0);
   const total = round2(ivaModeEp==='mas' ? subtotalEp+ivaAmtEp : subtotalEp);
