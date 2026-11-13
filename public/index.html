@@ -6921,6 +6921,84 @@ function _epTogglePendiente(idx) {
   }, 50);
 }
 window['_epTogglePendiente'] = _epTogglePendiente;
+
+// ---- Popup rápido para fijar precio por artículo pendiente ----
+function cotizarPrecioRapido(ventaId, itemIdx) {
+  const vt = (db.ventas||[]).find(v => String(v.id) === String(ventaId));
+  if (!vt) return;
+  const targets = itemIdx !== undefined
+    ? [+itemIdx]
+    : (vt.items||[]).map((_,i)=>i).filter(i=>(vt.items[i]||{}).pendienteCotizar);
+  if (!targets.length) { _fijarPrecioVenta(ventaId); return; }
+  window._cprTargets = { ventaId, targets };
+  const rows = targets.map(i => {
+    const it = vt.items[i];
+    return `<tr style="border-top:1px solid var(--border)">
+      <td style="padding:10px 8px;font-size:0.9rem;font-weight:600">${esc(it.producto)}</td>
+      <td style="padding:10px 8px;font-size:0.85rem;color:#64748b">${esc(it.unidad||'—')}</td>
+      <td style="padding:6px 8px"><input type="number" id="cpr-precio-${i}" min="0" step="0.01" placeholder="0.00"
+        style="width:110px;padding:6px 8px;border:1.5px solid #d97706;border-radius:6px;font-size:0.9rem;text-align:right"
+        onkeydown="if(event.key==='Enter'){guardarCotizarPrecioRapido(${ventaId})}" /></td>
+    </tr>`;
+  }).join('');
+  showModal('\u{1F4B0} Fijar precio', `
+    <table style="width:100%;border-collapse:collapse">
+      <tr style="font-size:0.78rem;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px">
+        <th style="padding:6px 8px;text-align:left;font-weight:600">Artículo</th>
+        <th style="padding:6px 8px;text-align:left;font-weight:600">Unidad</th>
+        <th style="padding:6px 8px;text-align:left;font-weight:600">Precio unit.</th>
+      </tr>
+      ${rows}
+    </table>
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+      <button onclick="verVenta(${ventaId})" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:0.85rem;cursor:pointer;color:var(--text)">Cancelar</button>
+      <button onclick="guardarCotizarPrecioRapido(${ventaId})" style="background:#d97706;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:0.85rem;font-weight:700;cursor:pointer">\u{1F4BE} Guardar</button>
+    </div>`);
+  setTimeout(()=>{ const f=document.getElementById('cpr-precio-'+targets[0]); if(f) f.focus(); }, 100);
+}
+window['cotizarPrecioRapido'] = cotizarPrecioRapido;
+
+function guardarCotizarPrecioRapido(ventaId) {
+  const ref = window._cprTargets;
+  if (!ref || String(ref.ventaId) !== String(ventaId)) return;
+  const vt = (db.ventas||[]).find(v => String(v.id) === String(ventaId));
+  if (!vt) return;
+  for (const i of ref.targets) {
+    const inp = document.getElementById('cpr-precio-'+i);
+    if (!inp || inp.value==='' || isNaN(+inp.value) || +inp.value < 0) {
+      _info('Captura un precio válido para todos los artículos.'); return;
+    }
+  }
+  for (const i of ref.targets) {
+    const precio = round2(+document.getElementById('cpr-precio-'+i).value);
+    vt.items[i].precio = precio;
+    if (precio > 0) delete vt.items[i].pendienteCotizar;
+  }
+  const stillPending = (vt.items||[]).some(it=>it.pendienteCotizar);
+  if (!stillPending) vt.pendienteCotizar = undefined;
+  const ivaModeEp = vt.ivaMode||'neto';
+  const subtotalEp = round2((vt.items||[]).filter(i=>!i.pendienteCotizar).reduce((s,i)=>s+i.cantidad*i.precio,0));
+  const ivaAmtEp = ivaModeEp==='mas' ? round2(subtotalEp*0.16) : (ivaModeEp==='incluido' ? round2(subtotalEp-subtotalEp/1.16) : 0);
+  const total = round2(ivaModeEp==='mas' ? subtotalEp+ivaAmtEp : subtotalEp);
+  vt.total=total; vt.subtotal=subtotalEp; vt.ivaAmount=ivaAmtEp; vt.iva=ivaModeEp!=='neto';
+  vt.saldo=Math.max(0,total-(vt.anticipo||0));
+  if (vt.saldo===0&&total>0&&vt.estado!=='Cancelada') vt.estado='Pagada';
+  if (vt.saldo>0&&vt.estado==='Pagada') vt.estado='Pendiente';
+  if (window._serverSnapshot?.ventas) delete window._serverSnapshot.ventas[String(ventaId)];
+  if (FIREBASE_ENABLED && firestore) {
+    firestore.collection('ventas').doc(String(ventaId)).update({
+      items:vt.items, total:vt.total, subtotal:vt.subtotal, ivaAmount:vt.ivaAmount,
+      iva:vt.iva, ivaMode:ivaModeEp, pendienteCotizar:vt.pendienteCotizar||false,
+      saldo:vt.saldo, estado:vt.estado
+    }).catch(()=>{});
+  }
+  const _dbIdx=(db.ventas||[]).findIndex(x=>String(x.id)===String(ventaId));
+  if (_dbIdx>=0) db.ventas[_dbIdx]=vt;
+  saveDb(['ventas','cobranza']); closeModal(); renderVentas();
+  setTimeout(()=>{ verVenta(ventaId, vt.folioPedido); }, 150);
+}
+window['guardarCotizarPrecioRapido'] = guardarCotizarPrecioRapido;
+
 function guardarEditPedido(id) {
   if (!can(['admin','secretaria','auxiliar'])) { _info('Sin permiso para editar pedidos.'); return; }
   // Usa la referencia directa guardada al abrir el modal (evita buscar por ID con duplicados).
@@ -7941,7 +8019,7 @@ function verVenta(id, folioParam) {
     <table style="width:100%;font-size:0.85rem;border-collapse:collapse">
       <tr style="background:var(--bg)"><th style="padding:8px">Concepto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>
       ${(vt.items||[]).map((i,idx)=>`<tr style="border-top:1px solid var(--border)">
-        <td style="padding:8px">${esc(i.producto)}${i._consigFolio?`<span style="font-size:10px;color:#94a3b8;font-family:monospace;background:#f1f5f9;padding:1px 5px;border-radius:4px;border:1px solid #e2e8f0;margin-left:4px">${esc(i._consigFolio)}</span>`:''}${i.devuelto?`<br><span style="font-size:0.74rem;color:#dc2626">↩️ ${i.devuelto} devuelto(s)</span>`:''}${i.pendienteCotizar?`<br><span style="font-size:0.74rem;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;border-radius:4px;padding:1px 6px;font-weight:600">📋 Pendiente de cotizar</span> <button onclick="closeModal();editarPedido(${vt.id},undefined,${idx})" style="font-size:0.72rem;background:#d97706;color:#fff;border:none;border-radius:4px;padding:2px 8px;font-weight:600;cursor:pointer;margin-left:4px">💰 Fijar precio</button>`:''}</td><td>${i.cantidad}</td>
+        <td style="padding:8px">${esc(i.producto)}${i._consigFolio?`<span style="font-size:10px;color:#94a3b8;font-family:monospace;background:#f1f5f9;padding:1px 5px;border-radius:4px;border:1px solid #e2e8f0;margin-left:4px">${esc(i._consigFolio)}</span>`:''}${i.devuelto?`<br><span style="font-size:0.74rem;color:#dc2626">↩️ ${i.devuelto} devuelto(s)</span>`:''}${i.pendienteCotizar?`<br><span style="font-size:0.74rem;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;border-radius:4px;padding:1px 6px;font-weight:600">📋 Pendiente de cotizar</span> <button onclick="cotizarPrecioRapido(${vt.id},${idx})" style="font-size:0.72rem;background:#d97706;color:#fff;border:none;border-radius:4px;padding:2px 8px;font-weight:600;cursor:pointer;margin-left:4px">💰 Fijar precio</button>`:''}</td><td>${i.cantidad}</td>
         <td>$${fmt(i.precio)}</td><td>$${fmt(i.cantidad*i.precio)}</td>
       </tr>`).join('')}
     </table>
@@ -7960,7 +8038,7 @@ function verVenta(id, folioParam) {
     </div>`:''}
     <div style="margin-top:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
       ${vt.totalOriginal&&vt.descuentos&&vt.descuentos.length?`<p style="font-size:0.88rem;color:#94a3b8">Total original: <span style="text-decoration:line-through">$${fmt(vt.totalOriginal)}</span> · Descuento: <span style="color:#16a34a;font-weight:600">-$${fmt(vt.descuentos.reduce((s,d)=>s+d.monto,0))}</span></p>`:''}
-      ${(()=>{ const _vtTotal=(vt.totalOriginal&&vt.descuentos&&vt.descuentos.length)?Math.max(0,vt.totalOriginal-vt.descuentos.reduce((s,d)=>s+d.monto,0)):vt.total; const _vtSaldo=Math.max(0,_vtTotal-(vt.anticipo||0)); return (vt.usoInterno ? `<p style="font-size:0.9rem;color:#92400e;font-weight:700">🏷️ Sin cobro — uso interno</p>` : `<p style="font-size:1rem;color:var(--text)">Total: <strong style="color:var(--primary)">${vt.pendienteCotizar ? ('📋 Pendiente de cotizar' + (can(['admin','secretaria','auxiliar']) ? ' <button onclick="closeModal();editarPedido('+vt.id+',undefined,true)" style="background:#fef9c3;border:1.5px solid #fde68a;color:#92400e;border-radius:6px;padding:2px 10px;font-size:0.78rem;font-weight:700;cursor:pointer;margin-left:6px">✏️ Fijar total</button>' : '')) : '$'+fmt(_vtTotal)}</strong></p>`) + (!vt.usoInterno&&!vt.pendienteCotizar&&vt.anticipo!=null?`<p style="font-size:0.9rem;color:var(--success)">Anticipo: <strong>$${fmt(vt.anticipo)}</strong></p>`:'') + (!vt.usoInterno&&!vt.pendienteCotizar?`<p style="font-size:0.9rem;color:var(--danger)">Saldo pendiente: <strong>$${fmt(_vtSaldo)}</strong></p>`:''); })()}
+      ${(()=>{ const _vtTotal=(vt.totalOriginal&&vt.descuentos&&vt.descuentos.length)?Math.max(0,vt.totalOriginal-vt.descuentos.reduce((s,d)=>s+d.monto,0)):vt.total; const _vtSaldo=Math.max(0,_vtTotal-(vt.anticipo||0)); return (vt.usoInterno ? `<p style="font-size:0.9rem;color:#92400e;font-weight:700">🏷️ Sin cobro — uso interno</p>` : `<p style="font-size:1rem;color:var(--text)">Total: <strong style="color:var(--primary)">${vt.pendienteCotizar ? ('📋 Pendiente de cotizar' + (can(['admin','secretaria','auxiliar']) ? ' <button onclick="cotizarPrecioRapido('+vt.id+')" style="background:#fef9c3;border:1.5px solid #fde68a;color:#92400e;border-radius:6px;padding:2px 10px;font-size:0.78rem;font-weight:700;cursor:pointer;margin-left:6px">✏️ Fijar total</button>' : '')) : '$'+fmt(_vtTotal)}</strong></p>`) + (!vt.usoInterno&&!vt.pendienteCotizar&&vt.anticipo!=null?`<p style="font-size:0.9rem;color:var(--success)">Anticipo: <strong>$${fmt(vt.anticipo)}</strong></p>`:'') + (!vt.usoInterno&&!vt.pendienteCotizar?`<p style="font-size:0.9rem;color:var(--danger)">Saldo pendiente: <strong>$${fmt(_vtSaldo)}</strong></p>`:''); })()}
     </div>
     ${vt.notas?`<p style="margin-top:8px;font-size:0.82rem;color:#64748b"><em>${esc(vt.notas)}</em></p>`:''}
     ${(()=>{ const rep=(db.reportesProduccion||[]).find(r=>r.pedidoId===vt.id||r.folioPedido===vt.folioPedido); return rep?`<div style="margin-top:10px;display:flex;align-items:center;gap:10px;background:#eff6ff;border:.5px solid #93c5fd;border-radius:8px;padding:7px 12px;font-size:0.82rem"><span style="color:#1e40af;font-weight:700">🏭 Reporte de producción registrado</span><span style="color:#475569">${fechaLarga(rep.fecha)} · ${esc(rep.revisadoPor)}</span><button onclick="abrirReporteProduccion(${vt.id})" style="margin-left:auto;background:none;border:.5px solid #1e40af;color:#1e40af;border-radius:5px;padding:2px 10px;cursor:pointer;font-size:0.78rem;font-weight:700">Ver / editar</button><button onclick="_cargarLogoYAbrirPDFProduccion('${rep.id}')" style="background:none;border:.5px solid #475569;color:#475569;border-radius:5px;padding:2px 10px;cursor:pointer;font-size:0.78rem;font-weight:700">🖨️ PDF</button></div>`:''; })()}
