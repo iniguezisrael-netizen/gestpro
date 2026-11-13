@@ -6,7 +6,7 @@
 //   - APIs Firebase / Storage: no interceptar (Firebase SDK lo maneja internamente)
 // ============================================================
 
-const CACHE_VERSION = 'campers-v335';
+const CACHE_VERSION = 'campers-v336';
 
 // Recursos que se pre-cachean al instalar el SW
 const PRE_CACHE = [
