@@ -7024,6 +7024,10 @@ function guardarCotizarPrecioRapido(ventaId) {
   }
   const _dbIdx=(db.ventas||[]).findIndex(x=>String(x.id)===String(ventaId));
   if (_dbIdx>=0) db.ventas[_dbIdx]=vt;
+  if (vt.cobranzaId) {
+    const _cobIdx=(db.cobranza||[]).findIndex(x=>x.id===vt.cobranzaId);
+    if (_cobIdx>=0 && total>0) db.cobranza[_cobIdx].total=total;
+  }
   saveDb(['ventas','cobranza']); closeModal(); renderVentas();
   setTimeout(()=>{ verVenta(ventaId, vt.folioPedido); }, 150);
 }
