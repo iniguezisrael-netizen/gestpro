@@ -1671,7 +1671,7 @@ async function _rtdbWriteCollection(colName, arr) {
         if (item != null && item.id != null) dataObj[String(item.id)] = item;
       });
       // null limpia entradas que ya no existen
-      await rtdb.ref('db/' + colName).set(dataObj);
+      await rtdb.ref('db/' + colName).update(dataObj);
     }
   } catch(e) { console.warn('[rtdb-write]', colName, e); }
 }
