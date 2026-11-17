@@ -17335,6 +17335,8 @@ function importarCatalogoMateriales() {
           const porNombreMateria = new Map((db.materia||[]).map(i => [(i.nombre||'').toLowerCase(), i]));
           const aActualizar = filas.filter(f => porNombreMateria.has(f.nombre.toLowerCase()));
           const aNuevos     = filas.filter(f => !porNombreMateria.has(f.nombre.toLowerCase()));
+          const _nombresNuevos = new Set(filas.map(f => f.nombre.toLowerCase()));
+          const aRemovidos  = (db.materia||[]).filter(i => i.origen==='excel' && !i.baja && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
 
           showModal('📂 Importar catálogo de precios', `
             <div style="display:flex;gap:12px;margin-bottom:12px">
@@ -17376,10 +17378,11 @@ function importarCatalogoMateriales() {
             </div>
             <p style="font-size:0.8rem;color:#64748b;margin-top:8px">
               Los productos existentes <strong>solo actualizarán su precio</strong>. Stock, ubicación, código de barras y fotos no se tocan.
+              ${aRemovidos.length>0?`<div style="margin-top:8px;padding:8px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;font-size:0.82rem;color:#c2410c">⚠️ <strong>${aRemovidos.length}</strong> material${aRemovidos.length!==1?'es':''} ya no está${aRemovidos.length!==1?'n':''} en el Excel y se marcará${aRemovidos.length!==1?'n':''} como inactivo${aRemovidos.length!==1?'s':''}.</div>`:''}
             </p>
           `, [
             { label:'✅ Importar', cls:'btn-primary', action:() => {
-              let actualizados = 0, agregados = 0;
+              let actualizados = 0, agregados = 0, inactivados = 0;
 
               // Actualizar precios de los existentes (solo precio, nada más)
               aActualizar.forEach(f => {
@@ -17413,6 +17416,9 @@ function importarCatalogoMateriales() {
                 agregados++;
               });
 
+              // Marcar como inactivos los que ya no están en el Excel
+              aRemovidos.forEach(i => { i.baja = true; inactivados++; });
+
               saveDb('materia');
 
               // Sincronizar también el catálogo de referencia (por nombre, solo precios)
@@ -17433,7 +17439,7 @@ function importarCatalogoMateriales() {
 
               closeModal();
               renderInventario('materia');
-              _info(`✅ Importación completada:\n• ${actualizados} precio${actualizados!==1?'s':''} actualizado${actualizados!==1?'s':''}\n• ${agregados} producto${agregados!==1?'s':''} nuevo${agregados!==1?'s':''} agregado${agregados!==1?'s':''}`);
+              _info(`✅ Importación completada:\n• ${actualizados} precio${actualizados!==1?'s':''} actualizado${actualizados!==1?'s':''}\n• ${agregados} producto${agregados!==1?'s':''} nuevo${agregados!==1?'s':''} agregado${agregados!==1?'s':''}${inactivados>0?'\n• '+inactivados+' material'+(inactivados!==1?'es':'') +' marcado'+(inactivados!==1?'s':'')+' inactivo'+(inactivados!==1?'s':''):''}`);
             }},
             { label:'Cancelar', cls:'btn-secondary', action:closeModal }
           ]);
