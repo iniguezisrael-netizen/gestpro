@@ -4132,6 +4132,9 @@ function renderInventario(tipo, _tab, _skipSync) {
       return _qWords.every(w => h.includes(w));
     });
   }
+  const _savedOrigenF = tipo==='materia' ? ((window._invOrigenFilter||{})[tipo]||'todos') : 'todos';
+  if (tipo==='materia' && _savedOrigenF!=='todos')
+    _baseInvItems = _baseInvItems.filter(i=>(i.origen||'excel')===_savedOrigenF);
   const _pgInvPage0 = (window._invPgPage || {})[tipo] || 0;
   const _pgInvTotal = _baseInvItems.length;
   // Solo genera HTML para los 50 items visibles (no todos con display:none)
@@ -4163,7 +4166,16 @@ function renderInventario(tipo, _tab, _skipSync) {
       </div>
       <div class="search-bar" style="display:flex;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:40;background:var(--card,#fff);padding:6px 0 8px;border-bottom:1px solid var(--border)">
         <input type="text" placeholder="Buscar..." oninput="_invSearch(this,'${tipo}')" style="flex:1;min-width:140px" />
-
+        ${tipo==='materia' && session.rol==='admin' ? (() => {
+          const _of = (window._invOrigenFilter||{})[tipo]||'todos';
+          const _cntM = (db.materia||[]).filter(i=>(i.origen||'excel')==='manual').length;
+          const _chip = (val,lbl,clr,bg,bd) => `<button onclick="_invOrigenFilter('${tipo}','${val}')" style="padding:4px 10px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid ${_of===val?bd:'var(--border)'};background:${_of===val?bg:'var(--card)'};color:${_of===val?clr:'var(--muted,#64748b)'}">${lbl}</button>`;
+          return `<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+            ${_chip('todos','Todos','var(--primary)','var(--primary-lt,#eef2ff)','var(--primary)')}
+            ${_chip('manual','📝 Manual'+(_cntM>0?' ('+_cntM+')':''),'#d97706','#fffbeb','#fde68a')}
+            ${_chip('excel','📊 Excel','#16a34a','#f0fdf4','#bbf7d0')}
+          </div>`;
+        })() : ''}
       </div>
       <div class="table-wrap tbl-inv-sticky-wrap"><table id="tbl-${tipo}" class="tbl-inv-sticky">
         <thead><tr>
@@ -4773,6 +4785,7 @@ function saveItem(tipo, id) {
     precioPublico: session.rol === 'admin' ? round2(v('m-precio-pub')) : round2(id ? (db[tipo].find(i=>i.id===id)?.precioPublico || 0) : 0),
     minimo: +v('m-minimo') || 5,
     sinMinimo: document.getElementById('m-sinminimo')?.checked || false,
+    origen: id ? (db[tipo].find(i=>i.id===id)?.origen || 'excel') : 'manual',
     desc: v('m-desc'),
     ...(tipo === 'productos' ? {
       especUnidad: v('m-eunidad'), especTipo: v('m-etipo'),
@@ -17191,6 +17204,7 @@ function _sincronizarCatalogoAMateria(items, opts) {
         existente.precio = m.costoUnit || 0;
         existente.precioPublico = m.precioPublico || 0;
         if (!existente.unidad) existente.unidad = m.unidad || 'pza';
+        existente.origen = 'excel';
       }
     } else {
       const nuevo = {
@@ -17207,6 +17221,7 @@ function _sincronizarCatalogoAMateria(items, opts) {
         precioPublico: m.precioPublico || 0,
         minimo: 5,
         sinMinimo: true,
+        origen: 'excel',
         desc: '',
         fotos: m.foto ? [m.foto] : []
       };
@@ -17219,6 +17234,13 @@ function _sincronizarCatalogoAMateria(items, opts) {
   return hayNuevos;
 }
 window['_sincronizarCatalogoAMateria'] = _sincronizarCatalogoAMateria;
+
+function _invOrigenFilter(tipo, val) {
+  window._invOrigenFilter = window._invOrigenFilter || {};
+  window._invOrigenFilter[tipo] = val;
+  renderInventario(tipo);
+}
+window['_invOrigenFilter'] = _invOrigenFilter;
 
 function importarCatalogoMateriales() {
   if (!can(['admin'])) return;
