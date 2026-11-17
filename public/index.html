@@ -4802,7 +4802,7 @@ function saveItem(tipo, id) {
     sinMinimo: document.getElementById('m-sinminimo')?.checked || false,
     origen: id ? (db[tipo].find(i=>i.id===id)?.origen || 'excel') : 'manual',
     empaqueDesc: tipo === 'materia' ? (v('m-empaque-desc') || '') : (id ? (db[tipo].find(i=>i.id===id)?.empaqueDesc || '') : ''),
-    empaqueFactor: tipo === 'materia' ? (+v('m-empaque-factor') || null) : (id ? (db[tipo].find(i=>i.id===id)?.empaqueFactor || null) : null),
+    empaqueFactor: tipo === 'materia' ? ((+v('m-empaque-factor') > 0 ? +v('m-empaque-factor') : null)) : (id ? (db[tipo].find(i=>i.id===id)?.empaqueFactor || null) : null),
     desc: v('m-desc'),
     ...(tipo === 'productos' ? {
       especUnidad: v('m-eunidad'), especTipo: v('m-etipo'),
