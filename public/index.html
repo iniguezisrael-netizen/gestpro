@@ -4182,6 +4182,7 @@ function renderInventario(tipo, _tab, _skipSync) {
             ${_chip('manual','📝 Manual'+(_cntM>0?' ('+_cntM+')':''),'#d97706','#fffbeb','#fde68a')}
             ${_chip('excel','📊 Excel','#16a34a','#f0fdf4','#bbf7d0')}
             ${_cntB>0?_chip('baja','🚫 Inactivos ('+_cntB+')','#ef4444','#fef2f2','#fecaca'):''}
+            ${_of==='baja'&&_cntB>0?`<button onclick="_borrarTodosInactivos()" style="padding:4px 10px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid #fca5a5;background:#fee2e2;color:#dc2626">🗑️ Borrar todos</button>`:''}
           </div>`;
         })() : ''}
       </div>
@@ -17269,6 +17270,29 @@ function _invOrigenFilter(tipo, val) {
 }
 window['_invOrigenFilter'] = _invOrigenFilter;
 
+function _borrarTodosInactivos() {
+  const inactivos = (db.materia||[]).filter(i=>i.baja);
+  if (!inactivos.length) { _info('No hay inactivos.'); return; }
+  showModal('🗑️ Borrar inactivos', `
+    <p>¿Eliminar permanentemente <strong>${inactivos.length}</strong> material${inactivos.length!==1?'es':''} inactivo${inactivos.length!==1?'s':''}?</p>
+    <p style="font-size:0.82rem;color:#ef4444;margin-top:6px">Esta acción no se puede deshacer.</p>
+    <div style="max-height:160px;overflow-y:auto;margin-top:10px;border:1px solid #fecaca;border-radius:6px;padding:8px;background:#fff7f7">
+      ${inactivos.slice(0,30).map(i=>`<div style="font-size:0.82rem;padding:2px 0;color:#64748b">${esc(i.nombre)}</div>`).join('')}
+      ${inactivos.length>30?`<div style="font-size:0.8rem;color:#94a3b8">...y ${inactivos.length-30} más</div>`:''}
+    </div>
+  `, [
+    { label:'🗑️ Eliminar todos', cls:'btn-danger', action:() => {
+      db.materia = (db.materia||[]).filter(i=>!i.baja);
+      saveDb('materia');
+      _invOrigenFilter('materia','todos');
+      closeModal();
+      _info('✅ Se eliminaron ' + inactivos.length + ' materiale' + (inactivos.length!==1?'s':'') + ' inactivo' + (inactivos.length!==1?'s':'') + '.');
+    }},
+    { label:'Cancelar', cls:'btn-secondary', action:closeModal }
+  ]);
+}
+window['_borrarTodosInactivos'] = _borrarTodosInactivos;
+
 function importarCatalogoMateriales() {
   if (!can(['admin'])) return;
   const input = document.createElement('input');
@@ -19859,10 +19883,15 @@ function _mostrarPDFOverlay(blobUrl, fname) {
 }
 
 function _imprimirPDFOverlay() {
-  const frame = document.getElementById('_pdf-overlay-frame');
-  window.open(frame.src, '_blank');
-  const ov = document.getElementById('_pdf-overlay');
-  if (ov) ov.remove();
+  const fr = document.getElementById('_pdf-overlay-frame');
+  if (!fr) return;
+  try {
+    fr.contentWindow.print();
+    setTimeout(() => { try { window.focus(); } catch(_){} }, 300);
+  } catch(_) {
+    // fallback: abrir en nueva pestaña solo si print() falla
+    window.open(fr.src, '_blank');
+  }
 }
 window['_imprimirPDFOverlay'] = _imprimirPDFOverlay;
 
