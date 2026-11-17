@@ -19841,8 +19841,10 @@ function _mostrarPDFOverlay(blobUrl, fname) {
       e.preventDefault();
       const fr = document.getElementById('_pdf-overlay-frame');
       if (fr) {
-        try { fr.contentWindow.focus(); fr.contentWindow.print(); }
-        catch(_) { window.open(fr.src, '_blank'); }
+        try {
+          fr.contentWindow.print();
+          setTimeout(() => { try { window.focus(); } catch(_){} }, 300);
+        } catch(_) { window.open(fr.src, '_blank'); }
       }
     }
   };
