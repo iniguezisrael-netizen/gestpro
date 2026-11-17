@@ -1,5 +1,5 @@
 # GestPro — CamperERP (Campers La Cuesta)
-# Última actualización: 2026-11-10
+# Última actualización: 2026-11-17
 
 ## Proyecto
 - **App**: Single-file HTML monolith (`public/index.html`, ~25 267 líneas, ~1.5 MB)
@@ -155,3 +155,28 @@ Colecciones estáticas (FS_STATIC_COLS): no cambian frecuentemente, skip Firesto
 - `pendienteCotizar: true` → muestra botón "Fijar total" en venta
 - `pendienteCotizar: false/undefined` + `total=0` → muestra $0 sin botón (bug conocido, aplicar PATCH)
 - Lógica en línea ~7713
+
+---
+
+## Sistema de respaldo (backups)
+Carpeta: `C:\Users\israe\Documents\respaldo app sistemas La Cuesta\`
+
+### Scripts activos
+| Script | Frecuencia | Qué hace |
+|---|---|---|
+| `backup-gestpro.ps1` | Diario 5pm (tarea programada) | HTML app + Firestore + RTDB + fotos R2; sube `rtdb.json` a R2 offsite |
+| `backup-rtdb-2h.ps1` | Cada 2h (9,11,13,15,17,19,21,23h) | Snapshot RTDB; sube a R2 offsite inmediatamente |
+
+### Cloud Function
+- `dailyBackup` — corre `0 7 * * *` UTC (1am México) — sube RTDB+Firestore a R2 automáticamente
+
+### R2 Cloudflare (bucket: `campers-fotos`)
+- **Endpoint**: `https://9cd3aaf5646f228ec0f34092f74fc6b3.r2.cloudflarestorage.com`
+- **Token read-only** (`backup-gestpro-readonly`): Access Key `15477c5b25925da38b648cc82e749823` — usado para listar/descargar fotos
+- **Token write** (`backup-gestpro-write`): Access Key `bf982ebfca6c85f38a053d68915051fc` — usado por scripts locales para subir RTDB offsite
+- **Token write Cloud Function** (`Campers-fotos-rw`): en Firebase Secret `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY`
+
+### Prefijos en R2
+- `local-backups/YYYY-MM-DD_HH-mm-rtdb.json` — subido por `backup-gestpro.ps1` (diario)
+- `rtdb-snapshots/rtdb-YYYY-MM-DD_HH-mm.json` — subido por `backup-rtdb-2h.ps1` (cada 2h)
+- `backups/` — subido por Cloud Function (diario 1am)
