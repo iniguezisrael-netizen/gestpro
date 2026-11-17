@@ -4133,8 +4133,14 @@ function renderInventario(tipo, _tab, _skipSync) {
     });
   }
   const _savedOrigenF = tipo==='materia' ? ((window._invOrigenFilter||{})[tipo]||'todos') : 'todos';
-  if (tipo==='materia' && _savedOrigenF!=='todos')
-    _baseInvItems = _baseInvItems.filter(i=>(i.origen||'excel')===_savedOrigenF);
+  if (tipo==='materia') {
+    if (_savedOrigenF==='baja') {
+      _baseInvItems = _baseInvItems.filter(i=>i.baja);
+    } else {
+      _baseInvItems = _baseInvItems.filter(i=>!i.baja);
+      if (_savedOrigenF!=='todos') _baseInvItems = _baseInvItems.filter(i=>(i.origen||'excel')===_savedOrigenF);
+    }
+  }
   const _pgInvPage0 = (window._invPgPage || {})[tipo] || 0;
   const _pgInvTotal = _baseInvItems.length;
   // Solo genera HTML para los 50 items visibles (no todos con display:none)
@@ -4170,10 +4176,12 @@ function renderInventario(tipo, _tab, _skipSync) {
           const _of = (window._invOrigenFilter||{})[tipo]||'todos';
           const _cntM = (db.materia||[]).filter(i=>(i.origen||'excel')==='manual').length;
           const _chip = (val,lbl,clr,bg,bd) => `<button onclick="_invOrigenFilter('${tipo}','${val}')" style="padding:4px 10px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid ${_of===val?bd:'var(--border)'};background:${_of===val?bg:'var(--card)'};color:${_of===val?clr:'var(--muted,#64748b)'}">${lbl}</button>`;
+          const _cntB = (db.materia||[]).filter(i=>i.baja).length;
           return `<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
             ${_chip('todos','Todos','var(--primary)','var(--primary-lt,#eef2ff)','var(--primary)')}
             ${_chip('manual','📝 Manual'+(_cntM>0?' ('+_cntM+')':''),'#d97706','#fffbeb','#fde68a')}
             ${_chip('excel','📊 Excel','#16a34a','#f0fdf4','#bbf7d0')}
+            ${_cntB>0?_chip('baja','🚫 Inactivos ('+_cntB+')','#ef4444','#fef2f2','#fecaca'):''}
           </div>`;
         })() : ''}
       </div>
@@ -17196,6 +17204,7 @@ function _sincronizarCatalogoAMateria(items, opts) {
   if (!db.materia) db.materia = [];
   const porNombre = new Map(db.materia.map(i => [(i.nombre||'').toLowerCase(), i]));
   let hayNuevos = false;
+  const _nombresExcel = new Set((items||[]).map(m=>(m.nombre||'').toLowerCase()).filter(Boolean));
   (items||[]).forEach(m => {
     if (!m.nombre) return;
     const existente = porNombre.get(m.nombre.toLowerCase());
@@ -17205,6 +17214,7 @@ function _sincronizarCatalogoAMateria(items, opts) {
         existente.precioPublico = m.precioPublico || 0;
         if (!existente.unidad) existente.unidad = m.unidad || 'pza';
         existente.origen = 'excel';
+        existente.baja = false;
       }
     } else {
       const nuevo = {
@@ -17230,6 +17240,14 @@ function _sincronizarCatalogoAMateria(items, opts) {
       hayNuevos = true;
     }
   });
+  if (!opts.soloFaltantes) {
+    (db.materia||[]).forEach(i => {
+      if (i.origen==='excel' && !_nombresExcel.has((i.nombre||'').toLowerCase()) && !i.baja) {
+        i.baja = true;
+        hayNuevos = true;
+      }
+    });
+  }
   if (hayNuevos || !opts.soloFaltantes) saveDb('materia');
   return hayNuevos;
 }
