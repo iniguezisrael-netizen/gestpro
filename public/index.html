@@ -3298,7 +3298,6 @@ function initApp() {
   const btnRespaldo = document.getElementById('btn-descargar-respaldo');
   if (btnRespaldo) btnRespaldo.style.display = session.rol === 'admin' ? '' : 'none';
   buildNav();
-  sinMinimoATodos();
   if (window._startIdleTimer) window._startIdleTimer();
   // Migración de seguridad: copiar adminEmail a _meta/loginInfo (documento público mínimo)
   // para que _meta/config pueda protegerse con hasValidRole() en el futuro.
@@ -12315,15 +12314,6 @@ function _doPedidoPDF(vt, logoB64, logoW, logoH, fontB64) {
   } else {
     doc.save(fname);
   }
-}
-
-
-function sinMinimoATodos() {
-  // Migración automática: todos los items sin sinMinimo explícito lo reciben
-  const pendientes = (db.materia || []).filter(i => i.sinMinimo === undefined || i.sinMinimo === null);
-  if (!pendientes.length) return;
-  pendientes.forEach(i => { i.sinMinimo = true; });
-  saveDb('materia');
 }
 
 function editarRecordatorio(id) {
