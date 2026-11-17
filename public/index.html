@@ -4192,6 +4192,7 @@ function renderInventario(tipo, _tab, _skipSync) {
           ${tipo === 'materia' ? '<th>Código</th>' : ''}
           ${tipo === 'materia' ? '<th>Cód. Barras</th>' : '<th style="cursor:pointer;user-select:none" onclick="_filtrarCatClick(this,\'tbl-'+tipo+'\')" title="Filtrar por categoría">Categoría ▾</th>'}
           ${verCantidad ? `<th>${tipo === 'productos' ? 'En stock' : tipo === 'materia' ? 'Unidad' : 'Cantidad'}</th>` : ''}
+          ${tipo === 'materia' ? '<th>Empaque</th>' : ''}
           ${tipo === 'productos' ? '<th style="text-align:center">Apartados</th><th style="text-align:center">Disponibles</th>' : ''}
           ${verCostos && tipo !== 'productos' ? (window._invCostoVisible
               ? `<th id="inv-th-costo" style="cursor:pointer;white-space:nowrap;user-select:none" onclick="_toggleInvCosto()" title="Ocultar precio de costo">Costo 👁</th>`
@@ -4222,6 +4223,7 @@ function renderInventario(tipo, _tab, _skipSync) {
             ${tipo === 'materia' ? `<td><code style="font-size:0.78rem">${esc(i.codigo||'-')}</code></td>` : ''}
             ${tipo === 'materia' ? `<td><code style="font-size:0.78rem">${esc(i.barcode||'-')}</code></td>` : `<td style="cursor:pointer;color:var(--primary);font-weight:500" onclick="_filtrarCatClick(this,'tbl-'+tipo)" title="Filtrar por esta categoría">${esc(i.categoria)}</td>`}
             ${verCantidad ? `<td><strong>${i.cantidad ?? 0}</strong> ${esc(i.unidad)}</td>` : ''}
+            ${tipo === 'materia' ? `<td>${i.empaqueFactor ? `<strong>${Math.floor(i.cantidad/i.empaqueFactor)}</strong> <span style='font-size:0.8rem;color:var(--text-light,#64748b)'>${esc(i.empaqueDesc||'')}</span>${i.cantidad%i.empaqueFactor?` <span style='font-size:0.75rem;color:#94a3b8'>(+${i.cantidad%i.empaqueFactor} ${esc(i.unidad)})</span>`:''}\` : '<span style="color:#94a3b8;font-size:0.8rem">—</span>'}</td>\` : ''}
             ${tipo === 'productos' ? `
               <td style="text-align:center">${_apt > 0 ? `<span style="font-weight:600;color:#b45309">${_apt}</span>` : '<span style="color:#94a3b8">—</span>'}</td>
               <td style="text-align:center"><strong style="color:${_disp===0?'#dc2626':_disp<=1?'#b45309':'#059669'}">${_disp}</strong></td>` : ''}
@@ -4356,6 +4358,11 @@ function openItemModal(tipo, id) {
       ${tipo === 'productos' && item && session.rol !== 'admin' ? `<p style="font-size:0.74rem;color:#64748b;margin-top:4px">Puedes aumentarla. Solo el administrador puede darla de baja (reducirla) manualmente; para reducirla, el producto debe venderse.</p>` : ''}</div>
       <div class="form-group"><label>Unidad (kg, lt, pza…)</label><input id="m-unidad" value="${esc(item ? (item.unidad||'') : '')}" placeholder="pza" /></div>
     </div>
+    ${tipo === 'materia' ? `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label>Empaque <span style="font-weight:400;color:#94a3b8">(opcional)</span></label><input id="m-empaque-desc" value="${esc(item ? (item.empaqueDesc||'') : '')}" placeholder="caja de 300 pzas" /></div>
+      <div class="form-group"><label>Unidades por empaque</label><input id="m-empaque-factor" type="number" min="0" step="any" value="${esc(item && item.empaqueFactor ? item.empaqueFactor : '')}" placeholder="300" /></div>
+    </div>` : ''}
     ${session.rol === 'admin' ? `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label>Precio de Costo</label><input id="m-precio" type="number" value="${round2(item ? item.precio : 0)}" min="0" step="0.01" oninput="mCalcularPrecioPubPct()" /></div>
@@ -4794,6 +4801,8 @@ function saveItem(tipo, id) {
     minimo: +v('m-minimo') || 5,
     sinMinimo: document.getElementById('m-sinminimo')?.checked || false,
     origen: id ? (db[tipo].find(i=>i.id===id)?.origen || 'excel') : 'manual',
+    empaqueDesc: tipo === 'materia' ? (v('m-empaque-desc') || '') : (id ? (db[tipo].find(i=>i.id===id)?.empaqueDesc || '') : ''),
+    empaqueFactor: tipo === 'materia' ? (+v('m-empaque-factor') || null) : (id ? (db[tipo].find(i=>i.id===id)?.empaqueFactor || null) : null),
     desc: v('m-desc'),
     ...(tipo === 'productos' ? {
       especUnidad: v('m-eunidad'), especTipo: v('m-etipo'),
