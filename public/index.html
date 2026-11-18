@@ -2346,9 +2346,10 @@ function _startRTDBListenerForCol(colName) {
         const _hoyStr = new Date().toISOString().slice(0,10);
         if (!r.recFecha || r.recFecha <= _hoyStr) {
           r = { ...r, recHecho: true };
-          if ((loc.recSnoozeHasta || 0) > (r.recSnoozeHasta || 0)) r = { ...r, recSnoozeHasta: loc.recSnoozeHasta };
         }
       }
+      // recSnoozeHasta sticky — preservar snooze local aunque RTDB no lo tenga aún
+      if ((loc.recSnoozeHasta || 0) > (r.recSnoozeHasta || 0)) r = { ...r, recSnoozeHasta: loc.recSnoozeHasta };
       // sinMinimo sticky-false: si local=false y RTDB=true, preservar local
       if (loc.sinMinimo === false && r.sinMinimo === true) {
         r = { ...r, sinMinimo: false };
@@ -2519,8 +2520,8 @@ function _startSingleCollectionListener(colName) {
             // Sticky recHecho: si está descartado en localStorage, no revertir aunque Firestore traiga recHecho:false
             if (localItem && localItem.recHecho === true && !result.recHecho) {
               result = { ...result, recHecho: true };
-              if ((localItem.recSnoozeHasta || 0) > (result.recSnoozeHasta || 0)) result = { ...result, recSnoozeHasta: localItem.recSnoozeHasta };
             }
+            if (localItem && (localItem.recSnoozeHasta || 0) > (result.recSnoozeHasta || 0)) result = { ...result, recSnoozeHasta: localItem.recSnoozeHasta };
             // Preservar estados OK/NA de reportes si el servidor tiene items vacíos (snapshot de caché)
             if (localItem && localItem.items && localItem.items.some(i => i.estado) &&
                 result.items && result.items.length && !result.items.some(i => i.estado)) {
@@ -2622,8 +2623,8 @@ function _startSingleCollectionListener(colName) {
               // Sticky recHecho: si está descartado localmente, no revertir aunque Firestore mande recHecho:false
               if (localItem.recHecho === true && !merged.recHecho) {
                 merged.recHecho = true;
-                if ((localItem.recSnoozeHasta || 0) > (merged.recSnoozeHasta || 0)) merged.recSnoozeHasta = localItem.recSnoozeHasta;
               }
+              if ((localItem.recSnoozeHasta || 0) > (merged.recSnoozeHasta || 0)) merged.recSnoozeHasta = localItem.recSnoozeHasta;
               finalData = merged;
             }
             if (idx >= 0) { arr[idx] = finalData; } else {
