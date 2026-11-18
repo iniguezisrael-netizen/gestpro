@@ -274,7 +274,7 @@
   @media (min-width: 600px) {
     .overlay { align-items: center; padding: 16px; }
   }
-  .overlay.open { display: flex; }
+  .overlay.open { display: flex; pointer-events: auto; }
   @keyframes modalIn { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:none} }
   @media (min-width: 600px) {
     @keyframes modalIn { from{opacity:0;transform:scale(0.96) translateY(12px)} to{opacity:1;transform:none} }
@@ -2047,6 +2047,10 @@ async function _procesarColecciones(cols, results) {
           }
           return { ...x, baja: true, bajaFecha: _loc.bajaFecha, bajaMotivo: _loc.bajaMotivo, bajaUsuario: _loc.bajaUsuario };
         }
+        // sinMinimo sticky-false: si local=false y servidor=true, preservar local (race multi-dispositivo)
+        if (_loc && _loc.sinMinimo === false && x.sinMinimo === true) {
+          return { ...x, sinMinimo: false };
+        }
         return x;
       });
       const serverIds = new Set(serverItemsMerged.map(x => x && x.id).filter(Boolean));
@@ -2341,6 +2345,10 @@ function _startRTDBListenerForCol(colName) {
       if (loc.recHecho === true && !r.recHecho) {
         r = { ...r, recHecho: true };
         if ((loc.recSnoozeHasta || 0) > (r.recSnoozeHasta || 0)) r = { ...r, recSnoozeHasta: loc.recSnoozeHasta };
+      }
+      // sinMinimo sticky-false: si local=false y RTDB=true, preservar local
+      if (loc.sinMinimo === false && r.sinMinimo === true) {
+        r = { ...r, sinMinimo: false };
       }
       // Estados de reporte
       if (loc.items && loc.items.some(i => i.estado) && r.items && r.items.length && !r.items.some(i => i.estado)) {
@@ -13159,7 +13167,7 @@ async function guardarMovCaja(tipo) {
     if (!caja) { closeModal(); return; }
     if (tipo === 'salida') {
       const saldoDisp = _saldoCajaActual(caja);
-      if (monto > saldoDisp) {
+      if (Math.round(monto * 100) > Math.round(saldoDisp * 100)) {
         _info(`Saldo insuficiente. Solo hay $${fmt(saldoDisp)} disponibles en caja.`);
         return;
       }
@@ -21094,6 +21102,7 @@ function renderAgenda() {
     const _calAll = [];
     _mySeg.forEach(c => { const _snz=c.recSnoozeHasta&&c.recSnoozeHasta>Date.now(); let _f=c.recFecha||'',_h=c.recHora||''; if(_snz){const _d=new Date(c.recSnoozeHasta);_f=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');_h=String(_d.getHours()).padStart(2,'0')+':'+String(_d.getMinutes()).padStart(2,'0');} _calAll.push({tipo:'seg',esV:segsV.includes(c),id:c.id,nombre:c.cliente||(c.ctEmpresa||''),fecha:_f,hora:_h,nota:c.recNota||'',snooze:!!_snz}); });
     _myPers.filter(p=>!p.completado).forEach(p => { const _snz=p.snoozeHasta&&p.snoozeHasta>Date.now(); let _f=p.fecha||'',_h=p.hora||''; if(_snz){const _d=new Date(p.snoozeHasta);_f=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');_h=String(_d.getHours()).padStart(2,'0')+':'+String(_d.getMinutes()).padStart(2,'0');} _calAll.push({tipo:'pers',esV:persV.includes(p),id:p.id,nombre:p.titulo||'',fecha:_f,hora:_h,nota:p.descripcion||'',snooze:!!_snz}); });
+    window._calAll = _calAll;
     // ── Row builders ────────────────────────────────────────────────────────
     const _q = window._recSearchQ || '';
     function _matches(texts) {
@@ -21159,7 +21168,7 @@ function renderAgenda() {
       const cells = days.map(d=>{
         const ds=fmt(d);
         const items=_calAll.filter(r=>r.fecha===ds).sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
-        return `<div class="rec-wcell${ds===hoy?' today-col':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer">${items.map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre+(r.hora?' · '+r.hora:'')+(r.nota?' — '+r.nota:''))}" onclick="event.stopPropagation();${r.tipo==='seg'?'verCotiz('+r.id+')':'openPersonalRecModal(\''+r.id+'\')'}">
+        return `<div class="rec-wcell${ds===hoy?' today-col':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer">${items.map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre+(r.hora?' · '+r.hora:'')+(r.nota?' — '+r.nota:''))}" onclick="event.stopPropagation();_showChipCard(this,'${r.tipo}','${r.id}')">
           ${r.hora?`<b>${r.hora}</b> `:''}${esc(r.nombre||'')}
         </span>`).join('')}</div>`;
       }).join('');
@@ -21181,7 +21190,7 @@ function renderAgenda() {
         const ds=cur.toISOString().slice(0,10);
         const inM=cur.getMonth()===month,isT=ds===hoy;
         const items=_calAll.filter(r=>r.fecha===ds).sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
-        cells+=`<div class="rec-mcell${!inM?' other-month':''}${isT?' today-cell':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer"><div class="rec-day-num">${cur.getDate()}</div>${items.slice(0,3).map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre)}" onclick="event.stopPropagation();${r.tipo==='seg'?'verCotiz('+r.id+')':'openPersonalRecModal(\''+r.id+'\')'}">${esc((r.nombre||'').slice(0,18))}</span>`).join('')}${items.length>3?`<span style="font-size:0.6rem;color:#94a3b8">+${items.length-3} más</span>`:''}</div>`;
+        cells+=`<div class="rec-mcell${!inM?' other-month':''}${isT?' today-cell':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer"><div class="rec-day-num">${cur.getDate()}</div>${items.slice(0,3).map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre)}" onclick="event.stopPropagation();_showChipCard(this,'${r.tipo}','${r.id}')">${esc((r.nombre||'').slice(0,18))}</span>`).join('')}${items.length>3?`<span style="font-size:0.6rem;color:#94a3b8">+${items.length-3} más</span>`:''}</div>`;
         cur.setDate(cur.getDate()+1);
       }
       return `<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><button onclick="window._recMonthOff=(window._recMonthOff||0)-1;renderAgenda()" class="btn btn-outline btn-sm">‹</button><span style="font-size:0.82rem;font-weight:600;color:#64748b;text-transform:capitalize">${mn}</span><button onclick="window._recMonthOff=(window._recMonthOff||0)+1;renderAgenda()" class="btn btn-outline btn-sm">›</button>${window._recMonthOff?`<button onclick="window._recMonthOff=0;renderAgenda()" class="btn btn-outline btn-sm">Hoy</button>`:''}</div><div class="rec-month-grid">${hdrRow}${cells}</div></div>`;
@@ -21241,6 +21250,91 @@ function renderAgenda() {
 
 // ════════════════════════════════════════════════════════════════════════
 // RECORDATORIOS PERSONALES — CRUD
+// ════════════════════════════════════════════════════════════════════════
+// ── Chip Card (mini tarjeta agenda) ──────────────────────────────────────
+(function(){
+  function _ensureChipCard() {
+    if (document.getElementById('_chip-card-overlay')) return;
+    const style = document.createElement('style');
+    style.textContent = `
+      #_chip-card-overlay{position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,0.25);opacity:0;pointer-events:none;transition:opacity .2s}
+      #_chip-card-overlay.open{opacity:1;pointer-events:auto}
+      #_chip-card{position:fixed;left:0;right:0;bottom:0;z-index:1201;background:#fff;border-top:1px solid #e2e8f0;border-radius:18px 18px 0 0;padding:0 16px calc(16px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .25s cubic-bezier(.32,.72,0,1);box-shadow:0 -4px 24px rgba(0,0,0,.12);max-width:600px;margin:0 auto}
+      #_chip-card.open{transform:translateY(0)}
+      @media(prefers-color-scheme:dark){#_chip-card{background:#1e293b;border-top-color:#334155}}
+      ._cc-handle{width:36px;height:4px;background:#e2e8f0;border-radius:2px;margin:10px auto 14px}
+      ._cc-name{font-size:1rem;font-weight:700;line-height:1.3;margin-bottom:4px}
+      ._cc-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+      ._cc-badge{font-size:0.65rem;font-weight:600;padding:2px 7px;border-radius:5px}
+      ._cc-nota{font-size:0.8rem;color:#64748b;padding:9px 11px;background:#f8fafc;border-radius:8px;margin-bottom:12px;border:1px solid #e2e8f0;line-height:1.5}
+      @media(prefers-color-scheme:dark){._cc-nota{background:#0f172a;border-color:#334155;color:#94a3b8}}
+      ._cc-actions{display:flex;gap:8px}
+      ._cc-btn{flex:1;padding:10px 8px;border-radius:10px;font-size:0.8rem;font-weight:600;border:none;cursor:pointer;transition:opacity .15s}
+      ._cc-btn:active{opacity:.8}
+      ._cc-btn-ver{background:#dbeafe;color:#1e40af}
+      ._cc-btn-pos{background:#fef3c7;color:#d97706}
+      ._cc-btn-hecho{background:#dcfce7;color:#166534}
+    `;
+    document.head.appendChild(style);
+    const ov = document.createElement('div');
+    ov.id = '_chip-card-overlay';
+    ov.addEventListener('click', window._closeChipCard);
+    const card = document.createElement('div');
+    card.id = '_chip-card';
+    card.innerHTML = `<div class="_cc-handle"></div><div id="_cc-name" class="_cc-name"></div><div id="_cc-badges" class="_cc-badges"></div><div id="_cc-nota" class="_cc-nota"></div><div class="_cc-actions"><button class="_cc-btn _cc-btn-ver" id="_cc-btn-ver"></button><button class="_cc-btn _cc-btn-pos" onclick="window._closeChipCard();window._abrirModalPosponer(window._chipCardData.id,window._chipCardData.tipo)">💤 Posponer</button><button class="_cc-btn _cc-btn-hecho" id="_cc-btn-hecho">✓ Hecho</button></div>`;
+    document.body.appendChild(ov);
+    document.body.appendChild(card);
+    document.addEventListener('keydown', e => { if(e.key==='Escape') window._closeChipCard(); });
+  }
+  window._closeChipCard = function() {
+    const ov = document.getElementById('_chip-card-overlay');
+    const card = document.getElementById('_chip-card');
+    if(ov) ov.classList.remove('open');
+    if(card) card.classList.remove('open');
+  };
+  window._showChipCard = function(el, tipo, id) {
+    _ensureChipCard();
+    const all = window._calAll || [];
+    const r = all.find(x => x.tipo===tipo && String(x.id)===String(id));
+    if (!r) return;
+    window._chipCardData = r;
+    const esc2 = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    // Name
+    document.getElementById('_cc-name').textContent = r.nombre || '(sin nombre)';
+    // Badges
+    const badgeColor = tipo==='seg'?'background:#dbeafe;color:#1e40af':'background:#ede9fe;color:#5b21b6';
+    const typeLabel = tipo==='seg'?'seguimiento':'personal';
+    const fechaLabel = r.fecha ? (r.fecha + (r.hora ? ' · ' + r.hora : '')) : (r.hora||'');
+    const snoozeBadge = r.snooze ? '<span class="_cc-badge" style="background:#fef3c7;color:#d97706">💤 Pospuesto</span>' : '';
+    document.getElementById('_cc-badges').innerHTML =
+      `<span class="_cc-badge" style="${badgeColor}">${typeLabel}</span>` +
+      (fechaLabel ? `<span class="_cc-badge" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0">${esc2(fechaLabel)}</span>` : '') +
+      snoozeBadge;
+    // Nota
+    const notaEl = document.getElementById('_cc-nota');
+    if (r.nota) { notaEl.textContent = r.nota; notaEl.hidden = false; }
+    else notaEl.hidden = true;
+    // Ver button
+    const btnVer = document.getElementById('_cc-btn-ver');
+    if (tipo==='seg') {
+      btnVer.textContent = '👁 Ver cotiz.';
+      btnVer.onclick = () => { window._closeChipCard(); verCotiz(r.id); };
+    } else {
+      btnVer.textContent = '✏️ Editar';
+      btnVer.onclick = () => { window._closeChipCard(); openPersonalRecModal(r.id); };
+    }
+    // Hecho button
+    const btnH = document.getElementById('_cc-btn-hecho');
+    if (tipo==='seg') {
+      btnH.onclick = () => { window._closeChipCard(); marcarRecHecho(r.id); renderAgenda(); };
+    } else {
+      btnH.onclick = () => { window._closeChipCard(); marcarPersonalHecho(r.id); };
+    }
+    // Show
+    document.getElementById('_chip-card-overlay').classList.add('open');
+    document.getElementById('_chip-card').classList.add('open');
+  };
+})();
 // ════════════════════════════════════════════════════════════════════════
 // ── Modal Posponer ────────────────────────────────────────────────────────
 window._abrirModalPosponer = function(id, tipo) {
