@@ -25461,10 +25461,6 @@ function logActividad(accion, detalle) {
   // Abrir cotización desde el panel
   window._recAbrir = function(id) {
     window._recAbrirCotizId = id;   // marca para que verCotiz muestre banner
-    const _recItemEl = document.querySelector(`#_rec-panel .rec-item[data-id="${id}"]`);
-    if (_recItemEl) _recItemEl.remove();
-    const _recPanelEl = document.getElementById('_rec-panel');
-    if (_recPanelEl && !_recPanelEl.querySelector('.rec-item')) _recPanelEl.remove();
     navigate('cotizaciones');
     // Reintentar hasta que la página haya renderizado (evita fallo en tabletas lentas)
     let _recAbrirIntentos = 0;
