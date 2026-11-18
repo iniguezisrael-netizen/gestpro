@@ -21168,7 +21168,7 @@ function renderAgenda() {
       const cells = days.map(d=>{
         const ds=fmt(d);
         const items=_calAll.filter(r=>r.fecha===ds).sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
-        return `<div class="rec-wcell${ds===hoy?' today-col':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer">${items.map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre+(r.hora?' · '+r.hora:'')+(r.nota?' — '+r.nota:''))}" onclick="event.stopPropagation();_showChipCard(this,'${r.tipo}','${r.id}')">
+        return `<div class="rec-wcell${ds===hoy?' today-col':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer">${items.map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre+(r.hora?' · '+r.hora:'')+(r.nota?' — '+r.nota:''))}" onclick="event.stopPropagation();r.tipo==='seg'?verCotiz(${r.id}):openPersonalRecModal('${r.id}')">
           ${r.hora?`<b>${r.hora}</b> `:''}${esc(r.nombre||'')}
         </span>`).join('')}</div>`;
       }).join('');
@@ -21190,7 +21190,7 @@ function renderAgenda() {
         const ds=cur.toISOString().slice(0,10);
         const inM=cur.getMonth()===month,isT=ds===hoy;
         const items=_calAll.filter(r=>r.fecha===ds).sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
-        cells+=`<div class="rec-mcell${!inM?' other-month':''}${isT?' today-cell':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer"><div class="rec-day-num">${cur.getDate()}</div>${items.slice(0,3).map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre)}" onclick="event.stopPropagation();_showChipCard(this,'${r.tipo}','${r.id}')">${esc((r.nombre||'').slice(0,18))}</span>`).join('')}${items.length>3?`<span style="font-size:0.6rem;color:#94a3b8">+${items.length-3} más</span>`:''}</div>`;
+        cells+=`<div class="rec-mcell${!inM?' other-month':''}${isT?' today-cell':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer"><div class="rec-day-num">${cur.getDate()}</div>${items.slice(0,3).map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre)}" onclick="event.stopPropagation();r.tipo==='seg'?verCotiz(${r.id}):openPersonalRecModal('${r.id}')">${esc((r.nombre||'').slice(0,18))}</span>`).join('')}${items.length>3?`<span style="font-size:0.6rem;color:#94a3b8">+${items.length-3} más</span>`:''}</div>`;
         cur.setDate(cur.getDate()+1);
       }
       return `<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><button onclick="window._recMonthOff=(window._recMonthOff||0)-1;renderAgenda()" class="btn btn-outline btn-sm">‹</button><span style="font-size:0.82rem;font-weight:600;color:#64748b;text-transform:capitalize">${mn}</span><button onclick="window._recMonthOff=(window._recMonthOff||0)+1;renderAgenda()" class="btn btn-outline btn-sm">›</button>${window._recMonthOff?`<button onclick="window._recMonthOff=0;renderAgenda()" class="btn btn-outline btn-sm">Hoy</button>`:''}</div><div class="rec-month-grid">${hdrRow}${cells}</div></div>`;
@@ -24005,6 +24005,7 @@ function _eiAutoFill(autoAdd) {
     const u = document.getElementById('ei-mat-unidad');
     if (u && !u.value) u.value = item.unidad || '';
     if (info) info.innerHTML = `✅ <strong>${esc(item.nombre)}</strong> — stock: ${item.cantidad} ${esc(item.unidad||'')}`;
+    window._eiLastMateriaId = item.id; // guardar id para descuento de inventario
     if (autoAdd) setTimeout(addEiItem, 250); // auto-agregar tras escaneo con cámara
     return;
   }
@@ -24028,7 +24029,9 @@ function addEiItem() {
   const qty  = parseFloat(document.getElementById('ei-mat-qty')?.value) || 1;
   const uni  = (document.getElementById('ei-mat-unidad')?.value||'').trim();
   if (!desc) { _info('Escribe una descripción para el material.'); return; }
-  _eiItems.push({ descripcion: desc, cantidad: qty, unidad: uni });
+  const _mid = window._eiLastMateriaId || null;
+  window._eiLastMateriaId = null;
+  _eiItems.push({ descripcion: desc, cantidad: qty, unidad: uni, ...((_mid != null) ? { materiaId: _mid } : {}) });
   renderEiItems();
   const d = document.getElementById('ei-mat-desc');
   const q = document.getElementById('ei-mat-qty');
@@ -24084,7 +24087,21 @@ function saveEi(id) {
   } else {
     db.entregaInsumos.push({ id: sid(), pedidoId, folioPedido, cliente, fecha, entregadoPor, notas, materiales: _eiItems });
   }
-  saveDb('entregaInsumos');
+  // Descontar inventario de materia prima (solo en nuevas entregas, no ediciones)
+  if (!id) {
+    let materiaModificada = false;
+    _eiItems.forEach(it => {
+      if (it.materiaId == null) return;
+      const mp = (db.materia||[]).find(m => m.id == it.materiaId);
+      if (mp) {
+        mp.cantidad = Math.max(0, (mp.cantidad||0) - (it.cantidad||0));
+        materiaModificada = true;
+      }
+    });
+    saveDb(materiaModificada ? ['entregaInsumos','materia'] : 'entregaInsumos');
+  } else {
+    saveDb('entregaInsumos');
+  }
   closeModal();
   renderEntregaInsumos();
   showToast(id ? 'Entrega actualizada.' : 'Entrega registrada.', 'success');
