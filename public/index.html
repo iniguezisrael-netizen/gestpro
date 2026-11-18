@@ -12098,7 +12098,7 @@ function _buildPDFDesdeVenta(vt) {
       const cb = window._gpWaBlobCallback; window._gpWaBlobCallback = null; cb(pdfBlob, fname);
     } else {
       const blobUrl = URL.createObjectURL(pdfBlob);
-      _mostrarPDFOverlay(blobUrl, fname);
+      window.open(blobUrl, '_blank');
       setTimeout(() => URL.revokeObjectURL(blobUrl), 120000);
     }
   } catch(e) {
@@ -19878,10 +19878,20 @@ function _mostrarPDFOverlay(blobUrl, fname) {
       }
     }
   };
+  // Interceptar Escape para cerrar overlay sin propagar al modal de cotización
+  const _pdfEsc = (e) => {
+    if (e.key === 'Escape') {
+      e.stopImmediatePropagation();
+      const ov2 = document.getElementById('_pdf-overlay');
+      if (ov2) ov2.remove();
+    }
+  };
+  document.addEventListener('keydown', _pdfEsc, true); // capture=true: intercepta antes que el modal
   document.addEventListener('keydown', _pdfCtrlP);
   const _pdfOvObs = new MutationObserver(() => {
     if (!document.getElementById('_pdf-overlay')) {
       document.removeEventListener('keydown', _pdfCtrlP);
+      document.removeEventListener('keydown', _pdfEsc, true);
       _pdfOvObs.disconnect();
     }
   });
@@ -19889,15 +19899,20 @@ function _mostrarPDFOverlay(blobUrl, fname) {
 }
 
 function _imprimirPDFOverlay() {
-  const fr = document.getElementById('_pdf-overlay-frame');
-  if (!fr) return;
-  try {
-    fr.contentWindow.print();
-    setTimeout(() => { try { window.focus(); } catch(_){} }, 300);
-  } catch(_) {
-    // fallback: abrir en nueva pestaña solo si print() falla
-    window.open(fr.src, '_blank');
+  // Edge bloquea contentWindow.print() en iframes con PDF nativo (cross-origin viewer).
+  // Usamos window.print() con @media print que oculta todo excepto el iframe.
+  let ps = document.getElementById('_pdf-print-style');
+  if (!ps) {
+    ps = document.createElement('style');
+    ps.id = '_pdf-print-style';
+    ps.textContent = '@media print{body>*:not(#_pdf-overlay){display:none!important}#_pdf-overlay{position:fixed!important;top:0;left:0;width:100%!important;height:100%!important;background:#fff!important}#_pdf-overlay>div:first-child{display:none!important}#_pdf-overlay-frame{width:100%!important;height:100vh!important;border:none!important}}';
+    document.head.appendChild(ps);
   }
+  window.print();
+  setTimeout(() => {
+    if (ps && ps.parentNode) ps.parentNode.removeChild(ps);
+    try { window.focus(); } catch(_){}
+  }, 500);
 }
 window['_imprimirPDFOverlay'] = _imprimirPDFOverlay;
 
@@ -20802,7 +20817,7 @@ function _buildPDF(c, logoB64, logoW, logoH, fontB64, pdfWin, ventaOverride, aut
       a.click();
       a.remove();
     } else {
-      _mostrarPDFOverlay(blobUrl, fname);
+      window.open(blobUrl, '_blank');
     }
     setTimeout(() => URL.revokeObjectURL(blobUrl), 120000);
   }
@@ -22662,7 +22677,7 @@ function _buildPDFCompra(oc, logoB64, bcB64, elaboroOverride) {
 
     const fname = _ocFolio(oc) + '_' + (oc.proveedor||'OC').replace(/[^a-zA-Z0-9]/g,'_') + '.pdf';
     const blobUrl = URL.createObjectURL(doc.output('blob'));
-    _mostrarPDFOverlay(blobUrl, fname);
+    window.open(blobUrl, '_blank');
     setTimeout(() => URL.revokeObjectURL(blobUrl), 120000);
   } catch(e) {
     console.error('[PDF OC]', e);
@@ -25698,6 +25713,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
 
 
 
