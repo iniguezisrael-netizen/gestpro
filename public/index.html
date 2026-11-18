@@ -21685,6 +21685,7 @@ async function savePersonalRec(id) {
   }
   closeModal();
   db.recordatoriosPersonales = updated;
+  try { save('gp_recordatoriosPersonales', updated); } catch(e) {}
   try { await fsWriteCollection('recordatoriosPersonales', updated); } catch(e) {}
   renderAgenda();
 }
