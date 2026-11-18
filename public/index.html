@@ -25202,8 +25202,8 @@ function logActividad(accion, detalle) {
     // Dropdown de usuarios: incluye todos los que tienen recordatorios pendientes,
     // más cualquier secretaria/auxiliar aunque no tengan recordatorios aún
     const _czUsuariosRec = esAdmin ? [...new Set([
-      ...( (_rolesParaCaja||[]).filter(u=>u.rol==='secretaria'||u.rol==='auxiliar').map(u=>u.nombre) ),
-      ...(db.cotizaciones||[]).filter(c=>c.recFecha&&!c.recHecho).map(c=>c.usuario).filter(Boolean)
+      ...(db.cotizaciones||[]).filter(c=>c.recFecha).map(c=>c.recUsuario||c.usuario||'').filter(Boolean),
+      ...( (_rolesParaCaja||[]).filter(u=>u.rol==='secretaria'||u.rol==='auxiliar').map(u=>u.nombre) )
     ])].sort() : [];
 
     // Personales vencidos del usuario actual (para popup)
