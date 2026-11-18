@@ -2341,10 +2341,13 @@ function _startRTDBListenerForCol(colName) {
         const localData = loc.fotos.filter(f => f && f.startsWith('data:'));
         if (localData.length) r = { ...r, fotos: [...(r.fotos || []), ...localData] };
       }
-      // recHecho sticky
+      // recHecho sticky — no aplicar si RTDB dice false y la fecha es futura (fue reactivado por admin)
       if (loc.recHecho === true && !r.recHecho) {
-        r = { ...r, recHecho: true };
-        if ((loc.recSnoozeHasta || 0) > (r.recSnoozeHasta || 0)) r = { ...r, recSnoozeHasta: loc.recSnoozeHasta };
+        const _hoyStr = new Date().toISOString().slice(0,10);
+        if (!r.recFecha || r.recFecha <= _hoyStr) {
+          r = { ...r, recHecho: true };
+          if ((loc.recSnoozeHasta || 0) > (r.recSnoozeHasta || 0)) r = { ...r, recSnoozeHasta: loc.recSnoozeHasta };
+        }
       }
       // sinMinimo sticky-false: si local=false y RTDB=true, preservar local
       if (loc.sinMinimo === false && r.sinMinimo === true) {
