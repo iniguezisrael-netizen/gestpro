@@ -21092,8 +21092,8 @@ function renderAgenda() {
     }
     // ── Calendar array ──────────────────────────────────────────────────────
     const _calAll = [];
-    _mySeg.forEach(c => _calAll.push({tipo:'seg',esV:segsV.includes(c),id:c.id,nombre:c.cliente||(c.ctEmpresa||''),fecha:c.recFecha||'',hora:c.recHora||'',nota:c.recNota||'',snooze:!!(c.recSnoozeHasta&&c.recSnoozeHasta>Date.now())}));
-    _myPers.filter(p=>!p.completado).forEach(p => _calAll.push({tipo:'pers',esV:persV.includes(p),id:p.id,nombre:p.titulo||'',fecha:p.fecha||'',hora:p.hora||'',nota:p.descripcion||'',snooze:!!(p.snoozeHasta&&p.snoozeHasta>Date.now())}));
+    _mySeg.forEach(c => { const _snz=c.recSnoozeHasta&&c.recSnoozeHasta>Date.now(); let _f=c.recFecha||'',_h=c.recHora||''; if(_snz){const _d=new Date(c.recSnoozeHasta);_f=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');_h=String(_d.getHours()).padStart(2,'0')+':'+String(_d.getMinutes()).padStart(2,'0');} _calAll.push({tipo:'seg',esV:segsV.includes(c),id:c.id,nombre:c.cliente||(c.ctEmpresa||''),fecha:_f,hora:_h,nota:c.recNota||'',snooze:!!_snz}); });
+    _myPers.filter(p=>!p.completado).forEach(p => { const _snz=p.snoozeHasta&&p.snoozeHasta>Date.now(); let _f=p.fecha||'',_h=p.hora||''; if(_snz){const _d=new Date(p.snoozeHasta);_f=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');_h=String(_d.getHours()).padStart(2,'0')+':'+String(_d.getMinutes()).padStart(2,'0');} _calAll.push({tipo:'pers',esV:persV.includes(p),id:p.id,nombre:p.titulo||'',fecha:_f,hora:_h,nota:p.descripcion||'',snooze:!!_snz}); });
     // ── Row builders ────────────────────────────────────────────────────────
     const _q = window._recSearchQ || '';
     function _matches(texts) {
