@@ -21159,7 +21159,7 @@ function renderAgenda() {
         const ds=fmt(d);
         const items=_calAll.filter(r=>r.fecha===ds);
         return `<div class="rec-wcell${ds===hoy?' today-col':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer">${items.map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre+(r.hora?' · '+r.hora:'')+(r.nota?' — '+r.nota:''))}" onclick="event.stopPropagation();${r.tipo==='seg'?'verCotiz('+r.id+')':'openPersonalRecModal(\''+r.id+'\')'}">
-          ${r.hora?`<b>${r.hora}</b> `:''}${esc((r.nombre||'').slice(0,20))}
+          ${r.hora?`<b>${r.hora}</b> `:''}${esc(r.nombre||'')}
         </span>`).join('')}</div>`;
       }).join('');
       const rl=days[0].toLocaleDateString('es-MX',{day:'numeric',month:'short'})+' – '+days[6].toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'});
