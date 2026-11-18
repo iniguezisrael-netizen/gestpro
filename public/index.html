@@ -21158,7 +21158,7 @@ function renderAgenda() {
       const hdr = days.map((d,i)=>`<div class="rec-wlabel">${dn[i]}<br>${d.getDate()}</div>`).join('');
       const cells = days.map(d=>{
         const ds=fmt(d);
-        const items=_calAll.filter(r=>r.fecha===ds);
+        const items=_calAll.filter(r=>r.fecha===ds).sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
         return `<div class="rec-wcell${ds===hoy?' today-col':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer">${items.map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre+(r.hora?' · '+r.hora:'')+(r.nota?' — '+r.nota:''))}" onclick="event.stopPropagation();${r.tipo==='seg'?'verCotiz('+r.id+')':'openPersonalRecModal(\''+r.id+'\')'}">
           ${r.hora?`<b>${r.hora}</b> `:''}${esc(r.nombre||'')}
         </span>`).join('')}</div>`;
@@ -21180,7 +21180,7 @@ function renderAgenda() {
       for(let i=0;i<42;i++){
         const ds=cur.toISOString().slice(0,10);
         const inM=cur.getMonth()===month,isT=ds===hoy;
-        const items=_calAll.filter(r=>r.fecha===ds);
+        const items=_calAll.filter(r=>r.fecha===ds).sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
         cells+=`<div class="rec-mcell${!inM?' other-month':''}${isT?' today-cell':''}" onclick="openPersonalRecModal(null,'${ds}')" style="cursor:pointer"><div class="rec-day-num">${cur.getDate()}</div>${items.slice(0,3).map(r=>`<span class="rec-chip" style="background:${r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed')}" title="${esc(r.nombre)}" onclick="event.stopPropagation();${r.tipo==='seg'?'verCotiz('+r.id+')':'openPersonalRecModal(\''+r.id+'\')'}">${esc((r.nombre||'').slice(0,18))}</span>`).join('')}${items.length>3?`<span style="font-size:0.6rem;color:#94a3b8">+${items.length-3} más</span>`:''}</div>`;
         cur.setDate(cur.getDate()+1);
       }
