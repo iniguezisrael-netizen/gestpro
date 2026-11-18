@@ -209,7 +209,7 @@
   .rec-wtime-col { background:var(--bg,#f8fafc);border-right:1px solid var(--border,#e2e8f0); }
   .rec-wcell { min-height:42px;border-right:1px solid var(--border,#e2e8f0);border-bottom:1px solid var(--border,#e2e8f0);padding:3px 4px;vertical-align:top;background:var(--card,#fff); }
   .rec-wcell.today-col { background:#eff6ff; }
-  .rec-wcell .rec-chip { font-size:0.68rem;border-radius:4px;padding:2px 5px;margin-bottom:2px;cursor:pointer;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff; }
+  .rec-wcell .rec-chip { font-size:0.68rem;border-radius:4px;padding:2px 5px;margin-bottom:2px;cursor:pointer;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#fff; }
   .rec-month-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border,#e2e8f0);border-radius:8px;overflow:hidden;border:1px solid var(--border,#e2e8f0); }
   .rec-mcell { background:var(--card,#fff);min-height:70px;padding:4px 5px;font-size:0.72rem; }
   .rec-mcell.other-month { background:var(--bg,#f8fafc);color:#94a3b8; }
@@ -308,6 +308,7 @@
   .modal--minimized #modal-body, .modal--minimized #modal-footer { display: none !important; }
   .modal--minimized { min-height: 0 !important; }
   #modal-body { overflow-y: scroll; overflow-x: hidden; padding: 16px 18px; flex: 1; min-height: 0; -webkit-overflow-scrolling: touch; touch-action: auto; overscroll-behavior: contain; user-select: text !important; -webkit-user-select: text !important; }
+  #modal-body * { user-select: text !important; -webkit-user-select: text !important; }
   #modal-body td:last-child { cursor: pointer; }
   @media (min-width: 600px) {
     #modal-body { padding: 20px 28px; }
@@ -11043,7 +11044,7 @@ function verCotiz(id) {
     c.ctEmpresa&&c.ctEmpresa!=='No aplica'?`<strong>Empresa:</strong> ${c.ctEmpresa}`:'',
     c.ctCiudad&&c.ctCiudad!=='No aplica'?`<strong>Ciudad:</strong> ${c.ctCiudad}${c.ctEstado&&c.ctEstado!=='No aplica'?', '+c.ctEstado:''}` :'',
     c.ctTelFijo&&c.ctTelFijo!=='No aplica'?`<strong>Tel.:</strong> ${esc(c.ctTelFijo)} <button onclick="(function(b,v){navigator.clipboard.writeText(v).then(()=>{b.textContent='✓';setTimeout(()=>{b.textContent='📋'},1500)}).catch(()=>{b.textContent='✗';})})(this,'${esc(c.ctTelFijo)}')" style="background:none;border:none;cursor:pointer;font-size:0.75rem;padding:0 3px;vertical-align:middle;color:#64748b" title="Copiar teléfono">📋</button>`:'',
-    c.ctCelular&&c.ctCelular!=='No aplica'?`<strong>Cel.:</strong> ${esc(c.ctCelular)} <button onclick="(function(b,v){navigator.clipboard.writeText(v).then(()=>{b.textContent='✓';setTimeout(()=>{b.textContent='📋'},1500)}).catch(()=>{b.textContent='✗';})})(this,'${esc(c.ctCelular)}')" style="background:none;border:none;cursor:pointer;font-size:0.75rem;padding:0 3px;vertical-align:middle;color:#64748b" title="Copiar celular">📋</button>`:'',
+    c.ctCelular&&c.ctCelular!=='No aplica'?`<strong>Cel.:</strong> <span style="user-select:all;-webkit-user-select:all;cursor:text">${esc(c.ctCelular)}</span> <button onclick="(function(b,v){navigator.clipboard.writeText(v).then(()=>{b.textContent='✓';setTimeout(()=>{b.textContent='📋'},1500)}).catch(()=>{b.textContent='✗';})})(this,'${esc(c.ctCelular)}')" style="background:none;border:none;cursor:pointer;font-size:0.75rem;padding:0 3px;vertical-align:middle;color:#64748b" title="Copiar celular">📋</button>`:'',
     c.ctRfc?`<strong>RFC:</strong> ${esc(c.ctRfc)}`:'',
     c.ctCorreo&&c.ctCorreo!=='No aplica'?`<strong>Correo:</strong> ${esc(c.ctCorreo)}`:'',
   ].filter(Boolean).join(' &nbsp;·&nbsp; ');
@@ -21185,15 +21186,28 @@ function renderAgenda() {
       }
       return `<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><button onclick="window._recMonthOff=(window._recMonthOff||0)-1;renderAgenda()" class="btn btn-outline btn-sm">‹</button><span style="font-size:0.82rem;font-weight:600;color:#64748b;text-transform:capitalize">${mn}</span><button onclick="window._recMonthOff=(window._recMonthOff||0)+1;renderAgenda()" class="btn btn-outline btn-sm">›</button>${window._recMonthOff?`<button onclick="window._recMonthOff=0;renderAgenda()" class="btn btn-outline btn-sm">Hoy</button>`:''}</div><div class="rec-month-grid">${hdrRow}${cells}</div></div>`;
     }
+    // ── Hoy ─────────────────────────────────────────────────────────────────
+    function _buildHoy() {
+      const todayItems = _calAll.filter(r => r.fecha === hoy).sort((a,b) => (a.hora||'').localeCompare(b.hora||''));
+      if (!todayItems.length) return '<div style="text-align:center;padding:40px;color:#94a3b8;font-size:0.85rem">📫 Sin recordatorios para hoy.</div>';
+      const dateLabel = new Date(hoy+'T12:00:00').toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
+      const rows = todayItems.map(r => {
+        const bg = r.tipo==='seg'?(r.snooze?'#7c3aed':r.esV?'#dc2626':'#2563eb'):(r.snooze?'#64748b':r.esV?'#dc2626':'#7c3aed');
+        const lbl = r.tipo==='seg'?'seguimiento':'personal';
+        const act = r.tipo==='seg'?`verCotiz(${r.id})`:`openPersonalRecModal('${r.id}')`;
+        return `<div style="display:flex;align-items:center;gap:10px;background:var(--card,#fff);border:1px solid var(--border,#e2e8f0);border-radius:8px;padding:10px 12px;cursor:pointer" onclick="${act}"><span style="background:${bg};color:#fff;font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:5px;white-space:nowrap;min-width:44px;text-align:center">${r.hora||'📅'}</span><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:0.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.nombre)}</div><div style="font-size:0.73rem;color:#64748b;margin-top:1px">${lbl}${r.nota?' · '+esc(r.nota.slice(0,40)):''}</div></div></div>`;
+      });
+      return `<div><div style="font-size:0.78rem;font-weight:600;color:#64748b;margin-bottom:8px;text-transform:capitalize">${dateLabel}</div><div style="display:flex;flex-direction:column;gap:6px">${rows.join('')}</div></div>`;
+    }
     // ── Render ──────────────────────────────────────────────────────────────
-    const _tab = window._recTabView || 'lista';
-    const _tabContent = _tab==='semana'?_buildSemana():_tab==='mes'?_buildMes():_listaHTML;
+    const _tab = window._recTabView || 'semana';
+    const _tabContent = _tab==='semana'?_buildSemana():_tab==='mes'?_buildMes():_buildHoy();
     const _userNameToUid = {};
     _persUsuarios.forEach(u => { _userNameToUid[u.n] = u.id; });
     const _allFilterUsers = [...new Set([..._recUsuarios,..._persUsuarios.map(u=>u.n)])].filter(n=>n!==session.nombre).sort();
     const _curFiltVal = !window._recAgAdminFilter?'':window._recAgAdminFilter===session.nombre?`${session.nombre}|${session.uid}`:`${window._recAgAdminFilter}|${window._persAdminFilter}`;
     const _adminFilter = esAdmin?`<select onchange="var p=this.value.split('|');window._recAgAdminFilter=p[0]||'';window._persAdminFilter=p[1]||'';renderAgenda()" style="font-size:0.72rem;padding:3px 7px;border:1px solid var(--border,#e2e8f0);border-radius:6px;background:var(--card,#fff);color:var(--text,#374151)"><option value="" ${!_curFiltVal?'selected':''}>🔔 Todos</option><option value="${session.nombre}|${session.uid}" ${_curFiltVal===session.nombre+'|'+session.uid?'selected':''}>Solo míos</option>${_allFilterUsers.map(n=>{const uid=_userNameToUid[n]||'';const v=n+'|'+uid;return`<option value="${v}" ${_curFiltVal===v?'selected':''}>${esc(n)}</option>`}).join('')}</select>`:'';
-    return `${_syncBanner}<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="_recSearchInput(this)" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}<div id="rec-search-dd" class="rec-search-dd" style="display:none"></div></div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='lista'?' active':''}" onclick="window._recTabView='lista';renderAgenda()">☰ Lista</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
+    return `${_syncBanner}<div class="rec-wrap"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="rec-search-bar" style="flex:1;min-width:180px"><span style="color:#94a3b8;font-size:0.8rem">🔍</span><input type="text" placeholder="Buscar recordatorio…" value="${esc(window._recSearchQ||'')}" oninput="_recSearchInput(this)" />${window._recSearchQ?`<button onclick="window._recSearchQ='';renderAgenda()" style="border:none;background:none;cursor:pointer;color:#94a3b8;font-size:0.85rem;padding:0 2px">✕</button>`:''}<div id="rec-search-dd" class="rec-search-dd" style="display:none"></div></div>${_adminFilter}<button class="btn btn-primary btn-sm" onclick="openPersonalRecModal()">+ Personal</button><button class="btn btn-outline btn-sm" onclick="navigate('cotizaciones')">Ver seguimiento</button>${segsV.length?`<button onclick="_descartarTodosRecs()" style="background:#dc2626;color:white;border:none;padding:4px 9px;font-size:0.72rem;border-radius:6px;cursor:pointer">✕ Descartar todos</button>`:''}</div><div class="rec-tabs"><button class="rec-tab${_tab==='hoy'?' active':''}" onclick="window._recTabView='hoy';renderAgenda()">📋 Hoy</button><button class="rec-tab${_tab==='semana'?' active':''}" onclick="window._recTabView='semana';renderAgenda()">📅 Semana</button><button class="rec-tab${_tab==='mes'?' active':''}" onclick="window._recTabView='mes';renderAgenda()">📆 Mes</button></div><div id="rec-tab-content">${_tabContent}</div></div>`;
   })() : `<div class="card" style="text-align:center;padding:30px;color:#94a3b8">Sin acceso a recordatorios.</div>`;
 
   if (window._recSecOpen === undefined) {
@@ -21568,7 +21582,8 @@ async function savePersonalRec(id) {
     updated = [...existing, {id:recId, titulo, fecha, hora:hora||null, descripcion:descripcion||null, imagenes:imagenes.length?imagenes:undefined, periodicidad, usuarioId:session.uid, usuarioNombre:session.nombre, completado:false, snoozeHasta:null, creadoEn:Date.now()}];
   }
   closeModal();
-  await fsWriteCollection('recordatoriosPersonales', updated);
+  db.recordatoriosPersonales = updated;
+  try { await fsWriteCollection('recordatoriosPersonales', updated); } catch(e) {}
   renderAgenda();
 }
 
