@@ -11043,8 +11043,8 @@ function verCotiz(id) {
   const ctInfo = [
     c.ctEmpresa&&c.ctEmpresa!=='No aplica'?`<strong>Empresa:</strong> ${c.ctEmpresa}`:'',
     c.ctCiudad&&c.ctCiudad!=='No aplica'?`<strong>Ciudad:</strong> ${c.ctCiudad}${c.ctEstado&&c.ctEstado!=='No aplica'?', '+c.ctEstado:''}` :'',
-    c.ctTelFijo&&c.ctTelFijo!=='No aplica'?`<strong>Tel.:</strong> ${esc(c.ctTelFijo)} <button onclick="(function(b,v){navigator.clipboard.writeText(v).then(()=>{b.textContent='✓';setTimeout(()=>{b.textContent='📋'},1500)}).catch(()=>{b.textContent='✗';})})(this,'${esc(c.ctTelFijo)}')" style="background:none;border:none;cursor:pointer;font-size:0.75rem;padding:0 3px;vertical-align:middle;color:#64748b" title="Copiar teléfono">📋</button>`:'',
-    c.ctCelular&&c.ctCelular!=='No aplica'?`<strong>Cel.:</strong> <span style="user-select:all;-webkit-user-select:all;cursor:text">${esc(c.ctCelular)}</span> <button onclick="(function(b,v){navigator.clipboard.writeText(v).then(()=>{b.textContent='✓';setTimeout(()=>{b.textContent='📋'},1500)}).catch(()=>{b.textContent='✗';})})(this,'${esc(c.ctCelular)}')" style="background:none;border:none;cursor:pointer;font-size:0.75rem;padding:0 3px;vertical-align:middle;color:#64748b" title="Copiar celular">📋</button>`:'',
+    c.ctTelFijo&&c.ctTelFijo!=='No aplica'?`<strong>Tel.:</strong> <span style="user-select:all;-webkit-user-select:all;cursor:text">${esc(c.ctTelFijo)}</span>`:'',
+    c.ctCelular&&c.ctCelular!=='No aplica'?`<strong>Cel.:</strong> <span style="user-select:all;-webkit-user-select:all;cursor:text">${esc(c.ctCelular)}</span>`:'',
     c.ctRfc?`<strong>RFC:</strong> ${esc(c.ctRfc)}`:'',
     c.ctCorreo&&c.ctCorreo!=='No aplica'?`<strong>Correo:</strong> ${esc(c.ctCorreo)}`:'',
   ].filter(Boolean).join(' &nbsp;·&nbsp; ');
