@@ -25549,10 +25549,10 @@ function logActividad(accion, detalle) {
       if (!dv) { alert('Selecciona una fecha'); return; }
       const allDay = document.getElementById('_rec-modal-allday')?.checked !== false;
       const tv = document.getElementById('_rec-modal-manual-time')?.value || '08:00';
-      const timeStr = allDay ? '08:00:00' : (tv.length === 5 ? tv + ':00' : tv);
-      const d = new Date(dv + 'T' + timeStr);
-      if (isNaN(d.getTime())) { alert('Fecha inválida'); return; }
-      cot.recSnoozeHasta = d.getTime();
+      // Mover la fecha real del recordatorio (no snooze temporal)
+      cot.recFecha = dv;
+      cot.recHora = allDay ? '' : tv;
+      cot.recSnoozeHasta = null;
     } else {
       cot.recSnoozeHasta = Date.now() + parseInt(selVal) * 60000;
     }
