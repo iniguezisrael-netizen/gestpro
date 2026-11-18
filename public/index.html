@@ -21061,7 +21061,7 @@ function renderAgenda() {
     // ── Seguimiento ─────────────────────────────────────────────────────────
     const _allSeg = (db.cotizaciones||[]).filter(c => c.recFecha && !c.recHecho);
     const _mySeg  = _allSeg.filter(c => esAdmin ? (window._recAgAdminFilter ? (c.recUsuario||c.usuario) === window._recAgAdminFilter : true) : (c.recUsuario||c.usuario) === session.nombre);
-    const _recUsuarios = esAdmin ? (db.users||[]).map(u=>u.nombre).filter(n=>n).sort() : [];
+    const _recUsuarios = esAdmin ? [...new Set([...(db.users||[]).map(u=>u.nombre), ...(_rolesParaCaja||[]).map(u=>u.nombre)].filter(n=>n))].sort() : [];
     const segsV   = _mySeg.filter(c => !(c.recSnoozeHasta && c.recSnoozeHasta > Date.now()) && (c.recFecha < hoy || (c.recFecha === hoy && (!c.recHora || c.recHora <= _nowHHMM)))).sort((a,b)=>a.recFecha.localeCompare(b.recFecha)||(a.recHora||'').localeCompare(b.recHora||''));
     const segsP   = _mySeg.filter(c => !(c.recSnoozeHasta && c.recSnoozeHasta > Date.now()) && (c.recFecha > hoy || (c.recFecha === hoy && c.recHora && c.recHora > _nowHHMM))).sort((a,b)=>a.recFecha.localeCompare(b.recFecha)||(a.recHora||'').localeCompare(b.recHora||''));
     const segsSnz = _mySeg.filter(c => c.recSnoozeHasta && c.recSnoozeHasta > Date.now()).sort((a,b)=>(a.recSnoozeHasta||0)-(b.recSnoozeHasta||0));
