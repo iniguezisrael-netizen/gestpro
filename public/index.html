@@ -7092,6 +7092,8 @@ function guardarEditPedido(id) {
   const netoEp   = subtotalEp;
   const ivaAmtEp = ivaModeEp === 'mas' ? round2(subtotalEp * 0.16) : (ivaModeEp === 'incluido' ? round2(subtotalEp - subtotalEp / 1.16) : 0);
   const total    = round2(ivaModeEp === 'mas' ? subtotalEp + ivaAmtEp : subtotalEp);
+  // Si no hay items pero el pedido tenía total previo, preservar — evita resetear saldo a $0
+  const _totalFinal = (total === 0 && !ventaItems.length && (vt.total||0) > 0) ? vt.total : total;
   if (can(['admin'])) {
     const nuevoFolio = document.getElementById('ep-folio')?.value.trim();
     if (nuevoFolio && nuevoFolio !== vt.folioPedido) {
@@ -7135,17 +7137,17 @@ function guardarEditPedido(id) {
   vt.notas       = document.getElementById('ep-notas')?.value           || '';
   vt.fotos = [..._tempFotosEp];
   vt.items = ventaItems;
-  vt.total = total;
+  vt.total = _totalFinal;
   vt.iva = ivaModeEp !== 'neto';
   vt.ivaMode = ivaModeEp;
   vt.subtotal = netoEp;
   vt.ivaAmount = ivaAmtEp;
   vt.anticipo = anticipo != null ? anticipo : 0;
-  vt.saldo = Math.max(0, total - vt.anticipo);
+  vt.saldo = Math.max(0, _totalFinal - vt.anticipo);
   // Si el total subió y ya estaba pagada, reflejar que hay saldo pendiente
   if (vt.saldo > 0 && vt.estado === 'Pagada') vt.estado = 'Pendiente';
   // Si quedó en saldo cero y no está cancelada, marcar como pagada
-  if (vt.saldo === 0 && total > 0 && vt.estado !== 'Cancelada') vt.estado = 'Pagada';
+  if (vt.saldo === 0 && _totalFinal > 0 && vt.estado !== 'Cancelada') vt.estado = 'Pagada';
   // Sincronizar estado de consignación vinculada
   (db.consignacion||[]).filter(c => String(c.ventaId) === String(vt.id))
     .forEach(c => { c.estado = vt.saldo === 0 ? 'Vendido' : 'Apartado'; });
@@ -7153,12 +7155,12 @@ function guardarEditPedido(id) {
   if (!vt._nuevaLogicaProd && vt.saldo > 0 && (vt.items||[]).some(i => i._tipo === 'productos')) vt._nuevaLogicaProd = true;
   // Descontar productos si se llega a saldo cero con nueva lógica
   if (vt._nuevaLogicaProd && vt.saldo === 0) { _descontarProdVenta(vt.items); vt._nuevaLogicaProd = false; }
-  if (ventaItems.length && total > 0) vt.pendienteCotizar = undefined;
+  if (ventaItems.length && _totalFinal > 0) vt.pendienteCotizar = undefined;
   // Sincronizar total y numFactura en cobranza si el pedido está vinculado
   if (vt.cobranzaId) {
     const cobIdx = (db.cobranza || []).findIndex(x => x.id === vt.cobranzaId);
     if (cobIdx >= 0) {
-      if (total > 0) db.cobranza[cobIdx].total = total;
+      if (_totalFinal > 0) db.cobranza[cobIdx].total = _totalFinal;
       db.cobranza[cobIdx].factura = vt.numFactura || '';
     }
   }
