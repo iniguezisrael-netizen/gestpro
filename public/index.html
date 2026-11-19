@@ -25483,12 +25483,7 @@ function logActividad(accion, detalle) {
 
   // Descartar un item individual
   window._recAbrirAgenda = function(persId) {
-    if (persId) {
-      const el = document.querySelector('[data-pers-id="'+persId+'"]');
-      if (el) el.remove();
-    }
-    const panel = document.getElementById('_rec-panel');
-    if (panel && !panel.querySelector('.rec-item')) panel.remove();
+    window._recViewingId = 'pers_' + (persId || 'new'); // guard: no tocar panel mientras modal abierto
     window._recAbrirPersId = persId || null;
     if (typeof openPersonalRecModal === 'function') openPersonalRecModal(persId);
   };
