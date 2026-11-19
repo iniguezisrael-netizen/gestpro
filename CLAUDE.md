@@ -42,6 +42,10 @@ Claude-Session: https://claude.ai/code/session_01WtkKKPFfefRpMgCMQxXHAi
 - **Antes de cualquier cambio en código: decir qué cambia y esperar confirmación**
 - Identificar causa exacta antes de proponer cualquier fix
 - Responder en español, breve y directo
+- **NUNCA usar `device_stage_files` para editar `index.html`** — el archivo es ~1.5MB y el proceso trunca el archivo
+- **Siempre editar directamente en el equipo con Python vía `device_bash`** — búsqueda exacta de texto, nunca por número de línea
+- **Antes de aplicar cualquier edición: mostrar el texto exacto que cambia (viejo → nuevo) y esperar confirmación**
+- **Después de aplicar: verificar con grep que el cambio quedó correcto y que nada más cambió**
 
 ---
 
