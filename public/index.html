@@ -17494,9 +17494,9 @@ function importarCatalogoMateriales() {
 
               aRemovidos.forEach(i => {
                 if (document.getElementById('del_p'+i.id)?.checked) {
-                  const idx = db.materia.indexOf(i); if (idx !== -1) { db.materia.splice(idx, 1); eliminados++; }
+                  const idx = db.materia.findIndex(x => x.id === i.id); if (idx !== -1) { db.materia.splice(idx, 1); eliminados++; }
                 } else {
-                  i.origen = 'manual'; movidos++;
+                  const mItem = db.materia.find(x => x.id === i.id); if (mItem) mItem.origen = 'manual'; movidos++;
                 }
               });
 
