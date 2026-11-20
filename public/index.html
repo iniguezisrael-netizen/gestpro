@@ -6205,7 +6205,7 @@ function vSelItemChange() {
   const sugs = document.getElementById('vsel-item-sugs');
   if (sugs) {
     const all = db[tipo]||[];
-    const allFiltrados = tipo==='consignacion' ? all.filter(i => (i.cantidad||0) > 0 && i.estado !== 'Vendido' && i.estado !== 'Apartado') : all;
+    const allFiltrados = tipo==='consignacion' ? all.filter(i => (i.cantidad||0) > 0 && i.estado !== 'Vendido' && i.estado !== 'Apartado') : tipo==='productos' ? all.filter(i => (i.cantidad||0) - _apartadosProd(i.id) > 0) : all;
     const matches = txt ? allFiltrados.filter(i => {
       const nom = _normSearch((tipo==='consignacion'?i.producto:i.nombre)||'');
       if (nom.includes(txt)) return true;
@@ -6220,7 +6220,7 @@ function vSelItemChange() {
     } else {
       sugs.innerHTML = matches.slice(0,50).map(i => {
         const nom = (tipo==='consignacion'?i.producto:i.nombre)||'';
-        const stk = i.cantidad||0;
+        const stk = tipo==='productos' ? (i.cantidad||0) - _apartadosProd(i.id) : i.cantidad||0;
         const foto = i.fotos && i.fotos[0] ? `<img src="${i.fotos[0]}" style="width:38px;height:32px;object-fit:cover;border-radius:5px;margin-right:8px;flex-shrink:0;border:1px solid #e2e8f0" />` : '';
         const folioTag = i.folio ? ` <span style="font-size:0.72rem;background:#f1f5f9;color:#475569;padding:1px 5px;border-radius:4px;margin-left:4px">${esc(i.folio)}</span>` : '';
         return `<div class="vsel-sug" data-nombre="${esc(nom)}" style="padding:7px 10px;cursor:pointer;font-size:0.9rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center" onmousedown="event.preventDefault()">${foto}<span>${esc(nom)}${folioTag} <span style="color:${stk>0?'#94a3b8':'#dc2626'};font-size:0.8rem">· stock: ${stk}</span>${i.unidad?' <span style="font-size:0.75rem;color:#64748b">'+esc(i.unidad)+'</span>':''}</span></div>`;
@@ -6266,7 +6266,7 @@ function vSelAddItem() {
   if (price === '' || price < 0 || isNaN(price)) { _info('Ingresa un precio válido'); return; }
   if (item) {
     if (tipo==='consignacion' && (item.cantidad||0) <= 0) { _info('❌ Este artículo ya no está disponible en consignación (stock: 0). No se puede agregar.'); return; }
-    if (qty > (item.cantidad||0)) { _info('⚠️ No hay suficiente stock ('+(item.cantidad||0)+' disponible). Se agregará el artículo de cualquier forma.'); }
+    if (tipo==='productos') { const _disp = (item.cantidad||0) - _apartadosProd(item.id); if (_disp <= 0) { _info('❌ Este producto está completamente apartado (0 disponible).'); return; } if (qty > _disp) { _info('⚠️ No hay suficiente stock ('+_disp+' disponible). Se agregará el artículo de cualquier forma.'); } } else if (tipo !== 'consignacion' && qty > (item.cantidad||0)) { _info('⚠️ No hay suficiente stock ('+(item.cantidad||0)+' disponible). Se agregará el artículo de cualquier forma.'); }
     ventaItems.push({
       producto: tipo==='consignacion'?item.producto:item.nombre,
       cantidad: qty, precio: price,
