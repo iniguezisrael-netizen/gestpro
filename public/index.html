@@ -24210,6 +24210,7 @@ setTimeout(function() { if (bgInput) bgInput.focus({preventScroll:true}); }, 100
     if (_suppressRefocus) return;
     if (document.getElementById('modal-entrega-rapida')) return;
     if (document.getElementById('modal-scan-global'))   return;
+    if (document.getElementById('modal-overlay')?.classList.contains('open')) return;
     const active = document.activeElement;
     const tag = active ? active.tagName.toLowerCase() : '';
     if (['input','textarea','select'].includes(tag) && active.id !== 'gs-bg-reader') return;
