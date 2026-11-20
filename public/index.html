@@ -25327,11 +25327,11 @@ function logActividad(accion, detalle) {
                 <button onclick="window._recDescartar('${k}',${c.id})" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Descartar</button>
               </div>
               <div style="display:flex;gap:4px;margin-top:5px">
-                <select class="_rec-item-snooze" data-key="${k}" onchange="const inp=this.closest('div').querySelector('._rec-manual-inp');if(inp)inp.style.display=this.value==='manual'?'block':'none'" style="flex:1;font-size:0.68rem;padding:3px 4px;border:1px solid #e2e8f0;border-radius:5px;background:white;color:#1e293b;min-width:0">
+                <select class="_rec-item-snooze" data-key="${k}" onchange="const w=this.closest('div').querySelector('._rec-manual-wrap');if(w)w.style.display=this.value==='manual'?'flex':'none'" style="flex:1;font-size:0.68rem;padding:3px 4px;border:1px solid #e2e8f0;border-radius:5px;background:white;color:#1e293b;min-width:0">
                   ${snoozeOpts.map(o=>`<option value="${o.val}">${o.label}</option>`).join('')}
                 </select>
                 <button data-id="${c.id}" onclick="window._recPosponer(this)" style="font-size:0.68rem;padding:3px 8px;border:none;border-radius:5px;background:#1d4ed8;color:white;cursor:pointer;white-space:nowrap">Posponer</button>
-                <input type="date" class="_rec-manual-inp" style="display:none;width:100%;font-size:0.68rem;padding:3px 4px;border:1px solid #93c5fd;border-radius:5px;margin-top:2px">
+                <div class="_rec-manual-wrap" style="display:none;flex-direction:column;gap:3px;width:100%;margin-top:2px"><input type="date" class="_rec-manual-inp" style="font-size:0.68rem;padding:3px 4px;border:1px solid #93c5fd;border-radius:5px;width:100%"><div style="display:flex;gap:4px;align-items:center"><input type="time" class="_rec-manual-time" value="08:00" style="font-size:0.68rem;padding:3px 4px;border:1px solid #93c5fd;border-radius:5px"><label style="font-size:0.68rem;color:#475569;cursor:pointer;display:flex;align-items:center;gap:3px"><input type="checkbox" class="_rec-manual-allday" checked onchange="var t=this.closest('label').previousElementSibling;if(t)t.style.display=this.checked?'none':'inline-block'"> Todo el día</label></div></div>
               </div>
             </div>
           </div>`;
@@ -25513,7 +25513,10 @@ function logActividad(accion, detalle) {
     } else if (selVal === 'manual') {
       const inp = btn.closest('.rec-item')?.querySelector('._rec-manual-inp');
       if (!inp || !inp.value) { alert('Selecciona una fecha'); return; }
-      const d = new Date(inp.value + 'T08:00:00');
+      const allDay = btn.closest('.rec-item')?.querySelector('._rec-manual-allday')?.checked !== false;
+      const tv = btn.closest('.rec-item')?.querySelector('._rec-manual-time')?.value || '08:00';
+      const timeStr = allDay ? '08:00:00' : (tv.length === 5 ? tv + ':00' : tv);
+      const d = new Date(inp.value + 'T' + timeStr);
       if (isNaN(d.getTime())) { alert('Fecha inválida'); return; }
       cot.recSnoozeHasta = d.getTime();
     } else {
