@@ -17237,7 +17237,7 @@ function _sincronizarCatalogoAMateria(items, opts) {
       if (!opts.soloFaltantes) {
         existente.precio = m.costoUnit || 0;
         existente.precioPublico = m.precioPublico || 0;
-        if (!existente.unidad) existente.unidad = m.unidad || 'pza';
+        existente.unidad = m.unidad || existente.unidad || 'pza';
         existente.origen = 'excel';
         existente.baja = false;
       }
