@@ -21754,6 +21754,14 @@ async function marcarPersonalHecho(id) {
     updated = (db.recordatoriosPersonales||[]).map(p => p.id === id ? {...p, completado:true} : p);
   }
   await fsWriteCollection('recordatoriosPersonales', updated);
+  // Limpiar guards del popup para que el item pueda desaparecer
+  if (window._recViewingId === 'pers_' + id) window._recViewingId = null;
+  if (window._recAbrirPersId === id) window._recAbrirPersId = null;
+  // Quitar el item del panel de popup si está visible
+  const _persEl = document.querySelector('[data-pers-id="'+id+'"]');
+  if (_persEl) _persEl.remove();
+  const _panel = document.getElementById('_rec-panel');
+  if (_panel && !_panel.querySelector('.rec-item')) _panel.remove();
   renderAgenda();
 }
 
