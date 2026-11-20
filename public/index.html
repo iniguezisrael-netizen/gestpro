@@ -17523,10 +17523,14 @@ function _procesarExcelFilas(rows) {
   })).filter(f => f.nombre);
   if (!filas.length) { _info('No se encontraron materiales válidos.'); return; }
   const porNombreMateria = new Map((db.materia||[]).map(i => [(i.nombre||'').toLowerCase(), i]));
+  const _nombresNuevos = new Set(filas.map(f => f.nombre.toLowerCase()));
   const aActualizar = filas.filter(f => porNombreMateria.has(f.nombre.toLowerCase()));
   const aNuevos     = filas.filter(f => !porNombreMateria.has(f.nombre.toLowerCase()));
+  const aRemovidos  = (db.materia||[]).filter(i => i.origen !== 'manual' && !i.baja && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
+  const aEliminar   = aRemovidos.filter(i => !(i.cantidad > 0));
+  const aInactivar  = aRemovidos.filter(i => i.cantidad > 0);
   showModal('📂 Importar catálogo de precios', `
-    <div style="display:flex;gap:12px;margin-bottom:12px">
+    <div style="display:flex;gap:10px;margin-bottom:12px">
       <div style="flex:1;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px;text-align:center">
         <div style="font-size:1.5rem;font-weight:800;color:#16a34a">${aActualizar.length}</div>
         <div style="font-size:0.8rem;color:#15803d">precios a actualizar</div>
@@ -17535,12 +17539,20 @@ function _procesarExcelFilas(rows) {
         <div style="font-size:1.5rem;font-weight:800;color:#2563eb">${aNuevos.length}</div>
         <div style="font-size:0.8rem;color:#1d4ed8">productos nuevos</div>
       </div>
+      <div style="flex:1;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:1.5rem;font-weight:800;color:#dc2626">${aRemovidos.length}</div>
+        <div style="font-size:0.8rem;color:#b91c1c">sin Excel</div>
+      </div>
     </div>
-    <p style="color:#64748b;font-size:0.82rem;margin-bottom:8px">Columnas detectadas: <strong>${esc(kNombre||'-')}</strong> | Costo: <strong>${esc(kCosto||'-')}</strong>${kPub?' | P. Público: <strong>'+esc(kPub)+'</strong>':''}</p>
+    <p style="color:#64748b;font-size:0.82rem;margin-bottom:8px">Columnas detectadas: <strong>${esc(kNombre||'-')}</strong> | Costo: <strong>${esc(kCosto||'-')}</strong>${kPub?' | P. Público: <strong>'+esc(kPub)+'</strong>':''} | Unidad: <strong>${kUnidad ? esc(kUnidad) : '<span style=\"color:#dc2626\">no detectada</span>'}</strong></p>
+    ${aInactivar.length > 0 ? `<div style="margin-bottom:10px;padding:10px 12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:0.82rem;color:#c2410c">
+      ⚠️ <strong>${aInactivar.length} material${aInactivar.length!==1?'es':''} con stock</strong> — no se borrará${aInactivar.length!==1?'n':''}, se marcará${aInactivar.length!==1?'n':''} inactivo${aInactivar.length!==1?'s':''}:
+      <ul style="margin:6px 0 0 16px">${aInactivar.map(i => `<li>${esc(i.nombre)} — <strong>${i.cantidad} ${esc(i.unidad||'pza')}</strong></li>`).join('')}</ul>
+    </div>` : ''}
     <div style="max-height:200px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:6px">
       <table style="width:100%;font-size:0.82rem;border-collapse:collapse">
         <thead style="background:#f8fafc;position:sticky;top:0"><tr>
-          <th style="padding:6px 8px">Material</th>
+          <th style="padding:6px 8px;text-align:left">Material</th>
           <th style="padding:6px 8px">Costo</th>
           ${kPub?'<th style="padding:6px 8px">P. Público</th>':''}
           <th style="padding:6px 8px">Acción</th>
@@ -17560,20 +17572,31 @@ function _procesarExcelFilas(rows) {
             </tr>`;
           }).join('')}
           ${filas.length>50?`<tr><td colspan="${kPub?4:3}" style="padding:6px 8px;color:#94a3b8;text-align:center">...y ${filas.length-50} más</td></tr>`:''}
+          ${aEliminar.map(i => `<tr style="border-top:1px solid #f1f5f9;background:#fff5f5">
+            <td style="padding:5px 8px"><label><input type="checkbox" id="del_${i.id}" checked style="accent-color:#dc2626"> ${esc(i.nombre)}</label></td>
+            <td>—</td>
+            ${kPub?'<td>—</td>':''}
+            <td style="padding:5px 8px"><span style="font-size:0.75rem;padding:1px 6px;border-radius:10px;font-weight:700;background:#fef2f2;color:#b91c1c">🗑️ borrar</span></td>
+          </tr>`).join('')}
+          ${aInactivar.map(i => `<tr style="border-top:1px solid #f1f5f9;background:#fffbeb">
+            <td style="padding:5px 8px"><label><input type="checkbox" id="ina_${i.id}" checked style="accent-color:#ea580c"> ${esc(i.nombre)}</label></td>
+            <td>—</td>
+            ${kPub?'<td>—</td>':''}
+            <td style="padding:5px 8px"><span style="font-size:0.75rem;padding:1px 6px;border-radius:10px;font-weight:700;background:#fff7ed;color:#c2410c">⚠️ inactivo</span></td>
+          </tr>`).join('')}
         </tbody>
       </table>
     </div>
-    <p style="font-size:0.8rem;color:#64748b;margin-top:8px">
-      Los productos existentes <strong>solo actualizarán su precio</strong>. Stock, ubicación, código de barras y fotos no se tocan.
-    </p>
+    <p style="font-size:0.8rem;color:#64748b;margin-top:8px">Los productos existentes <strong>solo actualizan precio y unidad</strong>. Stock, fotos y código de barras no se tocan.</p>
   `, [
     { label:'✅ Importar', cls:'btn-primary', action:() => {
-      let actualizados = 0, agregados = 0;
+      let actualizados = 0, agregados = 0, eliminados = 0, inactivados = 0;
       aActualizar.forEach(f => {
         const item = porNombreMateria.get(f.nombre.toLowerCase());
         if (!item) return;
         item.precio = f.costoUnit;
         if (kPub && f.precioPublico) item.precioPublico = f.precioPublico;
+        item.unidad = f.unidad || item.unidad || 'pza';
         actualizados++;
       });
       aNuevos.forEach(f => {
@@ -17583,18 +17606,29 @@ function _procesarExcelFilas(rows) {
           categoria: 'Importado Excel', ubicacion: '', cantidad: 0,
           unidad: f.unidad || 'pza', precio: f.costoUnit,
           precioPublico: f.precioPublico || 0, minimo: 5, sinMinimo: false,
-          desc: '', fotos: []
+          desc: '', fotos: [], origen: 'excel'
         };
         db.materia.push(nuevo);
         agregados++;
+      });
+      aEliminar.forEach(i => {
+        if (document.getElementById('del_'+i.id)?.checked === false) return;
+        const idx = db.materia.indexOf(i); if (idx !== -1) { db.materia.splice(idx, 1); eliminados++; }
+      });
+      aInactivar.forEach(i => {
+        if (document.getElementById('ina_'+i.id)?.checked === false) return;
+        i.baja = true; inactivados++;
       });
       saveDb('materia');
       if (!db.catalogoMateriales) db.catalogoMateriales = [];
       const catMap = new Map(db.catalogoMateriales.map(m => [(m.nombre||'').toLowerCase(), m]));
       filas.forEach(f => {
         const c = catMap.get(f.nombre.toLowerCase());
-        if (c) { c.costoUnit = f.costoUnit; if (kPub) c.precioPublico = f.precioPublico; }
-        else {
+        if (c) {
+          c.costoUnit = f.costoUnit;
+          if (kPub) c.precioPublico = f.precioPublico;
+          c.unidad = f.unidad || c.unidad || 'pza';
+        } else {
           const nc = { id: sid(), nombre: f.nombre, unidad: f.unidad||'pza', costoUnit: f.costoUnit, precioPublico: f.precioPublico||0, cantidad: 0, foto: '' };
           db.catalogoMateriales.push(nc);
           catMap.set(f.nombre.toLowerCase(), nc);
@@ -17603,7 +17637,7 @@ function _procesarExcelFilas(rows) {
       saveDb('catalogoMateriales');
       closeModal();
       renderInventario('materia');
-      _info(`✅ Importación completada:\n• ${actualizados} precio${actualizados!==1?'s':''} actualizado${actualizados!==1?'s':''}\n• ${agregados} producto${agregados!==1?'s':''} nuevo${agregados!==1?'s':''} agregado${agregados!==1?'s':''}`);
+      _info(`✅ Importación completada:\n• ${actualizados} precio${actualizados!==1?'s':''} actualizado${actualizados!==1?'s':''}\n• ${agregados} producto${agregados!==1?'s':''} nuevo${agregados!==1?'s':''} agregado${agregados!==1?'s':''}${eliminados>0?'\n• '+eliminados+' material'+(eliminados!==1?'es':'')+' eliminado'+(eliminados!==1?'s':''):''}${inactivados>0?'\n• '+inactivados+' material'+(inactivados!==1?'es':'') +' marcado'+(inactivados!==1?'s':'')+' inactivo'+(inactivados!==1?'s':''):''}`);
     }},
     { label:'Cancelar', cls:'btn-secondary', action:closeModal }
   ]);
