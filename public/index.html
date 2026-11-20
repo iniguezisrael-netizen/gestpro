@@ -10929,10 +10929,7 @@ function updateCotizItems() {
     ${cotizItems.map((i,idx) => `<tr style="border-top:1px solid var(--border)">
       <td style="padding:4px 6px"><input type="text" value="${esc(i.producto)}" style="width:100%;min-width:120px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="cotizItems[${idx}].producto=this.value" />${i.pendiente?` <span style="font-size:0.72rem;background:#fef9c3;color:#92400e;border-radius:4px;padding:1px 5px;font-weight:600">Por cotizar</span>`:''}</td>
       <td><input type="number" min="0.01" step="any" value="${i.cantidad}" style="width:60px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="_czItemQty(this,${idx})" />${i.unidad?` <span style="font-size:0.75rem;color:#64748b">${esc(i.unidad)}</span>`:''}</td>
-      <td>${i.pendiente
-        ? `<span style="font-size:0.78rem;color:#d97706;font-weight:600">Pendiente</span>`
-        : `<input type="number" min="0" step="any" value="${i.precio}" style="width:80px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;font-size:0.85rem" onchange="_czItemPrecio(this,${idx})" />`}
-      </td>
+      <td><input type="number" min="0" step="any" value="${i.pendiente ? '' : i.precio}" placeholder="${i.pendiente ? 'Precio...' : ''}" style="width:80px;padding:2px 4px;border:1px solid ${i.pendiente?'#d97706':'var(--border)'};border-radius:4px;font-size:0.85rem" onchange="_czItemPrecio(this,${idx})" /></td>
       <td style="padding:6px;font-weight:600">${i.pendiente ? '—' : '$'+fmt(i.cantidad*i.precio)}</td>
       <td><button onclick="cotizItems.splice(${idx},1);updateCotizItems()" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button></td>
     </tr>`).join('')}
@@ -24553,7 +24550,7 @@ function _pagoRecibidoInput(el){const m=parseFloat(document.getElementById('pago
 function _czFiltroRecChange(el){window._czFiltroRec=el.value;window._pgState['cotiz']=0;renderCotizaciones();}
 function _czUsuarioChange(el){window._cotizFiltroUsuario=el.value;window._pgState['cotiz']=0;renderCotizaciones(true);}
 function _czItemQty(el,idx){cotizItems[idx].cantidad=+el.value||1;updateCotizItems();}
-function _czItemPrecio(el,idx){cotizItems[idx].precio=+el.value||0;updateCotizItems();}
+function _czItemPrecio(el,idx){const _v=+el.value||0;cotizItems[idx].precio=_v;if(_v>0)cotizItems[idx].pendiente=false;updateCotizItems();}
 function _pdItemQty(el,idx){pedidoItems[idx].cantidad=+el.value||1;updatePedidoItems();}
 function _pdItemPrecio(el,idx){pedidoItems[idx].precio=+el.value||0;updatePedidoItems();}
 function _repItemQty(el,idx){repItems[idx].qty=+el.value||1;renderRepItems();calcTotalRep();}
