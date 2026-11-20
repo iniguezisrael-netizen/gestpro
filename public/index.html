@@ -5333,6 +5333,51 @@ function _descontarProdVenta(vtItems) {
   });
 }
 
+// Descuenta materia prima al entregar (solo Entregado, no Pagada)
+function _descontarMateriaVenta(vt) {
+  if (vt._materiaDescontada) return;
+  let hubo = false;
+  (vt.items||[]).forEach(it => {
+    if (it._tipo !== 'materia' || it._itemId == null) return;
+    const mat = (db.materia||[]).find(x => String(x.id) === String(it._itemId));
+    if (!mat || mat.cantidad == null) return;
+    mat.cantidad = Math.max(0, mat.cantidad - (it.cantidad||1));
+    hubo = true;
+    if (FIREBASE_ENABLED && firestore) {
+      firestore.collection('materia').doc(String(mat.id))
+        .update({ cantidad: mat.cantidad })
+        .catch(e => console.warn('[stock] No se pudo actualizar materia:', mat.id, e));
+    }
+  });
+  if (hubo) vt._materiaDescontada = true;
+}
+
+// Regresa stock al cancelar (productos y materia si ya fueron descontados)
+function _regresarStockCancel(vt) {
+  if (vt._nuevaLogicaProd === false) {
+    (vt.items||[]).forEach(it => {
+      if (it._tipo !== 'productos' || it._itemId == null) return;
+      const prod = (db.productos||[]).find(x => String(x.id) === String(it._itemId));
+      if (prod && prod.cantidad != null) {
+        prod.cantidad = (prod.cantidad||0) + (it.cantidad||1);
+        if (FIREBASE_ENABLED && firestore) firestore.collection('productos').doc(String(prod.id)).update({ cantidad: prod.cantidad }).catch(() => {});
+      }
+    });
+    vt._nuevaLogicaProd = true;
+  }
+  if (vt._materiaDescontada) {
+    (vt.items||[]).forEach(it => {
+      if (it._tipo !== 'materia' || it._itemId == null) return;
+      const mat = (db.materia||[]).find(x => String(x.id) === String(it._itemId));
+      if (mat && mat.cantidad != null) {
+        mat.cantidad = (mat.cantidad||0) + (it.cantidad||1);
+        if (FIREBASE_ENABLED && firestore) firestore.collection('materia').doc(String(mat.id)).update({ cantidad: mat.cantidad }).catch(() => {});
+      }
+    });
+    vt._materiaDescontada = false;
+  }
+}
+
 // Corrige manualmente el stock de una venta ya pagada (uso admin)
 function _corregirStockVenta(vtId) {
   if (!can(['admin'])) return;
@@ -5804,7 +5849,8 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
             const _ciAdm = (db.consignacion||[]).find(c=>String(c.ventaId)===String(vt.id));
             if (_ciAdm) _ciAdm.estado = 'Vendido';
             if (vt._nuevaLogicaProd !== false) { _descontarProdVenta(vt.items); vt._nuevaLogicaProd = false; }
-            saveDb(['ventas','consignacion','productos']);
+            _descontarMateriaVenta(vt);
+            saveDb(['ventas','consignacion','productos','materia']);
             showToast(`✅ ${vt.folioPedido||('#'+vt.id)} → Entregado`);
             renderVentas();
           }},
@@ -5853,6 +5899,11 @@ function _cambiarEstadoVtInline(id, nuevoEstado) {
   if (nuevoEstado === 'Entregado' && vt._nuevaLogicaProd !== false) {
     _descontarProdVenta(vt.items);
     vt._nuevaLogicaProd = false;
+  }
+  // Descontar materia prima al entregar
+  if (nuevoEstado === 'Entregado') {
+    _descontarMateriaVenta(vt);
+    if (!_colsSave.includes('materia')) _colsSave.push('materia');
   }
   // Sincronizar flag de Entrega de Insumos con el estado del pedido
   if (nuevoEstado === 'Entregado') {
@@ -9466,10 +9517,11 @@ function cancelarVenta(id) {
   if (vt.estado === 'Cancelada') { _info('Esta venta ya está cancelada.'); return; }
 
   const _doCancelar = (autorizadoPor) => {
+    _regresarStockCancel(vt);
     vt.estado = 'Cancelada';
     vt.canceladaPor = autorizadoPor || session.nombre;
     vt.canceladaFecha = today();
-    saveDb('ventas'); renderVentas();
+    saveDb(['ventas','productos','materia']); renderVentas();
     closeModal();
     setTimeout(() => _procesarDevolucionCajaCancel(vt), 200);
   };
@@ -9526,10 +9578,11 @@ async function confirmarCancelConPass(id) {
     if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Usuario o contraseña incorrectos'; }
     return;
   }
+  _regresarStockCancel(vt);
   vt.estado = 'Cancelada';
   vt.canceladaPor = `${esc(session.nombre)} (auth: ${adminLogin})`;
   vt.canceladaFecha = today();
-  saveDb('ventas'); renderVentas();
+  saveDb(['ventas','productos','materia']); renderVentas();
   closeModal();
   setTimeout(() => _procesarDevolucionCajaCancel(vt), 200);
 }
