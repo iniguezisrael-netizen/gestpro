@@ -17351,7 +17351,7 @@ function importarCatalogoMateriales() {
           const aActualizar = filas.filter(f => porNombreMateria.has(f.nombre.toLowerCase()));
           const aNuevos     = filas.filter(f => !porNombreMateria.has(f.nombre.toLowerCase()));
           const _nombresNuevos = new Set(filas.map(f => f.nombre.toLowerCase()));
-          const aRemovidos  = (db.materia||[]).filter(i => i.origen==='excel' && !i.baja && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
+          const aRemovidos  = (db.materia||[]).filter(i => i.origen !== 'manual' && !i.baja && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
 
           showModal('📂 Importar catálogo de precios', `
             <div style="display:flex;gap:12px;margin-bottom:12px">
@@ -17405,6 +17405,9 @@ function importarCatalogoMateriales() {
                 if (!item) return;
                 item.precio = f.costoUnit;
                 if (kPub && f.precioPublico) item.precioPublico = f.precioPublico;
+                item.unidad = f.unidad || item.unidad || 'pza';
+                if (!item.origen) item.origen = 'excel';
+                item.baja = false;
                 actualizados++;
               });
 
