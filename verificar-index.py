@@ -53,6 +53,18 @@ TEXTOS_UNICOS = [
     "FIRESTORE_WRITE_ENABLED",
 ]
 
+# Fragmentos que verifican fixes específicos — si desaparecen, el fix fue sobreescrito
+PATRONES_FIXES = [
+    # Fix: _gsRefocus no roba foco con modal-overlay abierto (selección de texto en modales)
+    "modal-overlay')?.classList.contains('open')) return;",
+    # Fix: búsqueda Nueva Venta filtra productos sin disponibles
+    "tipo==='productos' ? all.filter(i => (i.cantidad||0) - _apartadosProd(i.id) > 0)",
+    # Fix: dropdown muestra stock disponible, no total
+    "tipo==='productos' ? (i.cantidad||0) - _apartadosProd(i.id) : i.cantidad||0;",
+    # Fix: vSelAddItem bloquea agregar producto 100% apartado
+    "_disp = (item.cantidad||0) - _apartadosProd(item.id)",
+]
+
 errores = []
 advertencias = []
 
@@ -86,6 +98,14 @@ if faltantes_ui:
         errores.append(f"Texto de UI ausente: '{t}'")
 else:
     print(f"✅ Textos de UI: todos presentes ({len(TEXTOS_UNICOS)})")
+
+# 3b. Verificar que los fixes específicos siguen intactos
+faltantes_fixes = [p for p in PATRONES_FIXES if p not in contenido]
+if faltantes_fixes:
+    for p in faltantes_fixes:
+        errores.append(f"Fix sobreescrito o ausente: '{p[:60]}...'")
+else:
+    print(f"✅ Fixes críticos: todos presentes ({len(PATRONES_FIXES)})")
 
 # 4. Verificar que no haya tags HTML rotos al final del archivo
 ultimas = contenido.rstrip()[-200:]
