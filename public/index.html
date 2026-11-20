@@ -21118,9 +21118,10 @@ function renderAgenda() {
     const _persUsuariosMap = {};
     _allPers.forEach(p => { if (p.usuarioId && !_persUsuariosMap[p.usuarioId]) _persUsuariosMap[p.usuarioId] = p.usuarioNombre||p.usuarioId; });
     const _persUsuarios = Object.entries(_persUsuariosMap).map(([id,n]) => ({id,n}));
-    const persV   = _myPers.filter(p => !p.completado && !(p.snoozeHasta && p.snoozeHasta > Date.now()) && p.fecha && (p.fecha < hoy || (p.fecha === hoy && (!p.hora || p.hora <= _nowHHMM)))).sort((a,b)=>a.fecha.localeCompare(b.fecha)||(a.hora||'').localeCompare(b.hora||''));
-    const persP   = _myPers.filter(p => !p.completado && !(p.snoozeHasta && p.snoozeHasta > Date.now()) && p.fecha && (p.fecha > hoy || (p.fecha === hoy && p.hora && p.hora > _nowHHMM))).sort((a,b)=>a.fecha.localeCompare(b.fecha)||(a.hora||'').localeCompare(b.hora||''));
-    const persSnz = _myPers.filter(p => !p.completado && p.snoozeHasta && p.snoozeHasta > Date.now()).sort((a,b)=>(a.snoozeHasta||0)-(b.snoozeHasta||0));
+    const persV   = _myPers.filter(p => !p.completado && !p.atendido && !(p.snoozeHasta && p.snoozeHasta > Date.now()) && p.fecha && (p.fecha < hoy || (p.fecha === hoy && (!p.hora || p.hora <= _nowHHMM)))).sort((a,b)=>a.fecha.localeCompare(b.fecha)||(a.hora||'').localeCompare(b.hora||''));
+    const persP   = _myPers.filter(p => !p.completado && !p.atendido && !(p.snoozeHasta && p.snoozeHasta > Date.now()) && p.fecha && (p.fecha > hoy || (p.fecha === hoy && p.hora && p.hora > _nowHHMM))).sort((a,b)=>a.fecha.localeCompare(b.fecha)||(a.hora||'').localeCompare(b.hora||''));
+    const persSnz = _myPers.filter(p => !p.completado && !p.atendido && p.snoozeHasta && p.snoozeHasta > Date.now()).sort((a,b)=>(a.snoozeHasta||0)-(b.snoozeHasta||0));
+    const persAtendidos = _myPers.filter(p => !p.completado && p.atendido).sort((a,b)=>a.fecha.localeCompare(b.fecha));
     window._recPendCounts = {v: segsV.length + persV.length, p: segsP.length + persP.length};
     // ── Helpers ─────────────────────────────────────────────────────────────
     function _fmtSnz(ts) {
@@ -21193,11 +21194,16 @@ function renderAgenda() {
       ...segsSnz.map(c=>({ts:c.recSnoozeHasta||0,html:_segRowSnz(c)})),
       ...persSnz.map(p=>({ts:p.snoozeHasta||0,html:_persRow(p,'s')}))
     ].sort((a,b)=>a.ts-b.ts).map(x=>x.html);
-    const _listaBuilt = (segsV.length||persV.length||_proxRows.length||_pospRows.length)
+    const _persAtendidosRows = persAtendidos.map(p => {
+      const _fechaStr = p.fecha ? `<span style="font-size:0.72rem;color:#94a3b8">${fechaLarga ? fechaLarga(p.fecha) : p.fecha}</span>` : '';
+      return `<div class="rec-row" style="opacity:0.45"><div class="rec-stripe" style="background:#94a3b8"></div><div class="rec-body"><div class="rec-title" style="text-decoration:line-through;color:#94a3b8">📌 ${esc(p.titulo||'Sin título')}</div><div class="rec-meta">${_fechaStr}${p.descripcion?' — '+esc(p.descripcion):''}</div></div><div class="rec-actions"><button class="btn btn-outline btn-sm" onclick="openPersonalRecModal('${p.id}')" title="Editar / Nueva fecha" style="font-size:0.68rem;opacity:0.7">✏️</button></div></div>`;
+    });
+    const _listaBuilt = (segsV.length||persV.length||_proxRows.length||_pospRows.length||_persAtendidosRows.length)
       ? [
         _grp('Vencidos','#dc2626',[...segsV.map(c=>_segRowV(c)),...persV.map(p=>_persRow(p,'v'))],true),
         _grp('Próximos','#2563eb',_proxRows,segsV.length===0&&persV.length===0),
-        _grp('Pospuestos','#7c3aed',_pospRows,false)
+        _grp('Pospuestos','#7c3aed',_pospRows,false),
+        _persAtendidosRows.length ? _grp('Atendidos','#94a3b8',_persAtendidosRows,false) : ''
       ].filter(Boolean).join('')
       : '';
     const _listaHTML = _listaBuilt
@@ -21556,7 +21562,7 @@ function openPersonalRecModal(id, defaultFecha) {
         </select>
         <div id="_rec-pers-manual-wrap" style="display:none;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px"><input type="date" id="_rec-pers-manual-date" style="font-size:0.78rem;padding:4px 6px;border:1px solid #93c5fd;border-radius:6px"><input type="time" id="_rec-pers-manual-time" value="08:00" style="display:none;font-size:0.78rem;padding:4px 6px;border:1px solid #93c5fd;border-radius:6px"><label style="font-size:0.76rem;color:#475569;cursor:pointer;display:flex;align-items:center;gap:4px"><input type="checkbox" id="_rec-pers-allday" checked onchange="var ti=document.getElementById('_rec-pers-manual-time');if(ti)ti.style.display=this.checked?'none':'inline-block'">Todo el día</label></div>
         <button onclick="window._recPosponerPersModal('${id}')" style="font-size:0.78rem;padding:5px 12px;background:#1d4ed8;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;white-space:nowrap">⏰ Posponer</button>
-        <button onclick="if(typeof window._recDescartarPers==='function')window._recDescartarPers('${id}');else{const el=document.querySelector('[data-pers-id=\'${id}\']');if(el)el.remove();const pn=document.getElementById('_rec-panel');if(pn&&!pn.querySelector('.rec-item'))pn.remove()};closeModal()" style="font-size:0.78rem;padding:5px 12px;background:white;color:#64748b;border:1.5px solid #cbd5e1;border-radius:6px;cursor:pointer;white-space:nowrap">Descartar</button>
+        <button onclick="descartarPersonalRec('${id}');closeModal()" style="font-size:0.78rem;padding:5px 12px;background:white;color:#64748b;border:1.5px solid #cbd5e1;border-radius:6px;cursor:pointer;white-space:nowrap">Descartar</button>
       </div>
     </div>`;
   })() : '';
@@ -21719,7 +21725,12 @@ async function savePersonalRec(id) {
   const existing = db.recordatoriosPersonales || [];
   let updated;
   if (id) {
-    updated = existing.map(p => p.id === id ? {...p, titulo, fecha, hora:hora||null, descripcion:descripcion||null, imagenes:imagenes.length?imagenes:undefined, periodicidad} : p);
+    updated = existing.map(p => {
+      if (p.id !== id) return p;
+      // Si tenía atendido:true y cambió la fecha u hora → resetear para que vuelva al popup
+      const _limpiarAtendido = p.atendido && (fecha !== p.fecha || (hora||null) !== (p.hora||null));
+      return {...p, titulo, fecha, hora:hora||null, descripcion:descripcion||null, imagenes:imagenes.length?imagenes:undefined, periodicidad, atendido: _limpiarAtendido ? false : (p.atendido||false)};
+    });
   } else {
     updated = [...existing, {id:recId, titulo, fecha, hora:hora||null, descripcion:descripcion||null, imagenes:imagenes.length?imagenes:undefined, periodicidad, usuarioId:session.uid, usuarioNombre:session.nombre, completado:false, snoozeHasta:null, creadoEn:Date.now()}];
   }
@@ -21762,6 +21773,20 @@ async function marcarPersonalHecho(id) {
   if (_persEl) _persEl.remove();
   const _panel = document.getElementById('_rec-panel');
   if (_panel && !_panel.querySelector('.rec-item')) _panel.remove();
+  renderAgenda();
+}
+
+async function descartarPersonalRec(id) {
+  const updated = (db.recordatoriosPersonales||[]).map(p => p.id === id ? {...p, atendido:true} : p);
+  db.recordatoriosPersonales = updated;
+  try { save('gp_recordatoriosPersonales', updated); } catch(e) {}
+  try { await fsWriteCollection('recordatoriosPersonales', updated); } catch(e) {}
+  if (window._recViewingId === 'pers_' + id) window._recViewingId = null;
+  if (window._recAbrirPersId === id) window._recAbrirPersId = null;
+  const _el = document.querySelector('[data-pers-id="'+id+'"]');
+  if (_el) _el.remove();
+  const _pn = document.getElementById('_rec-panel');
+  if (_pn && !_pn.querySelector('.rec-item')) _pn.remove();
   renderAgenda();
 }
 
@@ -25191,7 +25216,7 @@ function logActividad(accion, detalle) {
     const _nowHM = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
     const _myUid = session.uid;
     const _persVenc = (db.recordatoriosPersonales||[]).filter(p => {
-      if (p.completado || p.usuarioId !== _myUid) return false;
+      if (p.completado || p.atendido || p.usuarioId !== _myUid) return false;
       try { const _s = _getSnooze(); if (_s['pers_' + p.id] && _s['pers_' + p.id] > Date.now()) return false; } catch(e) {}
       if (p.snoozeHasta && p.snoozeHasta > Date.now()) return false;
       return p.fecha && (p.fecha < _hoyStr || (p.fecha === _hoyStr && (!p.hora || p.hora <= _nowHM)));
@@ -25261,7 +25286,7 @@ function logActividad(accion, detalle) {
     const _popupHoy = (typeof today==='function') ? today() : new Date().toISOString().slice(0,10);
     const _popupHM = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
     const _popupPersV = (db.recordatoriosPersonales||[]).filter(p => {
-      if (p.completado || p.usuarioId !== session.uid) return false;
+      if (p.completado || p.atendido || p.usuarioId !== session.uid) return false;
       try { const _s = _getSnooze(); if (_s['pers_' + p.id] && _s['pers_' + p.id] > Date.now()) return false; } catch(e) {}
       if (p.snoozeHasta && p.snoozeHasta > Date.now()) return false;
       return p.fecha && (p.fecha < _popupHoy || (p.fecha === _popupHoy && (!p.hora || p.hora <= _popupHM)));
@@ -25328,7 +25353,7 @@ function logActividad(accion, detalle) {
               ${p.descripcion ? `<div style="font-size:0.76rem;color:#475569;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.descripcion)}</div>` : ''}
               <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
                 <button onclick="window._recAbrirAgenda('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#1e293b;cursor:pointer">Abrir</button>
-                <button onclick="window._recDescartarPers('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Descartar</button>
+                <button onclick="descartarPersonalRec('${p.id}')" style="font-size:0.7rem;padding:2px 8px;border:1px solid #fca5a5;border-radius:5px;background:#fff5f5;color:#dc2626;cursor:pointer">Descartar</button>
               </div>
               <div style="display:flex;gap:4px;margin-top:5px">
                 <select class="_rec-pers-snooze" data-pers-id="${p.id}" style="flex:1;font-size:0.68rem;padding:3px 4px;border:1px solid #e2e8f0;border-radius:5px;background:white;color:#1e293b;min-width:0">
