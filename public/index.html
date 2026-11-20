@@ -25634,6 +25634,14 @@ function logActividad(accion, detalle) {
     const banner = document.getElementById('_rec-modal-banner');
     if (banner) { banner.innerHTML = `<span style="color:#1d4ed8;font-size:0.83rem">⏰ Recordatorio pospuesto.</span>`; }
     setTimeout(() => closeModal(), 600);
+    setTimeout(() => {
+      window._recViewingId = null;
+      window._recAbrirCotizId = null;
+      const _pEl = document.querySelector('#_rec-panel [data-id="'+id+'"]');
+      if (_pEl) _pEl.remove();
+      const _pp = document.getElementById('_rec-panel');
+      if (_pp && !_pp.querySelector('.rec-item')) _pp.remove();
+    }, 650);
   };
 
   // Marcar como hecho desde el modal de cotización
@@ -25662,6 +25670,14 @@ function logActividad(accion, detalle) {
     const banner = document.getElementById('_rec-pers-banner');
     if (banner) banner.innerHTML = `<span style="color:#1d4ed8;font-size:0.83rem">⏰ Recordatorio pospuesto.</span>`;
     setTimeout(() => closeModal(), 600);
+    setTimeout(() => {
+      if (window._recViewingId === 'pers_' + id) window._recViewingId = null;
+      if (window._recAbrirPersId === id) window._recAbrirPersId = null;
+      const _pEl = document.querySelector('#_rec-panel [data-pers-id="'+id+'"]');
+      if (_pEl) _pEl.remove();
+      const _pp = document.getElementById('_rec-panel');
+      if (_pp && !_pp.querySelector('.rec-item')) _pp.remove();
+    }, 650);
   };
 
   window._recDescartarModal = function(id) {
