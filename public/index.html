@@ -4338,6 +4338,8 @@ function openItemModal(tipo, id) {
             ${Array.from(new Set((db['materia']||[]).map(i=>i.categoria).filter(Boolean))).sort().map(c=>`<option value="${esc(c.replace(/"/g,'&quot;'))}">`).join('')}
           </datalist>
         </div>
+        <div class="form-group"><label>📍 Bodega</label><input id="m-ubicacion" value="${esc(item ? (item.ubicacion||'') : '')}" placeholder="Ej. Bodega Ventanería, Almacén Principal" /></div>
+        <div class="form-group"><label>🗄️ Rack</label><input id="m-estante" value="${esc(item ? (item.estante||'') : '')}" placeholder="Ej. E-3, Nivel 2" /></div>
         
         </div>
       </div>
@@ -19218,7 +19220,8 @@ function verDetalleMateria(id) {
       ${fila('Cód. Barras', `<code style="font-size:0.78rem">${esc(item.barcode||'—')}</code>`)}
       ${fila('Categoría', esc(item.categoria))}
       ${fila('Cantidad', `${item.cantidad ?? '—'} ${esc(item.unidad||'')}`)}
-      ${fila('Ubicación', esc(item.ubicacion))}
+      ${fila('Bodega', esc(item.ubicacion))}
+      ${fila('Rack', esc(item.estante))}
       ${verCosto ? fila('Precio costo', `$${fmt(item.precio||0)}`) : ''}
       ${verPrecio ? fila('Precio público', `<span style="color:var(--primary);font-size:1rem">$${fmt(item.precioPublico||0)}</span>`) : ''}
       ${fila('Stock mínimo', item.sinMinimo ? 'Sin mínimo' : `${item.minimo ?? '—'}`)}
