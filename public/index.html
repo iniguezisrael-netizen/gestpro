@@ -4362,12 +4362,22 @@ function openItemModal(tipo, id) {
 `}
 
     ${tipo === 'materia' && session.rol === 'admin' ? `
-    <div class="form-group"><label>Empresa / Proveedor</label><input id="m-empresa" value="${esc(item&&item.empresa?item.empresa:'')}" placeholder="Nombre del proveedor (opcional)" /></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="form-group"><label>Vendedor / Contacto</label><input id="m-vendedor" value="${esc(item&&item.vendedor?item.vendedor:'')}" placeholder="Nombre del vendedor" /></div>
-      <div class="form-group"><label>Tel. Fijo</label><input id="m-tel" value="${esc(item&&item.tel?item.tel:'')}" placeholder="Tel. oficina" /></div>
+    <div>
+      <button type="button" onclick="_toggleMProveedor()"
+        style="display:flex;align-items:center;gap:7px;width:100%;padding:9px 12px;background:var(--bg-light,#f8fafc);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--text-light);text-align:left">
+        <span>🏭</span><span>Datos del proveedor</span>
+        <span style="font-size:0.75rem;font-weight:400;opacity:.7;margin-left:2px">empresa, vendedor, teléfono</span>
+        <span id="m-prov-arrow" style="margin-left:auto;font-size:0.75rem;transition:transform .2s">▾</span>
+      </button>
+      <div id="m-prov-body" style="display:${item&&(item.empresa||item.vendedor||item.tel||item.cel)?'block':'none'};padding-top:10px">
+        <div class="form-group"><label>Empresa / Proveedor</label><input id="m-empresa" value="${esc(item&&item.empresa?item.empresa:'')}" placeholder="Nombre del proveedor (opcional)" /></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label>Vendedor / Contacto</label><input id="m-vendedor" value="${esc(item&&item.vendedor?item.vendedor:'')}" placeholder="Nombre del vendedor" /></div>
+          <div class="form-group"><label>Tel. Fijo</label><input id="m-tel" value="${esc(item&&item.tel?item.tel:'')}" placeholder="Tel. oficina" /></div>
+        </div>
+        <div class="form-group"><label>Celular</label><input id="m-cel" value="${esc(item&&item.cel?item.cel:'')}" placeholder="Cel. del contacto" /></div>
+      </div>
     </div>
-    <div class="form-group"><label>Celular</label><input id="m-cel" value="${esc(item&&item.cel?item.cel:'')}" placeholder="Cel. del contacto" /></div>
     ` : ''}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label>Cantidad</label><input id="m-cantidad" type="number" value="${esc(item ? item.cantidad : 0)}" min="${tipo === 'productos' && item && session.rol !== 'admin' ? item.cantidad : 0}" />
@@ -18263,6 +18273,14 @@ function _toggleMDetalles() {
   body.style.display = isOpen ? 'none' : 'flex';
   body.style.flexDirection = 'column';
   body.style.gap = '10px';
+  if (arrow) arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+function _toggleMProveedor() {
+  const body = document.getElementById('m-prov-body');
+  const arrow = document.getElementById('m-prov-arrow');
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
   if (arrow) arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
 }
 
