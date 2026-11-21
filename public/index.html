@@ -17681,12 +17681,12 @@ function _mostrarModalPwdExcel(arrayBuffer) {
   showModal('🔒 Excel protegido con contraseña', `
     <p style="margin-bottom:12px;color:#64748b;font-size:0.9rem">Este archivo Excel está protegido con contraseña. Ingrésala para continuar.</p>
     <div style="position:relative">
-      <input id="excel-pwd-input" type="password" placeholder="Contraseña del Excel"
+      <input id="excel-pwd-input" type="password" placeholder="Contraseña del Excel" autofocus
         style="width:100%;box-sizing:border-box;padding:9px 38px 9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.95rem"
         onkeydown="if(event.key==='Enter'){document.getElementById('excel-pwd-btn').click();}" />
       <button id="excel-pwd-eye" type="button"
         style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;padding:2px 4px;color:#64748b"
-        onclick="(function(){const i=document.getElementById('excel-pwd-input');const b=document.getElementById('excel-pwd-eye');if(i.type==='password'){i.type='text';b.textContent='🙈';}else{i.type='password';b.textContent='👁';}})()">👁</button>
+        onclick="(function(){const i=document.getElementById('excel-pwd-input');const b=document.getElementById('excel-pwd-eye');if(i.type==='password'){i.type='text';b.textContent='🙈';}else{i.type='password';b.textContent='👁';}i.focus();})()">👁</button>
     </div>
     <div id="excel-pwd-err" style="color:#dc2626;font-size:0.82rem;margin-top:6px;display:none"></div>
   `, [
