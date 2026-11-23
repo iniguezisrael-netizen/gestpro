@@ -4206,7 +4206,7 @@ function renderInventario(tipo, _tab, _skipSync) {
           ${tipo === 'materia' ? '<th>Código</th>' : ''}
           ${tipo === 'materia' ? '<th>Cód. Barras</th>' : '<th style="cursor:pointer;user-select:none" onclick="_filtrarCatClick(this,\'tbl-'+tipo+'\')" title="Filtrar por categoría">Categoría ▾</th>'}
           ${verCantidad ? `<th>${tipo === 'productos' ? 'En stock' : tipo === 'materia' ? 'Unidad' : 'Cantidad'}</th>` : ''}
-          ${tipo === 'materia' ? '<th>Empaque</th>' : ''}
+          
           ${tipo === 'productos' ? '<th style="text-align:center">Apartados</th><th style="text-align:center">Disponibles</th>' : ''}
           ${verCostos && tipo !== 'productos' ? (window._invCostoVisible
               ? `<th id="inv-th-costo" style="cursor:pointer;white-space:nowrap;user-select:none" onclick="_toggleInvCosto()" title="Ocultar precio de costo">Costo 👁</th>`
@@ -4237,7 +4237,7 @@ function renderInventario(tipo, _tab, _skipSync) {
             ${tipo === 'materia' ? `<td><code style="font-size:0.78rem">${esc(i.codigo||'-')}</code></td>` : ''}
             ${tipo === 'materia' ? `<td><code style="font-size:0.78rem">${esc(i.barcode||'-')}</code></td>` : `<td style="cursor:pointer;color:var(--primary);font-weight:500" onclick="_filtrarCatClick(this,'tbl-'+tipo)" title="Filtrar por esta categoría">${esc(i.categoria)}</td>`}
             ${verCantidad ? `<td><strong>${i.cantidad ?? 0}</strong> ${esc(i.unidad)}</td>` : ''}
-            ${tipo === 'materia' ? '<td>' + (i.empaqueFactor > 0 ? '<strong>' + Math.floor(i.cantidad / i.empaqueFactor) + '</strong> <span style="font-size:0.8rem;color:var(--text-light,#64748b)">' + esc(i.empaqueDesc || '') + '</span>' + (i.cantidad % i.empaqueFactor ? ' <span style="font-size:0.75rem;color:#94a3b8">(+' + (i.cantidad % i.empaqueFactor) + ' ' + esc(i.unidad) + ')</span>' : '') : '<span style="color:#94a3b8;font-size:0.8rem">—</span>') + '</td>' : ''}
+
             ${tipo === 'productos' ? `
               <td style="text-align:center">${_apt > 0 ? `<span style="font-weight:600;color:#b45309">${_apt}</span>` : '<span style="color:#94a3b8">—</span>'}</td>
               <td style="text-align:center"><strong style="color:${_disp===0?'#dc2626':_disp<=1?'#b45309':'#059669'}">${_disp}</strong></td>` : ''}
@@ -5366,6 +5366,9 @@ function _descontarMateriaVenta(vt) {
 
 // Regresa stock al cancelar (productos y materia si ya fueron descontados)
 function _regresarStockCancel(vt) {
+  // Regresar consignación vinculada a Disponible al cancelar
+  (db.consignacion||[]).filter(c => String(c.ventaId) === String(vt.id))
+    .forEach(c => { c.estado = 'Disponible'; c.ventaId = null; });
   if (vt._nuevaLogicaProd === false) {
     (vt.items||[]).forEach(it => {
       if (it._tipo !== 'productos' || it._itemId == null) return;
@@ -6679,11 +6682,11 @@ function saveVenta() {
   ventaItems.forEach(i => {
     if (i._itemId != null) {
       const item = (db[i._tipo]||[]).find(x=>x.id===i._itemId);
-      if (item && item.cantidad != null) {
-        if (i._tipo === 'consignacion') {
-          item.estado = saldo === 0 ? 'Vendido' : 'Apartado';
-          item.ventaId = nuevoId;
-        } else if (i._tipo === 'productos') {
+      if (i._tipo === 'consignacion') {
+        item.estado = saldo === 0 ? 'Vendido' : 'Apartado';
+        item.ventaId = nuevoId;
+      } else if (item && item.cantidad != null) {
+        if (i._tipo === 'productos') {
           if (saldo === 0) item.cantidad = Math.max(0, item.cantidad - i.cantidad);
           else _tieneProductosPendientes = true;
         } else {
@@ -9533,7 +9536,7 @@ function cancelarVenta(id) {
     vt.estado = 'Cancelada';
     vt.canceladaPor = autorizadoPor || session.nombre;
     vt.canceladaFecha = today();
-    saveDb(['ventas','productos','materia']); renderVentas();
+    saveDb(['ventas','productos','materia','consignacion']); renderVentas();
     closeModal();
     setTimeout(() => _procesarDevolucionCajaCancel(vt), 200);
   };
@@ -13450,12 +13453,11 @@ function saveVentaCaja() {
       if (r) r.cobrada = true;
     } else if (i._itemId != null) {
       const item = (db[i._tipo]||[]).find(x=>x.id===i._itemId);
-      if (item && item.cantidad != null) {
+      if (i._tipo === 'consignacion') {
+        item.estado = 'Vendido'; // venta de caja siempre es pago completo
+        item.ventaId = venta.id;
+      } else if (item && item.cantidad != null) {
         item.cantidad = Math.max(0, item.cantidad - i.cantidad);
-        if (i._tipo === 'consignacion') {
-          item.estado = 'Vendido'; // venta de caja siempre es pago completo
-          item.ventaId = venta.id;
-        }
       }
     }
   });
@@ -13518,11 +13520,11 @@ function saveVentaDesdeCAja() {
   ventaItems.forEach(i => {
     if (i._itemId != null) {
       const item = (db[i._tipo] || []).find(x => x.id === i._itemId);
-      if (item && item.cantidad != null) {
-        if (i._tipo === 'consignacion') {
-          item.estado = saldo === 0 ? 'Vendido' : 'Apartado';
-          item.ventaId = nuevoId;
-        } else if (i._tipo === 'productos') {
+      if (i._tipo === 'consignacion') {
+        item.estado = saldo === 0 ? 'Vendido' : 'Apartado';
+        item.ventaId = nuevoId;
+      } else if (item && item.cantidad != null) {
+        if (i._tipo === 'productos') {
           if (saldo === 0) item.cantidad = Math.max(0, item.cantidad - i.cantidad);
           else _tieneProdPend2 = true;
         } else {
