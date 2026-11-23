@@ -7215,8 +7215,15 @@ function guardarEditPedido(id) {
   // Si quedó en saldo cero y no está cancelada, marcar como pagada
   if (vt.saldo === 0 && _totalFinal > 0 && vt.estado !== 'Cancelada') vt.estado = 'Pagada';
   // Sincronizar estado de consignación vinculada
+  const _newConsigIds = new Set((ventaItems||[]).filter(i=>i._tipo==='consignacion'&&i._itemId!=null).map(i=>String(i._itemId)));
   (db.consignacion||[]).filter(c => String(c.ventaId) === String(vt.id))
-    .forEach(c => { c.estado = vt.saldo === 0 ? 'Vendido' : 'Apartado'; });
+    .forEach(c => {
+      if (_newConsigIds.has(String(c.id))) {
+        c.estado = vt.saldo === 0 ? 'Vendido' : 'Apartado';
+      } else {
+        c.estado = 'Disponible'; c.ventaId = null;
+      }
+    });
   // Recuperar flag de nueva lógica si el pedido tiene productos con saldo pendiente (fix pedidos viejos)
   if (!vt._nuevaLogicaProd && vt.saldo > 0 && (vt.items||[]).some(i => i._tipo === 'productos')) vt._nuevaLogicaProd = true;
   // Descontar productos si se llega a saldo cero con nueva lógica
