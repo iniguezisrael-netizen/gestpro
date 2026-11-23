@@ -17413,7 +17413,8 @@ function importarCatalogoMateriales() {
           const aActualizar = filas.filter(f => porNombreMateria.has(f.nombre.toLowerCase()));
           const aNuevos     = filas.filter(f => !porNombreMateria.has(f.nombre.toLowerCase()));
           const _nombresNuevos = new Set(filas.map(f => f.nombre.toLowerCase()));
-          const aRemovidos  = (db.materia||[]).filter(i => i.origen !== 'manual' && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
+          const _wManualIds = new Set((window.db?.materia||[]).filter(i=>i.origen==='manual').map(i=>i.id));
+          const aRemovidos  = (db.materia||[]).filter(i => i.origen !== 'manual' && !_wManualIds.has(i.id) && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
 
           showModal('📂 Importar catálogo de precios', `
             <div style="display:flex;gap:10px;margin-bottom:12px">
@@ -17570,7 +17571,8 @@ function _procesarExcelFilas(rows) {
   const _nombresNuevos = new Set(filas.map(f => f.nombre.toLowerCase()));
   const aActualizar = filas.filter(f => porNombreMateria.has(f.nombre.toLowerCase()));
   const aNuevos     = filas.filter(f => !porNombreMateria.has(f.nombre.toLowerCase()));
-  const aRemovidos  = (db.materia||[]).filter(i => i.origen !== 'manual' && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
+  const _wManualIds = new Set((window.db?.materia||[]).filter(i=>i.origen==='manual').map(i=>i.id));
+  const aRemovidos  = (db.materia||[]).filter(i => i.origen !== 'manual' && !_wManualIds.has(i.id) && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
   showModal('📂 Importar catálogo de precios', `
     <div style="display:flex;gap:10px;margin-bottom:12px">
       <div style="flex:1;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px;text-align:center">
