@@ -17413,8 +17413,8 @@ function importarCatalogoMateriales() {
           const aActualizar = filas.filter(f => porNombreMateria.has(f.nombre.toLowerCase()));
           const aNuevos     = filas.filter(f => !porNombreMateria.has(f.nombre.toLowerCase()));
           const _nombresNuevos = new Set(filas.map(f => f.nombre.toLowerCase()));
-          const _forzarManualIds = new Set([14389292, '14389292']); // piso vinilico: item anterior al sistema de origen
-          const aRemovidos  = (db.materia||[]).filter(i => i.origen !== 'manual' && !_forzarManualIds.has(i.id) && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
+          const _forzarManualNombres = new Set(['piso vinilico']); // items anteriores al sistema de origen
+          const aRemovidos  = (db.materia||[]).filter(i => i.origen !== 'manual' && !_forzarManualNombres.has((i.nombre||'').toLowerCase()) && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
 
           showModal('📂 Importar catálogo de precios', `
             <div style="display:flex;gap:10px;margin-bottom:12px">
@@ -17571,8 +17571,8 @@ function _procesarExcelFilas(rows) {
   const _nombresNuevos = new Set(filas.map(f => f.nombre.toLowerCase()));
   const aActualizar = filas.filter(f => porNombreMateria.has(f.nombre.toLowerCase()));
   const aNuevos     = filas.filter(f => !porNombreMateria.has(f.nombre.toLowerCase()));
-  const _forzarManualIds = new Set([14389292, '14389292']); // piso vinilico: item anterior al sistema de origen
-  const aRemovidos  = (db.materia||[]).filter(i => i.origen !== 'manual' && !_forzarManualIds.has(i.id) && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
+  const _forzarManualNombres = new Set(['piso vinilico']); // items anteriores al sistema de origen
+  const aRemovidos  = (db.materia||[]).filter(i => i.origen !== 'manual' && !_forzarManualNombres.has((i.nombre||'').toLowerCase()) && !_nombresNuevos.has((i.nombre||'').toLowerCase()));
   showModal('📂 Importar catálogo de precios', `
     <div style="display:flex;gap:10px;margin-bottom:12px">
       <div style="flex:1;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px;text-align:center">
