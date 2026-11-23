@@ -4900,7 +4900,7 @@ function _consigRowsHTML() {
     if (catFilt && (c.categoria||'').toLowerCase() !== catFilt) return false;
     if (estFilt && (c.estado||'').toLowerCase() !== estFilt) return false;
     if (!srchWords.length) return true;
-    const h = _normSearch((c.producto+' '+(c.clienteNombre||'')+' '+(c.folio||'')+' '+(c.ciudad||'')));
+    const h = _normSearch((c.producto+' '+(c.clienteNombre||'')+' '+(c.folio||'')+' '+(c.folio||'').replace(/\s+/g,'')+' '+(c.ciudad||'')));
     return srchWords.every(w => h.includes(w));
   });
 
