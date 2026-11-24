@@ -2354,6 +2354,12 @@ function _startRTDBListenerForCol(colName) {
       if (loc.sinMinimo === false && r.sinMinimo === true) {
         r = { ...r, sinMinimo: false };
       }
+      // movimientos de caja: merge por ID — nunca reemplazar con versión que pierda movimientos locales
+      if (colName === 'cajas' && loc.movimientos && loc.movimientos.length) {
+        const srvMovIds = new Set((r.movimientos || []).map(m => String(m.id)));
+        const localExtra = loc.movimientos.filter(m => m.id != null && !srvMovIds.has(String(m.id)));
+        if (localExtra.length) r = { ...r, movimientos: [...(r.movimientos || []), ...localExtra] };
+      }
       // Estados de reporte
       if (loc.items && loc.items.some(i => i.estado) && r.items && r.items.length && !r.items.some(i => i.estado)) {
         r = { ...r, items: loc.items };
