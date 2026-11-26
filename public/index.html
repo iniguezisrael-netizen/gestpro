@@ -1080,7 +1080,7 @@ const _EMPRESA = {
 // ────────────────────────────────────────────────────────────────────────────
 
 // Colecciones de Firestore
-const FS_COLLECTIONS = ['materia','productos','consignacion','ventas','cotizaciones','cajas','reparaciones','bodegas','entregas','facturas','cobranza','vehiculos','produccion','catalogoMateriales','clientesCredito','clientes','herramientas','herramientasAsignadas','herramientasHistorial','agenda','ordenesCompra','proveedores','checadas','checadorConfig','entregaInsumos','reportesEntrega','reportesProduccion','catConsig','recordatoriosPersonales'];
+const FS_COLLECTIONS = ['materia','productos','consignacion','ventas','cotizaciones','cajas','reparaciones','bodegas','entregas','facturas','cobranza','vehiculos','produccion','catalogoMateriales','clientesCredito','clientes','herramientas','herramientasAsignadas','herramientasHistorial','herramientasReparacion','agenda','ordenesCompra','proveedores','checadas','checadorConfig','entregaInsumos','reportesEntrega','reportesProduccion','catConsig','recordatoriosPersonales'];
 // Colecciones críticas (dashboard). Las demás cargan lazy al navegar.
 const FS_CRITICAL_COLS = ['materia','productos','consignacion','ventas','cotizaciones','reparaciones','clientes'];
 const MATERIA_UBICACIONES = ['Bodega Oficina','Bodega Ventanería','Bodega Cocina','Almacén de Aluminio General','Almacén de Fierro'];
@@ -1787,6 +1787,7 @@ let db = {
   herramientas: load('gp_herramientas', []),
   herramientasAsignadas: load('gp_herramientas_asig', []),
   herramientasHistorial: load('gp_herramientas_hist', []),
+    herramientasReparacion: load('gp_herramientas_rep', []),
   ordenesCompra: load('gp_ordenesCompra', []),
   proveedores: load('gp_proveedores', []),
   checadas: load('gp_checadas', []),
@@ -1845,6 +1846,7 @@ const _LS_KEYS = {
   bodegas: 'gp_bodegas', entregas: 'gp_entregas', facturas: 'gp_facturas',
   vehiculos: 'gp_vehiculos', herramientas: 'gp_herramientas',
   herramientasAsignadas: 'gp_herramientas_asig', herramientasHistorial: 'gp_herramientas_hist',
+    herramientasReparacion: 'gp_herramientas_rep',
   ordenesCompra: 'gp_ordenesCompra', proveedores: 'gp_proveedores',
   checadas: 'gp_checadas', checadorConfig: 'gp_checadorConfig',
   entregaInsumos: 'gp_entregaInsumos', reportesEntrega: 'gp_reportesEntrega',
@@ -1934,7 +1936,7 @@ async function _ejecutarRespaldo() {
   const tsCorto = ts.slice(0, 19).replace('T', '_').replace(/:/g, '-'); // 2026-07-08_14-30-00
   const FS_COL_KEYS = ['materia','productos','consignacion','ventas','cotizaciones',
     'cajas','reparaciones','produccion','catalogoMateriales','cobranza','clientesCredito',
-    'clientes','bodegas','entregas','facturas','vehiculos','herramientas','herramientasAsignadas','herramientasHistorial',
+    'clientes','bodegas','entregas','facturas','vehiculos','herramientas','herramientasAsignadas','herramientasHistorial','herramientasReparacion',
     'ordenesCompra','proveedores','checadas','checadorConfig','entregaInsumos','reportesEntrega','reportesProduccion','agenda'];
   const snapshot = { _timestamp: ts, _version: 2 };
   FS_COL_KEYS.forEach(k => { snapshot[k] = db[k] || []; });
@@ -2004,7 +2006,7 @@ async function configurarCarpetaRespaldo() {
 // Colecciones prioritarias por rol — se cargan primero para mostrar la app rápido.
 // El resto se carga en background después.
 const _FS_PRIORITY = {
-  almacen:   ['materia','catalogoMateriales','herramientas','herramientasAsignadas','herramientasHistorial','entregaInsumos','bodegas','productos'],
+  almacen:   ['materia','catalogoMateriales','herramientas','herramientasAsignadas','herramientasHistorial','herramientasReparacion','entregaInsumos','bodegas','productos'],
   auxiliar:  ['ventas','cotizaciones','materia','productos','cajas','clientes'],
   secretaria:['ventas','cotizaciones','clientes','cajas','cobranza'],
   admin:     ['ventas'], // ventas inmediato (hub de deps cruzadas); resto lazy por _PAGE_EXTRA_COLS
@@ -2254,7 +2256,7 @@ function _iniciarRespaldoAutomatico() {
     try {
       const FS_COL_KEYS = ['materia','productos','consignacion','ventas','cotizaciones',
         'cajas','reparaciones','produccion','catalogoMateriales','cobranza','clientesCredito',
-        'clientes','bodegas','entregas','facturas','vehiculos','herramientas','herramientasAsignadas','herramientasHistorial',
+        'clientes','bodegas','entregas','facturas','vehiculos','herramientas','herramientasAsignadas','herramientasHistorial','herramientasReparacion',
         'ordenesCompra','proveedores','checadas','checadorConfig','entregaInsumos','reportesEntrega','reportesProduccion','agenda'];
       const exportData = {};
       FS_COL_KEYS.forEach(k => { exportData[k] = db[k] || []; });
@@ -2706,7 +2708,7 @@ const _PAGE_EXTRA_COLS = {
   'produccion':      ['produccion','bodegas','reportesProduccion','materia','catalogoMateriales'], // ventas: inmediato ✓
   'agenda':          ['agenda','clientes'],                                                  // ventas: inmediato ✓
   'compras':         ['ordenesCompra','proveedores'],
-  'herramientas':    ['herramientas','herramientasAsignadas','herramientasHistorial','reparaciones'], // reparaciones cross-ref
+  'herramientas':    ['herramientas','herramientasAsignadas','herramientasHistorial','reparaciones','herramientasReparacion'], // reparaciones cross-ref
   'checador':        ['checadas','checadorConfig'],
   'entrega-insumos': ['entregaInsumos','reportesEntrega','materia'],                        // ventas: inmediato ✓
 };
@@ -14320,6 +14322,7 @@ function procesarXmlCfdi(event) {
   const reader = new FileReader();
   reader.onload = e => {
     const xmlText = e.target.result;
+    _cfdiTemp.pdfB64 = null;
     _cfdiTemp.xmlB64 = btoa(unescape(encodeURIComponent(xmlText)));
     _cfdiTemp.nombreArchivo = file.name.replace(/\.xml$/i, '');
     const datos = parsearCfdi(xmlText);
@@ -14757,6 +14760,7 @@ async function guardarFactura() {
         return;
       }
       // Ya existe completa — no hacer nada
+      _info('⚠️ Esta factura ya está registrada en el sistema (id: ' + _existente.id + '). No se guardó.');
       return;
     }
   }
@@ -16103,27 +16107,98 @@ function canRecibirDevolucion() {
   return ['admin','secretaria','auxiliar','almacen'].includes(session.rol);
 }
 
+// ============================================================
+// HERRAMIENTAS — Módulo completo
+// ============================================================
+
+let _tempHerraFoto = null;
+
+function _herraMantenimientoVencido(h) {
+  if (!h.mantenimiento || h.mantenimiento.sinAlerta || !h.mantenimiento.fecha) return false;
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const p = h.mantenimiento.fecha.split('/');
+  const fechaM = p.length === 3 ? new Date(+p[2], +p[1]-1, +p[0]) : new Date(h.mantenimiento.fecha);
+  return (fechaM - hoy) / (1000*60*60*24) <= 7;
+}
+
 function renderHerramientas() {
   const asignadas = db.herramientasAsignadas || [];
   const bodega = db.herramientas || [];
   const historial = db.herramientasHistorial || [];
+  const reparacion = db.herramientasReparacion || [];
 
-  // Agrupar asignadas por trabajador
+  const totalBodega = bodega.reduce((s,h) => s + (h.cantidad||0), 0);
+  const totalAsignadas = asignadas.reduce((s,a) => s + (a.cantidad||0), 0);
+  const totalReparacion = bodega.reduce((s,h) => s + (h.cantidadReparacion||0), 0);
+  const totalPiezas = totalBodega + totalAsignadas + totalReparacion;
+  const alertasMant = bodega.filter(h => _herraMantenimientoVencido(h));
+
   const porTrabajador = {};
-  asignadas.forEach(a => {
-    if (!porTrabajador[a.trabajador]) porTrabajador[a.trabajador] = [];
-    porTrabajador[a.trabajador].push(a);
-  });
+  asignadas.forEach(a => { if (!porTrabajador[a.trabajador]) porTrabajador[a.trabajador] = []; porTrabajador[a.trabajador].push(a); });
 
-  const bodegaHTML = bodega.length === 0
+  const porHerramientaId = {};
+  asignadas.forEach(a => { if (!porHerramientaId[a.herramientaId]) porHerramientaId[a.herramientaId] = []; porHerramientaId[a.herramientaId].push(a); });
+
+  const resumenHTML = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+    <div style="flex:1;min-width:110px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+      <div style="font-size:1.6rem;font-weight:700;color:var(--text)">${totalPiezas}</div>
+      <div style="font-size:0.78rem;color:var(--text-light);margin-top:2px">Total piezas</div>
+    </div>
+    <div style="flex:1;min-width:110px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+      <div style="font-size:1.6rem;font-weight:700;color:#16a34a">${totalBodega}</div>
+      <div style="font-size:0.78rem;color:var(--text-light);margin-top:2px">En bodega</div>
+    </div>
+    <div style="flex:1;min-width:110px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+      <div style="font-size:1.6rem;font-weight:700;color:#2563eb">${totalAsignadas}</div>
+      <div style="font-size:0.78rem;color:var(--text-light);margin-top:2px">Con trabajadores</div>
+    </div>
+    ${totalReparacion > 0 ? `<div style="flex:1;min-width:110px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+      <div style="font-size:1.6rem;font-weight:700;color:#d97706">${totalReparacion}</div>
+      <div style="font-size:0.78rem;color:var(--text-light);margin-top:2px">En reparación</div>
+    </div>` : ''}
+  </div>`;
+
+  const alertaMantHTML = alertasMant.length > 0 ? `<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+    <span style="font-size:1.2rem">🔔</span>
+    <div><strong style="color:#c2410c">Mantenimiento pendiente</strong>
+    <div style="font-size:0.82rem;color:#9a3412;margin-top:2px">${alertasMant.map(h => esc(h.nombre)).join(', ')}</div></div>
+  </div>` : '';
+
+  const bodegaActiva = bodega.filter(h => !(h.estado === 'baja' && (h.cantidad||0) === 0));
+  const bodegaHTML = bodegaActiva.length === 0
     ? '<p style="color:#94a3b8;text-align:center;padding:16px">Sin herramientas en bodega</p>'
-    : `<div class="table-wrap"><table class="data-table"><thead><tr><th>Herramienta</th><th>En bodega</th><th>Estado</th>${canAsignarHerramienta() ? '<th></th>' : ''}</tr></thead><tbody>
-      ${bodega.map(h => `<tr>
-        <td>${esc(h.nombre)}</td>
-        <td><strong>${h.cantidad}</strong></td>
-        <td><span class="badge ${h.estado==='buena'?'badge-green':h.estado==='dañada'?'badge-yellow':'badge-gray'}">${h.estado||'buena'}</span></td>
-        ${canAsignarHerramienta() ? `<td><button class="btn btn-sm btn-primary" onclick="openAsignarHerramientaModal(${h.id})" ${h.cantidad<1?'disabled':''}>Asignar</button></td>` : ''}
-      </tr>`).join('')}
+    : `<div class="table-wrap"><table class="data-table"><thead><tr>
+        <th></th><th>Herramienta</th><th>Serie</th><th>En bodega</th><th>Con trabajadores</th><th>Mantenimiento</th><th>Estado</th>
+        ${canAsignarHerramienta() ? '<th></th>' : ''}
+      </tr></thead><tbody>
+      ${bodegaActiva.map(h => {
+        const conTrab = porHerramientaId[h.id]||[];
+        const conTrabStr = conTrab.length ? conTrab.map(a => `${esc(a.trabajador)} (${a.cantidad})`).join(', ') : '—';
+        const mv = _herraMantenimientoVencido(h);
+        const mantStr = h.mantenimiento?.fecha && !h.mantenimiento?.sinAlerta
+          ? `<span style="color:${mv?'#dc2626':'#16a34a'}">${mv?'⚠️':'✅'} ${h.mantenimiento.fecha}</span>`
+          : '<span style="color:#94a3b8">—</span>';
+        const fotoHTML = h.foto
+          ? `<img src="${h.foto}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid var(--border);cursor:pointer" onclick="openHerraFotoModal(${h.id})" />`
+          : `<div style="width:36px;height:36px;border-radius:6px;border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:0.7rem">📷</div>`;
+        return `<tr>
+          <td style="padding:4px 6px">${fotoHTML}</td>
+          <td>${esc(h.nombre)}</td>
+          <td style="color:#64748b;font-size:0.85rem">${esc(h.serie||'—')}</td>
+          <td><strong>${h.cantidad}</strong></td>
+          <td style="font-size:0.82rem;color:#334155">${conTrabStr}</td>
+          <td style="font-size:0.82rem">${mantStr}</td>
+          <td><span class="badge ${h.estado==='buena'?'badge-green':h.estado==='dañada'?'badge-yellow':h.estado==='reparacion'?'badge-orange':'badge-gray'}">${h.estado==='reparacion'?'En reparación':h.estado||'buena'}</span></td>
+          ${canAsignarHerramienta() ? `<td style="position:relative;text-align:right;padding-right:6px">
+            <button class="btn btn-sm" style="padding:2px 10px;font-size:1rem;line-height:1" onclick="(function(e){e.stopPropagation();var m=document.getElementById('herr-menu-${h.id}');var open=m.style.display!=='none';document.querySelectorAll('.herr-drop').forEach(x=>x.style.display='none');m.style.display=open?'none':'flex';if(!open){var close=function(ev){if(!m.contains(ev.target)){m.style.display='none';document.removeEventListener('click',close);}};setTimeout(function(){document.addEventListener('click',close);},0);}})(event)">···</button>
+            <div id="herr-menu-${h.id}" class="herr-drop" style="display:none;position:absolute;right:0;top:calc(100% + 4px);flex-direction:column;gap:3px;background:white;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.13);min-width:160px;z-index:9999;padding:6px;border:1px solid #e2e8f0">
+              ${h.cantidad>=1 && h.estado!=='reparacion' ? `<button class="btn btn-primary btn-sm" style="justify-content:flex-start" onclick="document.querySelectorAll('.herr-drop').forEach(x=>x.style.display='none');openAsignarHerramientaModal(${h.id})">📤 Asignar</button>` : ''}
+              <button class="btn btn-outline btn-sm" style="justify-content:flex-start" onclick="document.querySelectorAll('.herr-drop').forEach(x=>x.style.display='none');openEditarHerramientaModal(${h.id})">✏️ Editar</button>
+              ${h.cantidad>=1 ? `<button class="btn btn-danger btn-sm" style="justify-content:flex-start" onclick="document.querySelectorAll('.herr-drop').forEach(x=>x.style.display='none');openDarDeBajaModal(${h.id})">🗑️ Dar de baja</button>` : ''}
+            </div>
+          </td>` : ''}
+        </tr>`;
+      }).join('')}
     </tbody></table></div>`;
 
   const asignadasHTML = asignadas.length === 0
@@ -16131,25 +16206,70 @@ function renderHerramientas() {
     : Object.entries(porTrabajador).map(([trab, items]) => `
       <div style="margin-bottom:16px">
         <div style="font-weight:600;color:#334155;margin-bottom:6px;padding:6px 10px;background:#f1f5f9;border-radius:6px">👷 ${esc(trab)}</div>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>Herramienta</th><th>Cant.</th><th>Fecha</th><th>Entregó</th>${canRecibirDevolucion() ? '<th></th>' : ''}</tr></thead><tbody>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>Herramienta</th><th>Cant.</th><th>Fecha</th><th>Entregó</th>${canRecibirDevolucion()?'<th></th>':''}</tr></thead><tbody>
         ${items.map(a => `<tr>
-          <td>${esc(a.herramientaNombre)}</td>
+          <td>${esc(a.herramientaNombre)}${a.esReemplazo?' <span style="font-size:0.75rem;color:#7c3aed;background:#f5f3ff;border-radius:4px;padding:1px 5px">reemplazo</span>':''}</td>
           <td>${a.cantidad}</td>
           <td style="white-space:nowrap">${a.fecha||''}</td>
           <td style="color:#64748b;font-size:0.85rem">${esc(a.entrego||'')}</td>
-          ${canRecibirDevolucion() ? `<td><button class="btn btn-sm btn-outline" onclick="openDevolverHerramientaModal(${a.id})">Recibir</button></td>` : ''}
+          ${canRecibirDevolucion()?`<td><button class="btn btn-sm btn-outline" onclick="openDevolverHerramientaModal(${a.id})">Recibir</button></td>`:''}
         </tr>`).join('')}
         </tbody></table></div>
       </div>`).join('');
 
-  const historialHTML = historial.length === 0
+  const reparacionHTML = reparacion.length === 0 ? '' : `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><span class="card-title">🔧 En reparación (${reparacion.length})</span></div>
+      <div class="card-body"><div class="table-wrap"><table class="data-table"><thead><tr>
+        <th>Herramienta</th><th>Serie</th><th>Trabajador</th><th>Motivo</th><th>Fecha envío</th><th>Reemplazo</th>${canAsignarHerramienta()?'<th></th>':''}
+      </tr></thead><tbody>
+      ${reparacion.map(r => {
+        const reemplazo = r.reemplazoAsignacionId ? asignadas.find(a => a.id === r.reemplazoAsignacionId) : null;
+        return `<tr>
+          <td>${esc(r.herramientaNombre)}</td>
+          <td style="color:#64748b;font-size:0.85rem">${esc(r.serie||'—')}</td>
+          <td>${esc(r.trabajadorOrigen||'')}</td>
+          <td style="font-size:0.82rem;color:#64748b">${esc(r.motivoDaño||'')}</td>
+          <td style="white-space:nowrap;font-size:0.82rem">${r.fechaEnvio||''}</td>
+          <td style="font-size:0.82rem">${reemplazo?`✅ ${esc(reemplazo.trabajador)}`:'—'}</td>
+          ${canAsignarHerramienta()?`<td><button class="btn btn-sm btn-primary" onclick="openMarcarReparadaModal(${r.id})">Marcar reparada</button></td>`:''}
+        </tr>`;
+      }).join('')}
+      </tbody></table></div></div>
+    </div>`;
+
+  const historialBajas = historial.filter(h => h.tipo === 'baja');
+  const bajasHTML = historialBajas.length === 0 ? '' : `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header" style="cursor:pointer" onclick="document.getElementById('herr-bajas-body').style.display=document.getElementById('herr-bajas-body').style.display==='none'?'block':'none'">
+        <span class="card-title">🗑️ Dados de baja (${historialBajas.length})</span>
+        <span style="color:#94a3b8;font-size:0.85rem">▼ mostrar/ocultar</span>
+      </div>
+      <div id="herr-bajas-body" style="display:none"><div class="card-body">
+        <div class="table-wrap"><table class="data-table"><thead><tr>
+          <th>Fecha</th><th>Herramienta</th><th>Serie</th><th>Cant.</th><th>Motivo</th><th>Autorizó</th>
+        </tr></thead><tbody>
+        ${[...historialBajas].reverse().map(b => `<tr>
+          <td style="white-space:nowrap;font-size:0.82rem">${b.fecha||''}</td>
+          <td>${esc(b.herramientaNombre)}</td>
+          <td style="color:#64748b;font-size:0.82rem">${esc(b.serie||'—')}</td>
+          <td>${b.cantidad}</td>
+          <td style="font-size:0.82rem;color:#64748b">${esc(b.motivo||'')}</td>
+          <td style="font-size:0.82rem;color:#64748b">${esc(b.autorizadoPor||'')}</td>
+        </tr>`).join('')}
+        </tbody></table></div>
+      </div></div>
+    </div>`;
+
+  const historialMov = historial.filter(h => h.tipo !== 'baja');
+  const historialHTML = historialMov.length === 0
     ? '<p style="color:#94a3b8;text-align:center;padding:16px">Sin movimientos registrados</p>'
-    : `<div class="table-wrap"><table class="data-table"><thead><tr><th style="white-space:nowrap">Fecha</th><th>Tipo</th><th>Herramienta</th><th>Trabajador</th><th>Cant.</th><th>Operó</th></tr></thead><tbody>
-      ${[...historial].reverse().map(h => `<tr>
+    : `<div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Herramienta</th><th>Trabajador</th><th>Cant.</th><th>Operó</th></tr></thead><tbody>
+      ${[...historialMov].reverse().map(h => `<tr>
         <td style="font-size:0.82rem;white-space:nowrap">${h.fecha||''}</td>
-        <td><span class="badge ${h.tipo==='asignacion'?'badge-blue':'badge-green'}">${h.tipo==='asignacion'?'Asignación':'Devolución'}</span></td>
+        <td><span class="badge ${h.tipo==='asignacion'?'badge-blue':h.tipo==='reparacion'?'badge-yellow':h.tipo==='reparacion_completada'?'badge-green':'badge-green'}">${h.tipo==='asignacion'?'Asignación':h.tipo==='devolucion'?'Devolución':h.tipo==='reparacion'?'A reparar':h.tipo==='reparacion_completada'?'Reparada':'Otro'}</span></td>
         <td>${esc(h.herramientaNombre)}</td>
-        <td>${esc(h.trabajador)}</td>
+        <td>${esc(h.trabajador||'')}</td>
         <td>${h.cantidad}</td>
         <td style="color:#64748b;font-size:0.82rem">${esc(h.opero||'')}</td>
       </tr>`).join('')}
@@ -16158,43 +16278,88 @@ function renderHerramientas() {
   const el = document.getElementById('page-herramientas');
   el.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">🔧 Herramientas</h1>
+      <h1 class="page-title">🔧 Herramientas${alertasMant.length > 0 ? ` <span style="background:#dc2626;color:#fff;border-radius:50%;width:20px;height:20px;font-size:0.75rem;display:inline-flex;align-items:center;justify-content:center;margin-left:6px">${alertasMant.length}</span>` : ''}</h1>
       ${canAsignarHerramienta() ? `<button class="btn btn-primary" onclick="openNuevaHerramientaModal()">+ Nueva herramienta</button>` : ''}
     </div>
-
+    ${alertaMantHTML}
+    ${resumenHTML}
     <div class="card" style="margin-bottom:16px">
       <div class="card-header"><span class="card-title">🏪 Bodega</span></div>
       <div class="card-body">${bodegaHTML}</div>
     </div>
-
     <div class="card" style="margin-bottom:16px">
-      <div class="card-header"><span class="card-title">📋 Asignadas</span></div>
+      <div class="card-header"><span class="card-title">📋 Asignadas a trabajadores</span></div>
       <div class="card-body">${asignadasHTML}</div>
     </div>
-
+    ${reparacionHTML}
+    ${bajasHTML}
     <div class="card">
       <div class="card-header" style="cursor:pointer" onclick="document.getElementById('herr-hist-body').style.display=document.getElementById('herr-hist-body').style.display==='none'?'block':'none'">
         <span class="card-title">📜 Historial</span>
         <span style="color:#94a3b8;font-size:0.85rem">▼ mostrar/ocultar</span>
       </div>
-      <div id="herr-hist-body" style="display:none">${historialHTML}</div>
+      <div id="herr-hist-body" style="display:none"><div class="card-body">${historialHTML}</div></div>
     </div>`;
 }
 
+function openHerraFotoModal(herrId) {
+  const h = db.herramientas.find(x => x.id === herrId);
+  if (!h || !h.foto) return;
+  showModal(esc(h.nombre), `<div style="text-align:center"><img src="${h.foto}" style="max-width:100%;max-height:60vh;border-radius:10px" /></div>`, [
+    { label:'Cerrar', cls:'btn-secondary', action: closeModal }
+  ]);
+}
+
 function openNuevaHerramientaModal() {
+  _tempHerraFoto = null;
   showModal('+ Nueva Herramienta en Bodega', `
-    <div class="form-group"><label>Nombre</label><input id="nh-nombre" class="form-control" placeholder="Ej. Taladro, Llave, Martillo..." /></div>
+    <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px">
+      <div>
+        <div id="nh-foto-preview" style="width:70px;height:70px;border-radius:8px;border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:#f8fafc" onclick="document.getElementById('nh-foto-input').click()">
+          <span style="font-size:1.5rem">📷</span>
+        </div>
+        <input type="file" id="nh-foto-input" accept="image/*" style="display:none" onchange="_herraFotoChange(this,'nh-foto-preview')" />
+        <div style="font-size:0.72rem;color:#94a3b8;text-align:center;margin-top:3px">Foto</div>
+      </div>
+      <div style="flex:1">
+        <div class="form-group"><label>Nombre</label><input id="nh-nombre" class="form-control" placeholder="Ej. Taladro, Llave, Martillo..." /></div>
+        <div class="form-group"><label>Número de serie <span style="color:#94a3b8;font-size:0.82rem">(opcional)</span></label><input id="nh-serie" class="form-control" placeholder="Ej. SN-12345" /></div>
+      </div>
+    </div>
     <div class="form-group"><label>Cantidad</label><input id="nh-cantidad" class="form-control" type="number" min="1" value="1" /></div>
     <div class="form-group"><label>Estado</label>
       <select id="nh-estado" class="form-control">
         <option value="buena">Buena</option>
         <option value="dañada">Dañada</option>
+        <option value="reparacion">En reparación</option>
         <option value="baja">De baja</option>
       </select>
+    </div>
+    <hr style="margin:10px 0;border:none;border-top:1px solid var(--border)"/>
+    <p style="font-size:0.8rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Mantenimiento</p>
+    <div class="form-group"><label>Próximo mantenimiento</label>
+      <div style="display:flex;gap:10px;align-items:center">
+        <input id="nh-mant-fecha" class="form-control" type="date" style="flex:1" disabled />
+        <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;cursor:pointer;white-space:nowrap">
+          <input type="checkbox" id="nh-mant-sinalerta" checked onchange="document.getElementById('nh-mant-fecha').disabled=this.checked" style="width:auto;padding:0"/>
+          Sin alerta
+        </label>
+      </div>
     </div>`, [
     { label:'Guardar', cls:'btn-primary', action: _saveNuevaHerramienta },
     { label:'Cancelar', cls:'btn-secondary', action: closeModal }
   ]);
+}
+
+function _herraFotoChange(input, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  comprimirImagen(file, dataUrl => {
+    _tempHerraFoto = dataUrl;
+    const prev = document.getElementById(previewId);
+    if (prev) prev.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover" />`;
+    subirFotoAStorage(dataUrl, 'herramientas', url => { _tempHerraFoto = url; });
+  });
 }
 
 function _saveNuevaHerramienta() {
@@ -16203,8 +16368,91 @@ function _saveNuevaHerramienta() {
   const cantidad = parseInt(document.getElementById('nh-cantidad').value) || 0;
   if (cantidad < 1) { _info('La cantidad debe ser al menos 1'); return; }
   const estado = document.getElementById('nh-estado').value;
-  db.herramientas.push({ id: sid(), nombre, cantidad, estado });
+  const serie = document.getElementById('nh-serie').value.trim();
+  const sinAlerta = document.getElementById('nh-mant-sinalerta').checked;
+  const fechaMant = document.getElementById('nh-mant-fecha').value;
+  let fechaMantStr = '';
+  if (!sinAlerta && fechaMant) { const p = fechaMant.split('-'); fechaMantStr = `${p[2]}/${p[1]}/${p[0]}`; }
+  const item = { id: sid(), nombre, cantidad, cantidadReparacion: 0, estado, serie: serie||'',
+    mantenimiento: (!sinAlerta && fechaMantStr) ? { fecha: fechaMantStr, sinAlerta: false } : { sinAlerta: true } };
+  if (_tempHerraFoto) item.foto = _tempHerraFoto;
+  db.herramientas.push(item);
   saveDb(['herramientas']);
+  _tempHerraFoto = null;
+  closeModal();
+  renderHerramientas();
+}
+
+function openEditarHerramientaModal(herrId) {
+  const h = db.herramientas.find(x => x.id === herrId);
+  if (!h) return;
+  _tempHerraFoto = h.foto || null;
+  const sinAlerta = !h.mantenimiento || h.mantenimiento.sinAlerta;
+  let fechaInput = '';
+  if (h.mantenimiento?.fecha) {
+    const p = h.mantenimiento.fecha.split('/');
+    if (p.length === 3) fechaInput = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+  }
+  showModal(`Editar: ${esc(h.nombre)}`, `
+    <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px">
+      <div>
+        <div id="eh-foto-preview" style="width:70px;height:70px;border-radius:8px;border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:#f8fafc" onclick="document.getElementById('eh-foto-input').click()">
+          ${h.foto ? `<img src="${h.foto}" style="width:100%;height:100%;object-fit:cover" />` : '<span style="font-size:1.5rem">📷</span>'}
+        </div>
+        <input type="file" id="eh-foto-input" accept="image/*" style="display:none" onchange="_herraFotoChange(this,'eh-foto-preview')" />
+        <div style="font-size:0.72rem;color:#94a3b8;text-align:center;margin-top:3px">Foto</div>
+      </div>
+      <div style="flex:1">
+        <div class="form-group"><label>Nombre</label><input id="eh-nombre" class="form-control" value="${esc(h.nombre)}" /></div>
+        <div class="form-group"><label>Número de serie <span style="color:#94a3b8;font-size:0.82rem">(opcional)</span></label><input id="eh-serie" class="form-control" value="${esc(h.serie||'')}" placeholder="Ej. SN-12345" /></div>
+      </div>
+    </div>
+    <div class="form-group"><label>Estado</label>
+      <select id="eh-estado" class="form-control">
+        <option value="buena" ${h.estado==='buena'?'selected':''}>Buena</option>
+        <option value="dañada" ${h.estado==='dañada'?'selected':''}>Dañada</option>
+        <option value="reparacion" ${h.estado==='reparacion'?'selected':''}>En reparación</option>
+        <option value="baja" ${h.estado==='baja'?'selected':''}>De baja</option>
+      </select>
+    </div>
+    <hr style="margin:10px 0;border:none;border-top:1px solid var(--border)"/>
+    <p style="font-size:0.8rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Mantenimiento</p>
+    <div class="form-group"><label>Próximo mantenimiento</label>
+      <div style="display:flex;gap:10px;align-items:center">
+        <input id="eh-mant-fecha" class="form-control" type="date" value="${fechaInput}" style="flex:1" ${sinAlerta?'disabled':''} />
+        <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;cursor:pointer;white-space:nowrap">
+          <input type="checkbox" id="eh-mant-sinalerta" ${sinAlerta?'checked':''} onchange="document.getElementById('eh-mant-fecha').disabled=this.checked" style="width:auto;padding:0"/>
+          Sin alerta
+        </label>
+      </div>
+    </div>
+    <input type="hidden" id="eh-herr-id" value="${herrId}" />`, [
+    { label:'Guardar', cls:'btn-primary', action: _saveEditarHerramienta },
+    { label:'Cancelar', cls:'btn-secondary', action: closeModal }
+  ]);
+}
+
+function _saveEditarHerramienta() {
+  const herrId = +document.getElementById('eh-herr-id').value;
+  const h = db.herramientas.find(x => x.id === herrId);
+  if (!h) return;
+  const nombre = document.getElementById('eh-nombre').value.trim();
+  if (!nombre) { _info('Ingresa el nombre'); return; }
+  const nombreAnterior = h.nombre;
+  h.nombre = nombre;
+  h.serie = document.getElementById('eh-serie').value.trim();
+  h.estado = document.getElementById('eh-estado').value;
+  if (_tempHerraFoto) h.foto = _tempHerraFoto;
+  const sinAlerta = document.getElementById('eh-mant-sinalerta').checked;
+  const fechaMant = document.getElementById('eh-mant-fecha').value;
+  let fechaMantStr = '';
+  if (!sinAlerta && fechaMant) { const p = fechaMant.split('-'); fechaMantStr = `${p[2]}/${p[1]}/${p[0]}`; }
+  h.mantenimiento = sinAlerta ? { sinAlerta: true } : { fecha: fechaMantStr, sinAlerta: false };
+  if (nombre !== nombreAnterior) {
+    (db.herramientasAsignadas||[]).forEach(a => { if (a.herramientaId === herrId) a.herramientaNombre = nombre; });
+  }
+  _tempHerraFoto = null;
+  saveDb(['herramientas','herramientasAsignadas']);
   closeModal();
   renderHerramientas();
 }
@@ -16229,19 +16477,11 @@ function _saveAsignarHerramienta() {
   if (!trabajador) { _info('Ingresa el nombre del trabajador'); return; }
   const cantidad = parseInt(document.getElementById('as-cantidad').value) || 0;
   if (cantidad < 1 || cantidad > h.cantidad) { _info(`Cantidad inválida. Disponible: ${h.cantidad}`); return; }
-
   const fecha = new Date().toLocaleDateString('es-MX');
   const entrego = session.nombre || session.user;
-
-  // Descontar de bodega
   h.cantidad -= cantidad;
-
-  // Registrar asignación
   db.herramientasAsignadas.push({ id: sid(), herramientaId: herrId, herramientaNombre: h.nombre, trabajador, cantidad, fecha, entrego });
-
-  // Historial
   db.herramientasHistorial.push({ id: sid(), tipo: 'asignacion', herramientaNombre: h.nombre, trabajador, cantidad, fecha, opero: entrego });
-
   saveDb(['herramientas','herramientasAsignadas','herramientasHistorial']);
   closeModal();
   renderHerramientas();
@@ -16255,6 +16495,12 @@ function openDevolverHerramientaModal(asignacionId) {
     <div class="form-group"><label>Cantidad a devolver (asignadas: ${a.cantidad})</label>
       <input id="dev-cantidad" class="form-control" type="number" min="1" max="${a.cantidad}" value="${a.cantidad}" />
     </div>
+    <div class="form-group"><label>Estado en que regresa</label>
+      <select id="dev-estado" class="form-control">
+        <option value="buena">Buena</option>
+        <option value="dañada">Dañada</option>
+      </select>
+    </div>
     <input type="hidden" id="dev-asig-id" value="${asignacionId}" />`, [
     { label:'Confirmar devolución', cls:'btn-primary', action: _saveDevolverHerramienta },
     { label:'Cancelar', cls:'btn-secondary', action: closeModal }
@@ -16267,28 +16513,230 @@ function _saveDevolverHerramienta() {
   if (!a) return;
   const cantidad = parseInt(document.getElementById('dev-cantidad').value) || 0;
   if (cantidad < 1 || cantidad > a.cantidad) { _info(`Cantidad inválida. Asignadas: ${a.cantidad}`); return; }
-
+  const estadoDev = document.getElementById('dev-estado').value;
   const h = db.herramientas.find(x => x.id === a.herramientaId);
   const fecha = new Date().toLocaleDateString('es-MX');
   const opero = session.nombre || session.user;
-
-  // Regresar a bodega
-  if (h) h.cantidad += cantidad;
-
-  // Actualizar o eliminar asignación
+  if (estadoDev === 'buena') {
+    if (h) h.cantidad += cantidad;
+  } else {
+    if (h && h.estado === 'buena') h.estado = 'dañada';
+  }
   if (cantidad >= a.cantidad) {
     db.herramientasAsignadas = db.herramientasAsignadas.filter(x => x.id !== asigId);
   } else {
     a.cantidad -= cantidad;
   }
-
-  // Historial
   db.herramientasHistorial.push({ id: sid(), tipo: 'devolucion', herramientaNombre: a.herramientaNombre, trabajador: a.trabajador, cantidad, fecha, opero });
-
   saveDb(['herramientas','herramientasAsignadas','herramientasHistorial']);
+  closeModal();
+  if (estadoDev === 'dañada') {
+    setTimeout(() => openOpcionesDañadaModal(a.herramientaId, a.trabajador, cantidad, a.serie||''), 200);
+  } else {
+    renderHerramientas();
+  }
+}
+
+function openOpcionesDañadaModal(herrId, trabajador, cantidad, serie) {
+  const h = db.herramientas.find(x => x.id === herrId);
+  const nombre = h ? h.nombre : '';
+  showModal('⚠️ Herramienta dañada', `
+    <p style="margin-bottom:14px"><strong>${esc(nombre)}</strong> regresó dañada (${cantidad} pzas). ¿Qué deseas hacer?</p>`, [
+    { label:'🔧 Enviar a reparación', cls:'btn-primary', action: () => { closeModal(); setTimeout(() => openReparacionModal(herrId, trabajador, cantidad, serie), 200); } },
+    { label:'🗑️ Dar de baja', cls:'btn-outline', action: () => { closeModal(); setTimeout(() => openDarDeBajaModal(herrId, cantidad, serie), 200); } },
+    { label:'Cancelar', cls:'btn-secondary', action: () => { closeModal(); renderHerramientas(); } }
+  ]);
+}
+
+function openDarDeBajaModal(herrId, cantidadSugerida, serieSugerida) {
+  const h = db.herramientas.find(x => x.id === herrId);
+  if (!h) return;
+  showModal(`🗑️ Dar de baja: ${esc(h.nombre)}`, `
+    <p style="font-size:0.85rem;color:#64748b;margin-bottom:12px">Disponible en bodega: <strong>${h.cantidad}</strong></p>
+    <div class="form-group"><label>Cantidad a dar de baja</label>
+      <input id="baja-cantidad" class="form-control" type="number" min="1" max="${h.cantidad}" value="${cantidadSugerida||1}" />
+    </div>
+    <div class="form-group"><label>Número de serie <span style="color:#94a3b8;font-size:0.82rem">(si aplica)</span></label>
+      <input id="baja-serie" class="form-control" value="${esc(serieSugerida||h.serie||'')}" placeholder="—" />
+    </div>
+    <div class="form-group"><label>Motivo de baja</label>
+      <input id="baja-motivo" class="form-control" placeholder="Ej. Dañada, desgaste, robo..." />
+    </div>
+    <hr style="margin:12px 0;border:none;border-top:1px solid var(--border)"/>
+    ${session.rol === 'admin' ? `
+    <p style="font-size:0.82rem;color:#065f46;background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;padding:8px 10px;margin-bottom:10px">✅ Autorizado como <strong>Administrador</strong></p>
+    ` : `
+    <p style="font-size:0.82rem;color:#92400e;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:8px 10px;margin-bottom:10px">🔒 Solo el <strong>Administrador</strong> puede autorizar bajas. Pide que escriba su usuario y contraseña.</p>
+    <div class="form-group"><label>Usuario administrador</label>
+      <input id="baja-admin-user" class="form-control" placeholder="Usuario..." autocomplete="off" />
+    </div>
+    <div class="form-group"><label>Contraseña</label>
+      <div style="position:relative">
+        <input id="baja-admin-pass" type="text" class="form-control" placeholder="Contraseña..." autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" style="padding-right:38px;-webkit-text-security:disc;text-security:disc" />
+        <button type="button" onclick="toggleVerPass('baja-admin-pass',this)" title="Mostrar/ocultar" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;padding:4px">👁️</button>
+      </div>
+    </div>
+    <p id="baja-pass-error" style="color:#dc2626;font-size:0.82rem;margin-top:8px;display:none">Usuario o contraseña incorrectos, o el usuario no es administrador</p>
+    `}
+    <input type="hidden" id="baja-herr-id" value="${herrId}" />`, [
+    { label:'🔒 Autorizar y dar de baja', cls:'btn-danger', action: _saveDarDeBaja },
+    { label:'Cancelar', cls:'btn-secondary', action: closeModal }
+  ]);
+}
+
+async function _saveDarDeBaja() {
+  const herrId = +document.getElementById('baja-herr-id').value;
+  const h = db.herramientas.find(x => x.id === herrId);
+  if (!h) return;
+  const cantidad = parseInt(document.getElementById('baja-cantidad').value) || 0;
+  if (cantidad < 1 || cantidad > h.cantidad) { _info(`Cantidad inválida. Disponible en bodega: ${h.cantidad}`); return; }
+  const motivo = document.getElementById('baja-motivo').value.trim();
+  if (!motivo) { _info('Ingresa el motivo de baja'); return; }
+  const serie = document.getElementById('baja-serie').value.trim();
+  let adminUser;
+  if (session.rol === 'admin') {
+    adminUser = session.nombre || session.user;
+  } else {
+    adminUser = document.getElementById('baja-admin-user').value.trim();
+    const adminPass = document.getElementById('baja-admin-pass').value;
+    const errEl = document.getElementById('baja-pass-error');
+    const ok = await verificarPasswordAdmin(adminUser, adminPass);
+    if (!ok) { if (errEl) errEl.style.display = 'block'; return; }
+  }
+  const fecha = new Date().toLocaleDateString('es-MX');
+  h.cantidad -= cantidad;
+  if (h.cantidad === 0) h.estado = 'baja';
+  db.herramientasHistorial.push({ id: sid(), tipo: 'baja', herramientaNombre: h.nombre, serie: serie||h.serie||'', trabajador: '', cantidad, fecha, motivo, autorizadoPor: adminUser, opero: adminUser });
+  saveDb(['herramientas','herramientasHistorial']);
   closeModal();
   renderHerramientas();
 }
+
+function openReparacionModal(herrId, trabajadorOrigen, cantidadDañada, serieDañada) {
+  const h = db.herramientas.find(x => x.id === herrId);
+  if (!h) return;
+  const hayReemplazo = h.cantidad > 0;
+  showModal(`🔧 Enviar a reparación: ${esc(h.nombre)}`, `
+    <div class="form-group"><label>Número de serie <span style="color:#94a3b8;font-size:0.82rem">(si aplica)</span></label>
+      <input id="rep-serie" class="form-control" value="${esc(serieDañada||h.serie||'')}" placeholder="—" />
+    </div>
+    <div class="form-group"><label>Motivo / descripción del daño</label>
+      <input id="rep-motivo" class="form-control" placeholder="Ej. Motor quemado, mango roto..." />
+    </div>
+    <hr style="margin:12px 0;border:none;border-top:1px solid var(--border)"/>
+    ${hayReemplazo ? `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 12px;margin-bottom:10px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600">
+        <input type="checkbox" id="rep-dar-reemplazo" style="width:auto;padding:0" checked />
+        Prestar herramienta de reemplazo al trabajador
+      </label>
+      <div id="rep-reemplazo-detalle" style="margin-top:8px">
+        <div class="form-group"><label>Trabajador que recibirá el reemplazo</label>
+          <input id="rep-trab-reemplazo" class="form-control" value="${esc(trabajadorOrigen||'')}" />
+        </div>
+        <p style="font-size:0.82rem;color:#64748b">Disponible en bodega: <strong>${h.cantidad}</strong></p>
+      </div>
+    </div>` : `<p style="font-size:0.82rem;color:#94a3b8;margin-bottom:8px">No hay unidades disponibles en bodega para prestar como reemplazo.</p>`}
+    <input type="hidden" id="rep-herr-id" value="${herrId}" />
+    <input type="hidden" id="rep-trab-origen" value="${esc(trabajadorOrigen||'')}" />
+    <input type="hidden" id="rep-cantidad" value="${cantidadDañada||1}" />`, [
+    { label:'Enviar a reparación', cls:'btn-primary', action: _saveEnviarReparacion },
+    { label:'Cancelar', cls:'btn-secondary', action: closeModal }
+  ]);
+  if (hayReemplazo) {
+    setTimeout(() => {
+      const cb = document.getElementById('rep-dar-reemplazo');
+      if (cb) cb.addEventListener('change', function() {
+        document.getElementById('rep-reemplazo-detalle').style.display = this.checked ? 'block' : 'none';
+      });
+    }, 50);
+  }
+}
+
+function _saveEnviarReparacion() {
+  const herrId = +document.getElementById('rep-herr-id').value;
+  const h = db.herramientas.find(x => x.id === herrId);
+  if (!h) return;
+  const motivo = document.getElementById('rep-motivo').value.trim();
+  if (!motivo) { _info('Ingresa el motivo o descripción del daño'); return; }
+  const serie = document.getElementById('rep-serie').value.trim();
+  const trabajadorOrigen = document.getElementById('rep-trab-origen').value;
+  const cantidad = parseInt(document.getElementById('rep-cantidad').value) || 1;
+  const fecha = new Date().toLocaleDateString('es-MX');
+  const opero = session.nombre || session.user;
+  const darReemplazoEl = document.getElementById('rep-dar-reemplazo');
+  const darReemplazo = darReemplazoEl ? darReemplazoEl.checked : false;
+  let reemplazoAsignacionId = null;
+  if (darReemplazo && h.cantidad > 0) {
+    const trabReemplazo = document.getElementById('rep-trab-reemplazo')?.value.trim() || trabajadorOrigen;
+    if (!trabReemplazo) { _info('Ingresa el nombre del trabajador para el reemplazo'); return; }
+    reemplazoAsignacionId = sid();
+    h.cantidad -= 1;
+    db.herramientasAsignadas.push({ id: reemplazoAsignacionId, herramientaId: herrId, herramientaNombre: h.nombre, trabajador: trabReemplazo, cantidad: 1, fecha, entrego: opero, esReemplazo: true });
+    db.herramientasHistorial.push({ id: sid(), tipo: 'asignacion', herramientaNombre: h.nombre + ' (reemplazo)', trabajador: trabReemplazo, cantidad: 1, fecha, opero });
+  }
+  if (!h.cantidadReparacion) h.cantidadReparacion = 0;
+  h.cantidadReparacion += cantidad;
+  if (!db.herramientasReparacion) db.herramientasReparacion = [];
+  db.herramientasReparacion.push({ id: sid(), herramientaId: herrId, herramientaNombre: h.nombre, serie, trabajadorOrigen, motivoDaño: motivo, fechaEnvio: fecha, reemplazoAsignacionId });
+  db.herramientasHistorial.push({ id: sid(), tipo: 'reparacion', herramientaNombre: h.nombre, trabajador: trabajadorOrigen, cantidad, fecha, opero });
+  saveDb(['herramientas','herramientasAsignadas','herramientasHistorial','herramientasReparacion']);
+  closeModal();
+  renderHerramientas();
+}
+
+function openMarcarReparadaModal(repId) {
+  const r = (db.herramientasReparacion||[]).find(x => x.id === repId);
+  if (!r) return;
+  const reemplazo = r.reemplazoAsignacionId ? (db.herramientasAsignadas||[]).find(a => a.id === r.reemplazoAsignacionId) : null;
+  showModal(`✅ Marcar como reparada: ${esc(r.herramientaNombre)}`, `
+    <div class="form-group"><label>¿En qué estado regresa?</label>
+      <select id="mrep-estado" class="form-control">
+        <option value="buena">Buena — regresa a bodega</option>
+        <option value="baja">No quedó bien — dar de baja</option>
+      </select>
+    </div>
+    ${reemplazo ? `<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 12px;margin-top:10px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600">
+        <input type="checkbox" id="mrep-devolver-reemplazo" style="width:auto;padding:0" checked />
+        Recibir el reemplazo prestado (${esc(reemplazo.trabajador)})
+      </label>
+    </div>` : ''}
+    <input type="hidden" id="mrep-rep-id" value="${repId}" />`, [
+    { label:'Confirmar', cls:'btn-primary', action: _saveMarcarReparada },
+    { label:'Cancelar', cls:'btn-secondary', action: closeModal }
+  ]);
+}
+
+function _saveMarcarReparada() {
+  const repId = parseInt(document.getElementById('mrep-rep-id').value);
+  const r = (db.herramientasReparacion||[]).find(x => x.id === repId);
+  if (!r) return;
+  const estado = document.getElementById('mrep-estado').value;
+  const h = db.herramientas.find(x => x.id === r.herramientaId);
+  const fecha = new Date().toLocaleDateString('es-MX');
+  const opero = session.nombre || session.user;
+  if (estado === 'buena') {
+    if (h) { h.cantidad += 1; if (h.cantidadReparacion > 0) h.cantidadReparacion--; h.estado = 'buena'; }
+    db.herramientasHistorial.push({ id: sid(), tipo: 'reparacion_completada', herramientaNombre: r.herramientaNombre, trabajador: r.trabajadorOrigen, cantidad: 1, fecha, opero });
+  } else {
+    if (h && h.cantidadReparacion > 0) h.cantidadReparacion--;
+    db.herramientasHistorial.push({ id: sid(), tipo: 'baja', herramientaNombre: r.herramientaNombre, serie: r.serie||'', trabajador: '', cantidad: 1, fecha, motivo: 'No quedó bien de reparación', autorizadoPor: opero, opero });
+  }
+  const devolverEl = document.getElementById('mrep-devolver-reemplazo');
+  if (devolverEl && devolverEl.checked && r.reemplazoAsignacionId) {
+    const asig = (db.herramientasAsignadas||[]).find(a => a.id === r.reemplazoAsignacionId);
+    if (asig) {
+      if (h) h.cantidad += asig.cantidad;
+      db.herramientasHistorial.push({ id: sid(), tipo: 'devolucion', herramientaNombre: asig.herramientaNombre + ' (reemplazo)', trabajador: asig.trabajador, cantidad: asig.cantidad, fecha, opero });
+      db.herramientasAsignadas = (db.herramientasAsignadas||[]).filter(a => a.id !== r.reemplazoAsignacionId);
+    }
+  }
+  db.herramientasReparacion = (db.herramientasReparacion||[]).filter(x => x.id !== repId);
+  saveDb(['herramientas','herramientasAsignadas','herramientasHistorial','herramientasReparacion']);
+  closeModal();
+  renderHerramientas();
+}
+
 
 function imprimirTicketRep(id) {
   const r = db.reparaciones.find(x=>x.id===id);
@@ -21194,8 +21642,7 @@ function renderAgenda() {
     const _mySeg  = _allSeg.filter(c => esAdmin ? (window._recAgAdminFilter ? (c.recUsuario||c.usuario) === window._recAgAdminFilter : true) : (c.recUsuario||c.usuario) === session.nombre);
     const _recUsuarios = esAdmin ? [...new Set([
       ...(db.cotizaciones||[]).filter(c=>c.recFecha).map(c=>c.recUsuario||c.usuario||'').filter(u=>u),
-      ...(db.users||[]).map(u=>u.nombre).filter(n=>n),
-      ...(_rolesParaCaja||[]).map(u=>u.nombre).filter(n=>n)
+      ...(_rolesParaCaja||[]).filter(u=>u.rol==='secretaria'||u.rol==='auxiliar').map(u=>u.nombre).filter(n=>n)
     ])].sort() : [];
     const segsV   = _mySeg.filter(c => !(c.recSnoozeHasta && c.recSnoozeHasta > Date.now()) && (c.recFecha < hoy || (c.recFecha === hoy && (!c.recHora || c.recHora <= _nowHHMM)))).sort((a,b)=>a.recFecha.localeCompare(b.recFecha)||(a.recHora||'').localeCompare(b.recHora||''));
     const segsP   = _mySeg.filter(c => !(c.recSnoozeHasta && c.recSnoozeHasta > Date.now()) && (c.recFecha > hoy || (c.recFecha === hoy && c.recHora && c.recHora > _nowHHMM))).sort((a,b)=>a.recFecha.localeCompare(b.recFecha)||(a.recHora||'').localeCompare(b.recHora||''));
@@ -25370,11 +25817,16 @@ function logActividad(accion, detalle) {
       ...( (_rolesParaCaja||[]).filter(u=>u.rol==='secretaria'||u.rol==='auxiliar').map(u=>u.nombre) )
     ])].sort() : [];
 
-    // Personales vencidos del usuario actual (para popup)
+    // Personales vencidos (respeta filtro de usuario del popup)
     const _popupHoy = (typeof today==='function') ? today() : new Date().toISOString().slice(0,10);
     const _popupHM = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
+    const _popModo = window._popupRecModo || 'mios';
+    const _popUidFiltro = _popModo === 'mios' ? session.uid :
+      _popModo === 'todos' ? null :
+      ((_rolesParaCaja||[]).find(u=>u.nombre===_popModo)||{}).uid || null;
     const _popupPersV = (db.recordatoriosPersonales||[]).filter(p => {
-      if (p.completado || p.atendido || p.usuarioId !== session.uid) return false;
+      if (p.completado || p.atendido) return false;
+      if (_popUidFiltro !== null && p.usuarioId !== _popUidFiltro) return false;
       try { const _s = _getSnooze(); if (_s['pers_' + p.id] && _s['pers_' + p.id] > Date.now()) return false; } catch(e) {}
       if (p.snoozeHasta && p.snoozeHasta > Date.now()) return false;
       return p.fecha && (p.fecha < _popupHoy || (p.fecha === _popupHoy && (!p.hora || p.hora <= _popupHM)));
