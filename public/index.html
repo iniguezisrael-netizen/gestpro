@@ -2145,11 +2145,22 @@ async function loadFromFirebase() {
     // Si falla o está vacío → continúa con el flujo original de Firestore.
     if (RTDB_DUAL_WRITE) {
       try {
-        const _rSnap = await firebase.database().ref('db').once('value');
-        const _rAll  = _rSnap.val();
+        // Filtro por rol: checador solo necesita 2 colecciones (~1KB vs 2.4MB del bulk)
+        const _rRol = session && session.rol;
+        const _rChecador = _rRol === 'checador';
+        let _rAll;
+        if (_rChecador) {
+          const _rChecCols = ['checadas','checadorConfig'];
+          const _rSnaps = await Promise.all(_rChecCols.map(c => firebase.database().ref('db/' + c).once('value')));
+          _rAll = {};
+          _rChecCols.forEach((c, i) => { const v = _rSnaps[i].val(); if (v) _rAll[c] = v; });
+        } else {
+          const _rSnap = await firebase.database().ref('db').once('value');
+          _rAll = _rSnap.val();
+        }
         if (_rAll) {
           const _rCols = [], _rData = [];
-          FS_COLLECTIONS.forEach(col => {
+          (_rChecador ? ['checadas','checadorConfig'] : FS_COLLECTIONS).forEach(col => {
             const raw = _rAll[col];
             if (raw && typeof raw === 'object') {
               // Fix 9: FS_ARRAY_COLS (ej. clientesCredito) usa {data:{items:[]}} sin .id
@@ -2172,7 +2183,7 @@ async function loadFromFirebase() {
               if (items.length) { _rCols.push(col); _rData.push(items); }
             }
           });
-          if (_rCols.length >= 10) {
+          if (_rChecador ? _rCols.length >= 1 : _rCols.length >= 10) {
             await _procesarColecciones(_rCols, _rData);
             _appReady = true;
             setSyncStatus('ok');
@@ -2183,7 +2194,7 @@ async function loadFromFirebase() {
             _refillIdPool().catch(() => {}); // Fix 6: _refillIdPool ya incluye la lectura/escritura de nextId — fsReadNextId() era redundante
             const _rFotos = _COLS_CON_FOTOS.some(col => (db[col]||[]).some(it => (it.fotos||[]).some(f => f && f.startsWith('data:'))));
             if (_rFotos) await sincronizarFotosPendientes();
-            console.log('[RTDB] ' + _rCols.length + ' cols cargadas ✓ — 0 lecturas Firestore');
+            console.log('[RTDB] ' + _rCols.length + ' cols cargadas' + (_rChecador ? ' [checador]' : '') + ' ✓ — 0 lecturas Firestore');
             // Background: verificar cajas abiertas vs Firestore (detecta escrituras RTDB perdidas)
             setTimeout(() => _verificarCajasAbiertas().catch(() => {}), 2000);
             return;
