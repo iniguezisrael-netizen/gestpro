@@ -21649,7 +21649,7 @@ function renderAgenda() {
     const segsSnz = _mySeg.filter(c => c.recSnoozeHasta && c.recSnoozeHasta > Date.now()).sort((a,b)=>(a.recSnoozeHasta||0)-(b.recSnoozeHasta||0));
     // ── Personales ──────────────────────────────────────────────────────────
     const _allPers = (db.recordatoriosPersonales||[]);
-    const _myPers  = esAdmin ? (window._persAdminFilter ? _allPers.filter(p => p.usuarioId === window._persAdminFilter) : _allPers) : _allPers.filter(p => p.usuarioId === session.uid);
+    const _myPers  = esAdmin ? (!window._recAgAdminFilter ? _allPers : window._persAdminFilter ? _allPers.filter(p => p.usuarioId === window._persAdminFilter) : _allPers.filter(p => (p.usuarioNombre||'') === window._recAgAdminFilter)) : _allPers.filter(p => p.usuarioId === session.uid);
     const _persUsuariosMap = {};
     _allPers.forEach(p => { if (p.usuarioId && !_persUsuariosMap[p.usuarioId]) _persUsuariosMap[p.usuarioId] = p.usuarioNombre||p.usuarioId; });
     const _persUsuarios = Object.entries(_persUsuariosMap).map(([id,n]) => ({id,n}));
@@ -25823,10 +25823,13 @@ function logActividad(accion, detalle) {
     const _popModo = window._popupRecModo || 'mios';
     const _popUidFiltro = _popModo === 'mios' ? session.uid :
       _popModo === 'todos' ? null :
-      ((_rolesParaCaja||[]).find(u=>u.nombre===_popModo)||{}).uid || null;
+      ((_rolesParaCaja||[]).find(u=>u.nombre===_popModo)||{}).uid || '';
     const _popupPersV = (db.recordatoriosPersonales||[]).filter(p => {
       if (p.completado || p.atendido) return false;
-      if (_popUidFiltro !== null && p.usuarioId !== _popUidFiltro) return false;
+      if (_popModo !== 'todos') {
+        if (_popUidFiltro) { if (p.usuarioId !== _popUidFiltro) return false; }
+        else { if ((p.usuarioNombre||'') !== _popModo) return false; }
+      }
       try { const _s = _getSnooze(); if (_s['pers_' + p.id] && _s['pers_' + p.id] > Date.now()) return false; } catch(e) {}
       if (p.snoozeHasta && p.snoozeHasta > Date.now()) return false;
       return p.fecha && (p.fecha < _popupHoy || (p.fecha === _popupHoy && (!p.hora || p.hora <= _popupHM)));
