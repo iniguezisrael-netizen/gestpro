@@ -13,6 +13,11 @@
       "$collection": {
         ".read": "auth != null",
         ".write": "auth != null"
+      },
+      "facturas": {
+        ".indexOn": [
+          "fecha"
+        ]
       }
     }
   }

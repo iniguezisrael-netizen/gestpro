@@ -1614,7 +1614,7 @@ function reintentarSync() {
   setSyncStatus('syncing');
   if (!window._ownWriteUntilByCol) window._ownWriteUntilByCol = {};
   cols.forEach(c => { window._ownWriteUntilByCol[c] = Date.now() + 8000; });
-  if (RTDB_DUAL_WRITE && rtdb) cols.forEach(c => _rtdbWriteCollection(c, db[c]).catch(() => {}));
+  if (RTDB_DUAL_WRITE && rtdb) cols.filter(c => c !== 'facturas').forEach(c => _rtdbWriteCollection(c, db[c]).catch(() => {}));
   Promise.all(cols.map(c => fsWriteCollection(c, db[c])))
     .then(() => {
       cols.forEach(c => { window._ownWriteUntilByCol[c] = Math.max(window._ownWriteUntilByCol[c] || 0, Date.now() + 1000); });
@@ -1659,6 +1659,62 @@ const _colListenerDeferred = new Set(); // colecciones esperando su listener rea
 // Firestore sigue siendo la fuente de verdad hasta completar la migración.
 const RTDB_DUAL_WRITE = true;
 const FIRESTORE_WRITE_ENABLED = false; // ← false = solo escribe en RTDB (fase migración)
+
+// ── Facturas: escrituras individuales a RTDB (paginación por período) ──
+async function _rtdbSaveFactura(f) {
+  if (!rtdb || !RTDB_DUAL_WRITE || !f || f.id == null) return;
+  try {
+    await rtdb.ref('db/facturas/' + String(f.id)).set(f);
+    rtdb.ref('db/_ver/facturas').set(Date.now()).catch(() => {});
+  } catch(e) { console.warn('[rtdb-factura-save]', e); }
+}
+async function _rtdbDeleteFactura(id) {
+  if (!rtdb || !RTDB_DUAL_WRITE) return;
+  try {
+    await rtdb.ref('db/facturas/' + String(id)).remove();
+    rtdb.ref('db/_ver/facturas').set(Date.now()).catch(() => {});
+  } catch(e) { console.warn('[rtdb-factura-del]', e); }
+}
+function _mergeFacturasEnMemoria(items) {
+  if (!items || !items.length) return;
+  const ids = new Set((db.facturas || []).map(f => String(f.id)));
+  items.forEach(f => { if (f && f.id != null && !ids.has(String(f.id))) db.facturas.push(f); });
+}
+async function _cargarFacturasPeriodo(anio, mes) {
+  if (!rtdb || !RTDB_DUAL_WRITE) return;
+  if (!window._factPeriodosLoaded) window._factPeriodosLoaded = new Set();
+  const _periodoKey = String(anio) + '_' + String(mes);
+  const _hoyCP = new Date();
+  const _esActual = (String(anio) === String(_hoyCP.getFullYear()) && String(mes) === String(_hoyCP.getMonth() + 1).padStart(2, '0'));
+  // Meses pasados: usar cache si existe
+  if (!_esActual) {
+    try {
+      const _cacheKey = 'gp_fac_' + _periodoKey;
+      const _cached = JSON.parse(localStorage.getItem(_cacheKey) || 'null');
+      if (_cached && _cached.length > 0) {
+        _mergeFacturasEnMemoria(_cached);
+        window._factPeriodosLoaded.add(_periodoKey);
+        if (currentPage === 'facturas') filtrarFacturas(false);
+        return;
+      }
+    } catch(_) {}
+  }
+  // Cargar desde RTDB
+  try {
+    const _start = String(anio) + '-' + String(mes).padStart(2,'0') + '-01';
+    const _end   = String(anio) + '-' + String(mes).padStart(2,'0') + '-31';
+    const _snap = await rtdb.ref('db/facturas').orderByChild('fecha').startAt(_start).endAt(_end).once('value');
+    const _items = _snap.exists() ? Object.values(_snap.val()).filter(x => x && x.id != null) : [];
+    _mergeFacturasEnMemoria(_items);
+    if (!_esActual) {
+      try { localStorage.setItem('gp_fac_' + _periodoKey, JSON.stringify(_items)); } catch(_) {}
+    } else {
+      try { save('gp_facturas', db.facturas); } catch(_) {}
+    }
+  } catch(e) { console.warn('[_cargarFacturasPeriodo]', anio, mes, e); }
+  window._factPeriodosLoaded.add(_periodoKey);
+  if (currentPage === 'facturas') filtrarFacturas(false);
+}
 
 async function _rtdbWriteCollection(colName, arr) {
   if (!rtdb || !RTDB_DUAL_WRITE) return;
@@ -1893,7 +1949,7 @@ function saveDb(colChanged) {
       if (!isOffline) { _timeoutFired = true; setSyncStatus('ok'); }
     }, 20000);
     // Dual-write a RTDB en paralelo (fire-and-forget — no bloquea Firestore)
-    if (RTDB_DUAL_WRITE && rtdb) cols.forEach(c => _rtdbWriteCollection(c, db[c]).catch(() => {}));
+    if (RTDB_DUAL_WRITE && rtdb) cols.filter(c => c !== 'facturas').forEach(c => _rtdbWriteCollection(c, db[c]).catch(() => {}));
     Promise.all(cols.map(c => fsWriteCollection(c, db[c])))
       .then(() => {
         clearTimeout(_syncTimeout);
@@ -14141,7 +14197,8 @@ function renderFacturas() {
   const q = { nombre:'', folio:'', fecha:'' }; // estado de búsqueda en memoria
 
   // Opciones dinámicas para los filtros de año y RFC
-  const anios = [...new Set((db.facturas||[]).filter(f=>f.fecha).map(f=>f.fecha.substring(0,4)))].sort((a,b)=>b-a);
+  const _anioActual = new Date().getFullYear();
+  const anios = Array.from({length: _anioActual - 2020 + 1}, (_, i) => String(_anioActual - i));
   const rfcs = [...new Map((db.facturas||[]).filter(f=>f.rfcReceptor).map(f=>[f.rfcReceptor, f.receptor])).entries()].sort((a,b)=>(a[1]||'').localeCompare(b[1]||''));
   const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -14311,7 +14368,15 @@ function renderFacturas() {
         if (_prevFiltros[k]) _hayFiltro = true;
       }
     });
-    if (_hayFiltro) filtrarFacturas(false);
+    if (!_hayFiltro) {
+      // Auto-seleccionar mes y año actual si no había filtro previo
+      const _hoyAuto = new Date();
+      const _elMes = document.getElementById('f-mes');
+      const _elAnio = document.getElementById('f-anio');
+      if (_elMes) _elMes.value = String(_hoyAuto.getMonth() + 1).padStart(2, '0');
+      if (_elAnio) _elAnio.value = String(_hoyAuto.getFullYear());
+    }
+    filtrarFacturas(false);
   }, 0);
 }
 
@@ -14461,6 +14526,7 @@ async function _procesarXmlCfdiBatch(files) {
   }
 
   saveDb('facturas');
+  _toUpload.forEach(({factura}) => { _rtdbSaveFactura(factura).catch(()=>{}); });
   renderFacturas();
   let msg = `✅ ${guardadas} factura${guardadas !== 1 ? 's' : ''} guardada${guardadas !== 1 ? 's' : ''}`;
   if (duplicadas) msg += ` · ${duplicadas} ya existían`;
@@ -14643,6 +14709,7 @@ async function _procesarPdfCfdiBatch(files) {
   const pdfStatus = document.getElementById('pdf-status');
   pdfStatus.innerHTML = `<span style="color:#0f6e56">⏳ Leyendo ${total} PDFs...</span>`;
   let asociados = 0, sinXml = 0, errores = 0;
+  const _pdfActualizados = [];
   const _PDF_CONC = 6;   // parseo + upload en paralelo
   // Paso 1: leer todos los dataUrls en paralelo
   const _leidos = await Promise.all(Array.from(files).map(file =>
@@ -14698,6 +14765,7 @@ async function _procesarPdfCfdiBatch(files) {
             const snap = await storage.ref().child(`facturas/${factura.id}/factura.pdf`).put(blob);
             factura.pdfUrl = await snap.ref.getDownloadURL();
             factura.tienePdf = true; // solo se marca si el upload fue exitoso
+            _pdfActualizados.push(factura);
             asociados++;
           } catch(_pe2) { console.warn('PDF upload error', factura.id, _pe2); errores++; }
         } else { errores++; }
@@ -14705,7 +14773,7 @@ async function _procesarPdfCfdiBatch(files) {
     }));
     if ((i + _PDF_CONC) % 30 === 0) { try { saveDb('facturas'); } catch(_e){} }
   }
-  if (asociados || sinXml) { saveDb('facturas'); renderFacturas(); }
+  if (asociados || sinXml) { saveDb('facturas'); _pdfActualizados.forEach(f => { _rtdbSaveFactura(f).catch(()=>{}); }); renderFacturas(); }
   let msg = `✅ ${asociados} PDF${asociados !== 1 ? 's' : ''} subido${asociados !== 1 ? 's' : ''}`;
   if (sinXml) msg += ` · ${sinXml} sin coincidencia — sube primero los XMLs para que el sistema pueda emparejarlos`;
   if (errores) msg += ` · ${errores} con error`;
@@ -14843,7 +14911,7 @@ async function _doGuardarFactura() {
       if (_pdfSubido) _actualizado = true;
       else if (!storage) { _fx.tienePdf = true; _actualizado = true; } // sin storage: solo marcar
     }
-    if (_actualizado) { saveDb('facturas'); cancelarCfdi(); renderFacturas(); _info('✅ Factura complementada: se agregó el archivo faltante al registro existente'); return; }
+    if (_actualizado) { saveDb('facturas'); _rtdbSaveFactura(_fx).catch(()=>{}); cancelarCfdi(); renderFacturas(); _info('✅ Factura complementada: se agregó el archivo faltante al registro existente'); return; }
     return; // ya existe completa — no crear duplicado
   }
   const id = sid();
@@ -14902,6 +14970,7 @@ async function _doGuardarFactura() {
   }
   db.facturas.push(factura);
   saveDb('facturas');
+  _rtdbSaveFactura(factura).catch(()=>{});
   cancelarCfdi();
   renderFacturas();
   _info('✅ Factura guardada correctamente');
@@ -14916,36 +14985,15 @@ function cancelarCfdi() {
 }
 
 async function _sincronizarFacturas() {
-  if (!FIREBASE_ENABLED || !firestore) return;
-  if (window._facturasSyncDone) return; // ya sincronizó esta sesión
-  if ((db.facturas || []).length > 0) { window._facturasSyncDone = true; return; } // Fix 4: ya en memoria, sin leer Firestore
+  if (!FIREBASE_ENABLED || !rtdb || !RTDB_DUAL_WRITE) return;
+  if (window._facturasSyncDone) return;
   window._facturasSyncDone = true;
-  try {
-    // RTDB primero: ver-hash puede decir "sin cambios" pero gp_facturas vacío en localStorage
-    if (rtdb && RTDB_DUAL_WRITE) {
-      const _rSnap = await rtdb.ref('db/facturas').once('value');
-      if (_rSnap.exists()) {
-        const _rItems = Object.values(_rSnap.val()).filter(x => x && x.id != null);
-        if (_rItems.length) { db.facturas = _rItems; save('gp_facturas', db.facturas); if (currentPage === 'facturas') renderFacturas(); return; }
-      }
-    }
-    // Caché primero: 0 lecturas de servidor si IndexedDB tiene datos (igual que fsReadCollection)
-    let snap = null;
-    try {
-      const _cached = await firestore.collection('facturas').get({ source: 'cache' });
-      if (!_cached.empty) snap = _cached;
-    } catch(_) {}
-    if (!snap) snap = await firestore.collection('facturas').get();
-    const items = snap.docs
-      .filter(d => !d.id.startsWith('_'))
-      .map(d => d.data())
-      .filter(d => d && d.id != null);
-    if (items.length) {
-      db.facturas = items;
-      save('gp_facturas', db.facturas);
-      if (currentPage === 'facturas') renderFacturas();
-    }
-  } catch(e) { console.warn('_sincronizarFacturas:', e); window._facturasSyncDone = false; }
+  if ((db.facturas || []).length > 0) return; // ya cargado desde gp_facturas (localStorage)
+  // Cargar solo mes actual por defecto
+  const _hoyS = new Date();
+  const _anioS = String(_hoyS.getFullYear());
+  const _mesS = String(_hoyS.getMonth() + 1).padStart(2, '0');
+  await _cargarFacturasPeriodo(_anioS, _mesS);
 }
 
 async function _repararArchivosFacturas() {
@@ -15005,6 +15053,15 @@ function filtrarFacturas(resetPage, _desdeTexto) {
   if (!window._pgState) window._pgState = {};
   if (resetPage !== false) window._pgState['facturas'] = 0;
   const tbody = document.getElementById('tbody-facturas');
+  // Si hay mes+año seleccionados, cargar ese período si no está en memoria aún
+  if (filtro.mes && filtro.anio) {
+    const _pk = filtro.anio + '_' + filtro.mes;
+    if (!window._factPeriodosLoaded || !window._factPeriodosLoaded.has(_pk)) {
+      if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px 16px;color:#94a3b8;font-size:0.85rem">⏳ Cargando facturas del período...</td></tr>';
+      _cargarFacturasPeriodo(filtro.anio, filtro.mes);
+      return;
+    }
+  }
   if (tbody && window._htmlTablaFacturas) tbody.innerHTML = window._htmlTablaFacturas(filtro);
 
   // Recalcular opciones del select de RFC: solo cuando NO viene de un input de texto
@@ -15064,6 +15121,7 @@ function cancelarFactura(id) {
   _confirm('¿Marcar esta factura como CANCELADA?\nEsta acción es definitiva y no se puede revertir.', () => {
     f.cancelada = true;
     saveDb('facturas');
+    _rtdbSaveFactura(f).catch(()=>{});
     try { if (firestore) firestore.collection('facturas').doc(String(f.id)).update({ cancelada: true }).catch(()=>{}); } catch(e) {}
     renderFacturas();
     _ok('Factura marcada como cancelada.');
@@ -15151,7 +15209,7 @@ function delFactura(id) {
       if (f.pdfUrl) storage.ref().child(`facturas/${id}/factura.pdf`).delete().catch(()=>{});
     }
     db.facturas = db.facturas.filter(x=>x.id!==id);
-    saveDb('facturas'); renderFacturas();
+    saveDb('facturas'); _rtdbDeleteFactura(id).catch(()=>{}); renderFacturas();
   }, null, {ok:'Eliminar'});
 }
 
