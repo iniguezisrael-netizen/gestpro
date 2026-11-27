@@ -1684,6 +1684,8 @@ async function _rtdbWriteCollection(colName, arr) {
       // null limpia entradas que ya no existen
       await rtdb.ref('db/' + colName).set(dataObj);
     }
+    // Version hash: marcar colección como actualizada en db/_ver
+    rtdb.ref('db/_ver/' + colName).set(Date.now()).catch(() => {});
   } catch(e) { console.warn('[rtdb-write]', colName, e); }
 }
 
@@ -2148,15 +2150,44 @@ async function loadFromFirebase() {
         // Filtro por rol: checador solo necesita 2 colecciones (~1KB vs 2.4MB del bulk)
         const _rRol = session && session.rol;
         const _rChecador = _rRol === 'checador';
-        let _rAll;
+        let _rAll, _verUsada = false, _verRemota = null;
         if (_rChecador) {
           const _rChecCols = ['checadas','checadorConfig'];
           const _rSnaps = await Promise.all(_rChecCols.map(c => firebase.database().ref('db/' + c).once('value')));
           _rAll = {};
           _rChecCols.forEach((c, i) => { const v = _rSnaps[i].val(); if (v) _rAll[c] = v; });
         } else {
-          const _rSnap = await firebase.database().ref('db').once('value');
-          _rAll = _rSnap.val();
+          // Version hash: leer _ver (~500 bytes) antes de descargar datos
+          const _verLocal = (() => { try { return JSON.parse(localStorage.getItem('gp__ver')); } catch(e) { return null; } })();
+          const _vSnap = await firebase.database().ref('db/_ver').once('value');
+          _verRemota = _vSnap.val();
+          if (_verRemota && _verLocal) {
+            // Solo descargar colecciones que cambiaron desde la última sesión
+            const _changed = FS_COLLECTIONS.filter(c => (_verRemota[c]||0) > (_verLocal[c]||0));
+            if (_changed.length === 0) {
+              // Cache válido — activar app sin descargar nada
+              _appReady = true; setSyncStatus('ok');
+              setTimeout(() => _migrarVentasSinCaja(), 800);
+              if (currentPage) renderPage(currentPage);
+              if (session && session.rol === 'admin') _iniciarRespaldoAutomatico();
+              setTimeout(() => window._checkRecordatorios && window._checkRecordatorios(), 1500);
+              _refillIdPool().catch(() => {});
+              const _cFotos = _COLS_CON_FOTOS.some(col => (db[col]||[]).some(it => (it.fotos||[]).some(f => f && f.startsWith('data:'))));
+              if (_cFotos) await sincronizarFotosPendientes();
+              console.log('[RTDB] Cache válido ✓ — 0 descargas');
+              setTimeout(() => _verificarCajasAbiertas().catch(() => {}), 2000);
+              return;
+            }
+            // Descargar solo las que cambiaron
+            const _chSnaps = await Promise.all(_changed.map(c => firebase.database().ref('db/' + c).once('value')));
+            _rAll = {};
+            _changed.forEach((c, i) => { const v = _chSnaps[i].val(); if (v) _rAll[c] = v; });
+            _verUsada = true;
+          } else {
+            // Sin versión (primera vez o localStorage borrado): descarga completa
+            const _rSnap = await firebase.database().ref('db').once('value');
+            _rAll = _rSnap.val();
+          }
         }
         if (_rAll) {
           const _rCols = [], _rData = [];
@@ -2183,8 +2214,20 @@ async function loadFromFirebase() {
               if (items.length) { _rCols.push(col); _rData.push(items); }
             }
           });
-          if (_rChecador ? _rCols.length >= 1 : _rCols.length >= 10) {
+          if (_rChecador ? _rCols.length >= 1 : (_verUsada ? _rCols.length >= 1 : _rCols.length >= 10)) {
             await _procesarColecciones(_rCols, _rData);
+            // Guardar version hash local tras carga exitosa
+            if (!_rChecador) {
+              if (_verRemota) {
+                try { localStorage.setItem('gp__ver', JSON.stringify(_verRemota)); } catch(e) {}
+              } else {
+                // Primera vez: inicializar _ver en RTDB con todas las cols cargadas
+                const _initVer = {};
+                _rCols.forEach(c => { _initVer[c] = Date.now(); });
+                rtdb.ref('db/_ver').set(_initVer).catch(() => {});
+                try { localStorage.setItem('gp__ver', JSON.stringify(_initVer)); } catch(e) {}
+              }
+            }
             _appReady = true;
             setSyncStatus('ok');
             setTimeout(() => _migrarVentasSinCaja(), 800);
@@ -2194,7 +2237,8 @@ async function loadFromFirebase() {
             _refillIdPool().catch(() => {}); // Fix 6: _refillIdPool ya incluye la lectura/escritura de nextId — fsReadNextId() era redundante
             const _rFotos = _COLS_CON_FOTOS.some(col => (db[col]||[]).some(it => (it.fotos||[]).some(f => f && f.startsWith('data:'))));
             if (_rFotos) await sincronizarFotosPendientes();
-            console.log('[RTDB] ' + _rCols.length + ' cols cargadas' + (_rChecador ? ' [checador]' : '') + ' ✓ — 0 lecturas Firestore');
+            const _vLabel = _verUsada ? ' [ver-hash:' + _rCols.length + ']' : '';
+            console.log('[RTDB] ' + _rCols.length + ' cols cargadas' + (_rChecador ? ' [checador]' : '') + _vLabel + ' ✓ — 0 lecturas Firestore');
             // Background: verificar cajas abiertas vs Firestore (detecta escrituras RTDB perdidas)
             setTimeout(() => _verificarCajasAbiertas().catch(() => {}), 2000);
             return;
