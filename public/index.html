@@ -2219,7 +2219,7 @@ async function loadFromFirebase() {
           _verRemota = _vSnap.val();
           if (_verRemota && _verLocal) {
             // Solo descargar colecciones que cambiaron desde la última sesión
-            const _changed = FS_COLLECTIONS.filter(c => (_verRemota[c]||0) > (_verLocal[c]||0));
+            const _changed = FS_COLLECTIONS.filter(c => c !== 'facturas' && (_verRemota[c]||0) > (_verLocal[c]||0));
             if (_changed.length === 0) {
               // Cache válido — activar app sin descargar nada
               _appReady = true; setSyncStatus('ok');
@@ -2247,7 +2247,7 @@ async function loadFromFirebase() {
         }
         if (_rAll) {
           const _rCols = [], _rData = [];
-          (_rChecador ? ['checadas','checadorConfig'] : FS_COLLECTIONS).forEach(col => {
+          (_rChecador ? ['checadas','checadorConfig'] : FS_COLLECTIONS.filter(c => c !== 'facturas')).forEach(col => {
             const raw = _rAll[col];
             if (raw && typeof raw === 'object') {
               // Fix 9: FS_ARRAY_COLS (ej. clientesCredito) usa {data:{items:[]}} sin .id
