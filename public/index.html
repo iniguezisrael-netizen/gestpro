@@ -14921,6 +14921,14 @@ async function _sincronizarFacturas() {
   if ((db.facturas || []).length > 0) { window._facturasSyncDone = true; return; } // Fix 4: ya en memoria, sin leer Firestore
   window._facturasSyncDone = true;
   try {
+    // RTDB primero: ver-hash puede decir "sin cambios" pero gp_facturas vacío en localStorage
+    if (rtdb && RTDB_DUAL_WRITE) {
+      const _rSnap = await rtdb.ref('db/facturas').once('value');
+      if (_rSnap.exists()) {
+        const _rItems = Object.values(_rSnap.val()).filter(x => x && x.id != null);
+        if (_rItems.length) { db.facturas = _rItems; save('gp_facturas', db.facturas); if (currentPage === 'facturas') renderFacturas(); return; }
+      }
+    }
     // Caché primero: 0 lecturas de servidor si IndexedDB tiene datos (igual que fsReadCollection)
     let snap = null;
     try {
