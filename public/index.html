@@ -9346,8 +9346,8 @@ function _guardarFechaPagoRecibo(vtId, pagoIdx) {
 }
 window['_guardarFechaPagoRecibo'] = _guardarFechaPagoRecibo;
 
-function eliminarVentaPermanente(id) {
-  if (!can(['admin'])) { _info('Solo el administrador puede eliminar registros permanentemente.'); return; }
+async function eliminarVentaPermanente(id) {
+  if (!(await _checkAdminReal())) { _info('Solo el administrador puede eliminar registros permanentemente.'); return; }
   const vt = findById(db.ventas, id);
   if (!vt) return;
   const folio = vt.folioPedido || (vt.esPedido ? 'PED-'+String(vt.id).padStart(5,'0') : '#'+vt.id);
@@ -9680,7 +9680,7 @@ function cancelarVenta(id) {
       ? `<p>⚠️ Este ticket ya fue impreso el <strong>${vt.ticketFecha}</strong>.</p><p>¿Confirmas la cancelación?</p>`
       : `<p>¿Cancelar esta venta/pedido?</p>`;
     showModal('Cancelar venta', `<div style="text-align:center;padding:8px 0">${msg}</div>`, [
-      { label: '✕ Sí, cancelar', cls: 'btn-danger', action: () => { _doCancelar(session.nombre); } },
+      { label: '✕ Sí, cancelar', cls: 'btn-danger', action: async () => { if (!(await _checkAdminReal())) { _info('No se pudo verificar el rol de administrador. Vuelve a intentarlo.'); return; } _doCancelar(session.nombre); } },
       { label: 'No', cls: 'btn-secondary', action: closeModal }
     ]);
     return;
@@ -9953,6 +9953,7 @@ function _devBuscarVentaPorFolio(texto) {
 function abrirDevolucionModal(presetId) {
   if (can(['admin'])) {
     window._devAutorizadoPor = session.nombre;
+    window._devAuthTs = Date.now();
     _devAbrirBusqueda(presetId);
     return;
   }
@@ -9996,6 +9997,7 @@ async function _devConfirmarAutorizacion(presetId) {
     return;
   }
   window._devAutorizadoPor = `${session.nombre} (autorizó: ${adminLogin})`;
+  window._devAuthTs = Date.now();
   _devAbrirBusqueda(presetId);
 }
 window['_devConfirmarAutorizacion'] = _devConfirmarAutorizacion;
@@ -10186,7 +10188,8 @@ function _devCajaDeUsuario(usuario) {
 }
 
 function _devConfirmar(id) {
-  if (!can(['admin']) && !window._devAutorizadoPor) { _info('Esta acción requiere autorización de un administrador.'); return; }
+  const _devAuthOk = can(['admin']) || (window._devAutorizadoPor && window._devAuthTs && (Date.now() - window._devAuthTs) < 10 * 60 * 1000);
+  if (!_devAuthOk) { _info('Esta acción requiere autorización de un administrador.'); return; }
   const vt = findById(db.ventas, id);
   if (!vt) return;
   const seleccion = [];
@@ -10291,6 +10294,7 @@ function _devConfirmar(id) {
     });
 
     window._devAutorizadoPor = null;
+    window._devAuthTs = 0;
     saveDb(['ventas','cajas','materia','productos','consignacion']); closeModal(); renderVentas();
     let nota = '';
     if (cajaAfectada) nota = ' Se reflejó como salida en la caja chica de ' + cajaAfectada + '.';
