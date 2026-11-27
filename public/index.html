@@ -8999,7 +8999,7 @@ function registrarPago(id, folio) {
     { label:'💾 Guardar pago', cls:'btn-primary', action:()=>{
       const monto = parseFloat(document.getElementById('pago-monto').value);
       if (!monto || monto <= 0) { _info('Ingresa un monto válido.'); return; }
-      if (monto > saldoActual + 0.005) { _info('El monto ($' + fmt(monto) + ') supera el saldo pendiente ($' + fmt(saldoActual) + '). No puedes registrar más de lo que se debe.'); return; }
+      const _doGuardarPago = () => {
       const fecha = esAdminPago ? document.getElementById('pago-fecha').value : today();
       const hora  = horaAhora;
       const nota  = document.getElementById('pago-nota').value.trim();
@@ -9077,6 +9077,12 @@ function registrarPago(id, folio) {
         verVenta(_vtIdPago, _vtFolioPago);
         _confirm('✅ Pago registrado.\n\n¿Deseas imprimir el recibo ahora?', () => generarReciboPago(_vtIdPago, nuevoIdx, _vtFolioPago), null, {ok:'Imprimir'});
       }, 150);
+      };
+      if (monto > saldoActual + 0.005) {
+        _confirm(`El pago de $${fmt(monto)} excede el saldo pendiente ($${fmt(saldoActual)}).\n¿Deseas registrarlo de todas formas?`, _doGuardarPago, null, {ok:'Sí, registrar'});
+        return;
+      }
+      _doGuardarPago();
     }},
     { label:'Cancelar', cls:'btn-secondary', action:closeModal }
   ]);
@@ -10247,8 +10253,17 @@ function _devConfirmar(id) {
     // 2) Reducir el total por el VALOR de los artículos devueltos (no por el reembolso en efectivo).
     //    El reembolso reduce el anticipo (lo que ya se pagó). El saldo se recalcula.
     vt.total = round2(Math.max(0, (vt.total||0) - totalCalculado));
-    vt.anticipo = round2(Math.max(0, (vt.anticipo||0) - totalReembolso));
-    vt.saldo = round2(Math.max(0, vt.total - (vt.anticipo||0)));
+    if (totalReembolso > 0) {
+      if (!vt.pagos) vt.pagos = [];
+      const _notaDev = forma === 'efectivo'
+        ? (entregadoPor === 'Administrador'
+            ? 'Devolución en efectivo — Administrador (no afecta caja chica)'
+            : `Devolución en efectivo — ${entregadoPor} desde caja chica`)
+        : `Devolución vía ${formaTxt}`;
+      vt.pagos.push({ monto: -totalReembolso, fecha: today(), hora: new Date().toTimeString().slice(0,5), nota: _notaDev, recibidoPor: entregadoPor || (window._devAutorizadoPor || session.nombre), formaPago: forma, esDev: true });
+    }
+    vt.anticipo = round2(vt.pagos ? vt.pagos.reduce((s,p) => s + p.monto, 0) : 0);
+    vt.saldo = round2(Math.max(0, vt.total - vt.anticipo));
 
     // 4) Afectar caja chica SOLO si la devolución es en efectivo y la entrega secretaria/auxiliar
     // desde su propia caja. Si la entrega el Administrador directamente, o si la forma es
