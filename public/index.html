@@ -4971,6 +4971,7 @@ function delItem(tipo, id) {
   _confirm('¿Eliminar este registro?', () => {
     const item = (db[tipo]||[]).find(i => i.id === id);
     if (item) _eliminarFotosR2(item.fotos);
+    _addTombstone(tipo, id);
     db[tipo] = db[tipo].filter(i => i.id !== id);
     saveDb(tipo); renderInventario(tipo);
   }, null, {ok:'Eliminar'});
